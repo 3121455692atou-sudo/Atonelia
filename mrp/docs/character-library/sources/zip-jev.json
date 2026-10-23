@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-jev",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/9aa79fcb3cb05dfe539373e29a58d8444168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / jev-1",
+  "kind": "image",
+  "original_sha256": "3eaf540d9b3d2af09779a677696f93f0412ff3d8cab02ae60af17c719974d879",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.537877+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "JEV / JEV娘",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "JEV / JEV娘"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1253808555541135367",
+  "use": "reference-only"
+}

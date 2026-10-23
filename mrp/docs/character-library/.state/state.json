@@ -1,0 +1,9 @@
+{
+  "active": null,
+  "batches": 0,
+  "calls": 0,
+  "completed": [],
+  "measured_tokens": 0,
+  "paused": false,
+  "unmeasured_calls": 0
+}

@@ -1,0 +1,147 @@
+// xAI：完整史实树（规格 A5、A9；文件结构见 A2）。P3.T 第 2 批填写。
+// 接共享主干 core_llm，保留全部主干节点。主线照 A9：Colossus 十万卡 → Grok-1 旧代开放 → 宽松内容 → Grok 3/4 →
+// Grok 2.5 开放。本家路线节点 xa_grok1_open 转到“旧代开源 / 宽松许可”。
+// 名表只加 A9 写“内容包可选”的 hn_grok3（条件按 M 条目和 C3 的同类写法构造）；专属事件 C4 没有给这家，保持空表。
+export default {
+  company: 'grok',
+  tree: {
+    id: 'grok',
+    extends: 'core_llm',
+    branches: { base: '根基与资本', open: '开源节奏', product: '产品与分发', market: '开发者', alt: '架空' },
+    nodes: [
+      // ---- 根基与资本 ----
+      { id: 'xa_found', title: '挂着“理解宇宙”的旗号成立', desc: '先招一队明星研究员，不急着发产品，把使命讲得很大。',
+        branch: 'base', pos: [0, 0], days: 35, prereq: [], effects: { know: 10, team: 1.05 },
+        spirits: { add: [{ id: 'xa_founder' }] },
+        popup: 'none', hist: { date: '2023-03', text: '在内华达注册为公益公司，夏天公开亮相，创始团队约十一人。' }, ai: { base: 30, historic: 100 } },
+      { id: 'xa_lawsuit', title: '起诉头号对手背弃开源', desc: '抓住对手从非营利转营利的旧账打官司，顺手把自己包装成开源一方。',
+        branch: 'base', pos: [1, 0], days: 35, prereq: [['xa_found']], effects: { rep: 2 },
+        spirits: { add: [{ id: 'xa_lawsuit' }] },
+        popup: 'none', hist: { date: '2024-02-29', text: '起诉对手和其创始人，称其背弃非营利与开源的创始承诺。' }, ai: { base: 10, historic: 90 } },
+      { id: 'xa_colossus', title: '一百二十二天建十万卡', desc: '找一块电够用的地，用移动燃气机先顶住，几个月把十万张卡点亮。',
+        branch: 'base', pos: [2, 0], days: 70, prereq: [['xa_lawsuit']], bypass: { gpus: { min: 100000 } },
+        effects: { techBoost: { fp8: 0.2 } }, spirits: { add: [{ id: 'xa_colossus' }] },
+        popup: 'none', hist: { date: '2024-09', text: '自建集群在劳动节周末上线十万张加速卡，从开工到点亮只用了约四个月。' }, ai: { base: 15, historic: 95 } },
+      { id: 'xa_gigafactory', title: '扩到吉瓦级', desc: '再买楼、再拉电，把集群从十万卡扩到百万卡当量。',
+        branch: 'base', pos: [3, 0], days: 70, prereq: [['xa_colossus']],
+        effects: { raise: 0.1 }, spirits: { add: [{ id: 'xa_gigafactory' }] },
+        popup: 'none', hist: { date: '2026-01', text: '完成两百亿美元融资，买下第三栋楼，规划接近两吉瓦、至少一百万块加速卡。' }, ai: { base: 12, historic: 92 } },
+      { id: 'xa_merge_spacex', title: '并进母集团', desc: '用股票换合并，把公司并进造火箭的母公司，算力和估值一起抬上去。',
+        branch: 'base', pos: [4, 0], days: 70, prereq: [['xa_gigafactory']],
+        effects: { raise: 0.15, valuation: 1.08 }, spirits: { add: [{ id: 'xa_spacex' }] },
+        popup: 'none', hist: { date: '2026-02-02', text: '母公司以全股票方式收购这家公司，合并估值约一万二千五百亿美元。' }, ai: { base: 10, historic: 92 } },
+      { id: 'xa_ipo', title: '随母集团上市', desc: '跟着母集团一起挂牌，股票能当收购货币，季度里也要面对财报压力。',
+        branch: 'base', pos: [5, 0], days: 35, prereq: [['xa_merge_spacex']],
+        effects: { raise: 0.12, valuation: 1.05 }, spirits: { add: [{ id: 'xa_ipo' }] },
+        popup: 'none', hist: { date: '2026-06-12', text: '母集团在纳斯达克上市，成为当时史上最大的 IPO。' }, ai: { base: 10, historic: 90 } },
+
+      // ---- 开源节奏 ----
+      { id: 'xa_grok1', title: '第一个模型只给付费会员', desc: '把模型塞进社交平台的付费档，主打实时读取帖子，先让一小撮人用。',
+        branch: 'open', pos: [0, 1], days: 35, prereq: [['xa_found']],
+        effects: { brand: 1.06, demand: { chat: 1.2, days: 90 } }, spirits: { add: [{ id: 'xa_grok1' }] },
+        popup: 'none', hist: { date: '2023-11-03', text: '首个模型以早期测试形式向少量用户开放，随后面向社交平台付费会员。' }, ai: { base: 22, historic: 100 } },
+      { id: 'xa_grok1_open', title: '旧代权重放出去', desc: '把上一代基座按宽松许可公开，前沿那一代继续闭源。',
+        branch: 'open', pos: [1, 1], days: 35, prereq: [['xa_grok1']], stance: 'delayed', license: 'permissive',
+        from: ['closed', 'open_family'], excludes: ['xa_deep_closed'],
+        effects: { brand: 1.08, demand: { router: 1.15, days: 90 } }, spirits: { add: [{ id: 'xa_lag_open' }] },
+        popup: 'card', hist: { date: '2024-03-17', text: '以宽松许可公开上一代基座权重，未做对话微调。' }, ai: { base: 10, historic: 100 } },
+      { id: 'xa_grok2', title: '第一次进第一梯队', desc: '新模型接上第三方图像生成，限制比同行松，能直接画公众人物。',
+        branch: 'open', pos: [2, 1], days: 35, prereq: [['xa_grok1']], excludes: ['xa_safety_team'],
+        effects: { techRead: ['ar_image'], techBoost: { ar_image: 0.4 }, brand: 1.08 },
+        spirits: { add: [{ id: 'xa_grok2' }] }, popup: 'none',
+        hist: { date: '2024-08-13', text: '第二代模型进入第一梯队，首次接入第三方图像生成，内容限制明显更松。' }, ai: { base: 16, historic: 92 } },
+      { id: 'xa_grok3', title: '用十倍算力冲榜', desc: '在自建集群上把算力堆到上一代的十倍，加入思考模式和深度搜索。',
+        branch: 'open', pos: [3, 1], days: 70, prereq: [['xa_colossus']],
+        effects: { techRead: ['reasoning'], techBoost: { reasoning: 0.4 }, data: { post: { math: 0.3, agent: 0.3 } } },
+        spirits: { add: [{ id: 'xa_grok3' }] }, grants: { names: ['hn_grok3'] },
+        popup: 'card', hist: { date: '2025-02-17', text: '第三代模型在自建集群上训练，官方称算力是此前最强模型的十倍，并加入思考与深度搜索。' }, ai: { base: 18, historic: 100 } },
+      { id: 'xa_grok4', title: '多智能体并行推理', desc: '把多条推理链并行跑再汇总，配套推一档很贵的订阅。',
+        branch: 'open', pos: [4, 1], days: 70, prereq: [['xa_grok3']],
+        effects: { techBoost: { agentic_rl: 0.4 }, data: { post: { agent: 0.4 } } }, spirits: { add: [{ id: 'xa_grok4' }] },
+        popup: 'none', hist: { date: '2025-07-09', text: '第四代模型和多智能体并行的重型版一起发布，配套每月三百美元的订阅。' }, ai: { base: 14, historic: 95 } },
+      { id: 'xa_grok25_open', title: '旧代改用限制性许可', desc: '再放一次旧代权重，但许可加上限制条款，还许下未来开源下一代的承诺。',
+        branch: 'open', pos: [4, 2], days: 35, prereq: [['xa_grok3']], excludes: ['xa_deep_closed'],
+        effects: { brand: 1.05, demand: { router: 1.12, days: 90 } }, spirits: { add: [{ id: 'xa_promise' }] },
+        popup: 'none', hist: { date: '2025-08-23', text: '公开上一代权重，改用带限制条款的社区许可，并称下一代约半年后开源。' }, ai: { base: 10, historic: 92 } },
+      { id: 'xa_grok45', title: '和编程工具一起训练', desc: '买下编程入口，把对方的代码场景接进训练，做出更会写代码的一代。',
+        branch: 'open', pos: [6, 1], days: 70, prereq: [['xa_ipo', 'xa_grok4']],
+        effects: { techBoost: { agentic_rl: 0.5 }, data: { post: { code: 0.5 } } }, spirits: { add: [{ id: 'xa_grok45' }] },
+        popup: 'none', hist: { date: '2026-07-08', text: '与收购来的编程工具联合训练的新一代发布，主打编程、智能体和知识工作。' }, ai: { base: 12, historic: 92 } },
+
+      // ---- 产品与分发 ----
+      { id: 'xa_x_platform', title: '寄生在社交平台上', desc: '模型直接读平台上的帖子，回答带时效，用户不用另外装应用。',
+        branch: 'product', pos: [1, 3], days: 35, prereq: [['xa_grok1']],
+        effects: { demand: { chat: 1.15, days: 120 } }, spirits: { add: [{ id: 'xa_platform' }] },
+        popup: 'none', hist: { date: '2023-11', text: '模型只面向社交平台付费会员，卖点是实时读取平台信息。' }, ai: { base: 12, historic: 95 } },
+      { id: 'xa_uncensored', title: '少审查的自定义', desc: '把内容尺度调松，能画的东西更多，话题度也更高，代价是事故概率。',
+        branch: 'product', pos: [2, 3], days: 35, prereq: [['xa_grok2']], excludes: ['xa_safety_team'],
+        effects: { brand: 1.1, demand: { chat: 1.15, days: 120 }, risk: { abuse: 1.2 } },
+        spirits: { add: [{ id: 'xa_uncensored' }] }, popup: 'none',
+        hist: { date: '2024-08', text: '图像和创作功能限制明显比同行松，随后开始出现滥用和封禁争议。' }, ai: { base: 10, historic: 90 } },
+      { id: 'xa_api_app', title: '开放接口和独立应用', desc: '从付费墙后面走出来，开放接口、免费额度和独立应用。',
+        branch: 'product', pos: [3, 3], days: 35, prereq: [['xa_x_platform', 'xa_grok2']],
+        effects: { demand: { api: 1.18, chat: 1.1, days: 120 } }, spirits: { add: [{ id: 'xa_api' }] },
+        popup: 'none', hist: { date: '2024-10', text: '推出接口公测，随后向免费用户开放，并上线独立应用。' }, ai: { base: 12, historic: 90 } },
+      { id: 'xa_gov', title: '接政府合同', desc: '进政府采购名单，把模型接进国防网络，换稳定的政府收入。',
+        branch: 'product', pos: [4, 3], days: 35, prereq: [['xa_api_app']],
+        effects: { raise: 0.05 }, spirits: { add: [{ id: 'xa_gov' }] },
+        popup: 'none', hist: { date: '2025-07', text: '推出政府版，同期拿到国防部上限两亿美元的合同。' }, ai: { base: 10, historic: 88 } },
+
+      // ---- 开发者 ----
+      { id: 'xa_cheap', title: '低价快模型抢开发者', desc: '把推理和非推理合到一个便宜档里，长上下文也给足，先抢调用量。',
+        branch: 'market', pos: [5, 3], days: 35, prereq: [['xa_grok4']],
+        effects: { demand: { api: 1.2, coding: 1.1, days: 120 } }, spirits: { add: [{ id: 'xa_cheap' }] },
+        popup: 'none', hist: { date: '2025-08-28', text: '推出面向编程的低价快模型，随后又推出统一推理与非推理的快速版。' }, ai: { base: 10, historic: 88 } },
+
+      // ---- 架空 ----
+      { id: 'xa_safety_team', title: '设一个正规安全团队', desc: '不再靠创始人拍脑袋，招一支独立团队做红队和内容审核，先把事故压下去。',
+        branch: 'alt', pos: [3, 4], days: 70, prereq: [['xa_grok2']], excludes: ['xa_grok2', 'xa_uncensored'],
+        effects: { rep: 4, risk: { abuse: 0.75 }, brand: 0.96 }, spirits: { add: [{ id: 'xa_safety_team' }] },
+        popup: 'none', fiction: true, ai: { base: 3, historic: 0 } },
+      { id: 'xa_deep_closed', title: '彻底闭源', desc: '旧代也不再放权重，所有模型只走接口，把开源这面旗收起来。',
+        branch: 'alt', pos: [7, 1], days: 35, prereq: [['xa_grok4']], stance: 'closed',
+        from: ['open_family', 'delayed', 'open_restricted', 'open'], excludes: ['xa_grok1_open', 'xa_grok25_open'],
+        effects: { valuation: 1.12, brand: 0.94, demand: { api: 1.12, days: 120 } },
+        spirits: { add: [{ id: 'xa_deep_closed' }] }, popup: 'card', fiction: true, ai: { base: 2, historic: 0 } },
+    ],
+  },
+
+  // 本家特质（A2）：mods 的键都在 E3 的词表里。
+  spirits: {
+    xa_founder: { title: '创始人光环', desc: '融资和招人都快，品牌天生带话题。', mods: { brandGain: 1.08, valuation: 1.05 } },
+    xa_lawsuit: { title: '对头号对手的法律战', desc: '舆论上站住开源一方，法务支出也跟着涨。', mods: { brandGain: 1.04, cost: 1.02 } },
+    xa_colossus: { title: '闪电建厂', desc: '集群建得比同行快得多，算力来得早。', mods: { gpuQuota: 1.35, train: 1.04 } },
+    xa_gigafactory: { title: '吉瓦级集群', desc: '电和楼都按吉瓦规划，长期算力上限高。', mods: { gpuQuota: 1.3, cost: 1.03 } },
+    xa_spacex: { title: '并入母集团', desc: '母公司的钱和算力随便调，独立性没了。', mods: { gpuQuota: 1.25, brandGain: 0.95 } },
+    xa_ipo: { title: '上市', desc: '股票能当收购货币，季度财报也多一层压力。', mods: { valuation: 1.08, cost: 1.02 } },
+    xa_grok1: { title: '第一个模型', desc: '实时社交数据和反叛人设，付费会员愿意试。', mods: { chatDemand: 1.08 } },
+    xa_lag_open: { title: '滞后开源', desc: '旧代放权重，前沿继续闭源，社区有得有失。', mods: { routerDemand: 1.12, apiDemand: 0.95 } },
+    xa_grok2: { title: '第一梯队', desc: '模型终于进了前排，话题度跟着涨。', mods: { brandGain: 1.06, apiDemand: 1.05 } },
+    xa_grok3: { title: '十倍算力冲榜', desc: '把算力堆到上一代的十倍，推理和搜索一起上。', mods: { 'post.math': 1.08, 'post.agent': 1.08 } },
+    xa_grok4: { title: '多智能体并行', desc: '几条推理链一起跑，难题更稳。', mods: { 'post.agent': 1.12, 'cap.agent': 3 } },
+    xa_promise: { title: '开源承诺', desc: '社区记着那句“下一代开源”，兑现前一直有压力。', mods: { routerDemand: 1.08 } },
+    xa_grok45: { title: '编程入口', desc: '买来的编程场景直接进训练，代码能力补得快。', mods: { 'post.code': 1.12, codingDemand: 1.12 } },
+    xa_platform: { title: '社交平台分发', desc: '模型长在社交平台里，用户不用另外装应用。', mods: { chatDemand: 1.15, integrationOdds: 1.05 } },
+    xa_uncensored: { title: '少审查', desc: '能画的东西多，话题度高，滥用风险也高。', mods: { chatDemand: 1.12, brandGain: 1.06, legal: 1.15 } },
+    xa_api: { title: '开放接口', desc: '从付费墙后面走出来，开发者开始接。', mods: { apiDemand: 1.18 } },
+    xa_gov: { title: '政府合同', desc: '政府收入稳定，安全阵营不太高兴。', mods: { valuation: 1.04, legal: 1.08 } },
+    xa_cheap: { title: '低价快模型', desc: '便宜、快、上下文长，调用量涨得快。', mods: { apiDemand: 1.2, cost: 0.97 } },
+    xa_safety_team: { title: '正规安全团队', desc: '红队和审核独立成队，事故少一些。', mods: { legal: 0.82, 'cap.safety': 3, brandGain: 0.95 } },
+    xa_deep_closed: { title: '彻底闭源', desc: '旧代也不放权重，接口收入稳，社区离心。', mods: { apiDemand: 1.12, routerDemand: 0.8 } },
+  },
+  startSpirits: ['xa_founder'],
+
+  // 历史名：C3 没有 Grok 行；A9 写“内容包可选：hn_grok3”，这里按 M 条目的条件补上。
+  names: [
+    { id: 'hn_grok3', name: 'Grok 3', role: 'flagship', node: 'xa_grok3', real: '2025-02-17',
+      model: { role: 'flagship', open: false, reasoning: true, minTotal: 300 },
+      world: null, clean: 'base', events: [] },
+  ],
+
+  // 专属事件：C4 没有给 xAI 条目，保持空表（A9 也没有要求）。
+  exclusives: [],
+
+  // B6 的 y2024 写“closed（→delayed 2024-03-17）”：这一天之前有一个更早的史实节点（起诉），
+  // 按普通播种会先挑到它。这条覆盖把开局进行中的策略定成路线节点，保证开局就朝 delayed 走。
+  startOverride: { y2024: { cur: 'xa_grok1_open' } },
+};

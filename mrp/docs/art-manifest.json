@@ -1,0 +1,895 @@
+{
+  "created": "2026-10-19",
+  "generation_mode": "built-in image_gen",
+  "assets": [
+    {
+      "file": "assets/characters/claude-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "Claude桌面壁纸",
+        "date": "2026-08-24",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/aa6e8649701c91e5ac8f43ff28b97a924168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: identity-preserve. Asset type: transparent full-body anime game character sprite. Take the adult Claude woman from reference, preserving her face, very long flowing orange hair, amber eyes, large bronze sunburst hair clip with black ribbon and cream ribbons, ivory white Victorian blouse with ruffled collar and sleeves, bronze sun emblem on shoulder, dark chocolate brown skirt and corset with gold embroidery and chains. She stands facing viewer slightly three-quarter, holds a warm white cup in both hands, calm kindly small smile. Complete full-length skirt and brown boots naturally in same character design. Match original delicate high detail anime linework, warm amber cream and brown colors. Full figure centered on portrait1024x1536 canvas,5%padding with shoes and all hair included. Genuine transparent background. No scene, no text, no floor, no shadow behind, single character.",
+      "sha256": "bca7947fa3625a582898bacd39e5193df0d66f0673fefb67203a1d124cd67ec6"
+    },
+    {
+      "file": "assets/characters/deepseek-determined.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "DeepSeek V4.1 Flash",
+        "date": "2026-10-18",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/fdfbfbeb868329dfc19f0e10fd9bb72a4168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: identity-preserve. Asset type: transparent PNG anime game emotion variation. Edit the reference blue whale girl expression to determined, focused and confident for a competition: blue eyes looking directly ahead, subtle confident smile, paintbrush held upright ready. Keep exactly her original character identity, blue long braid, gold round glasses and chain, whale ears, navy painter beret with whale pin, white blouse with navy ribbon, blue paint-splashed long cloak, navy plaid skirt, white thighhighs, blue lace-up shoes, whale tail. Same full-body front-facing composition and full outfit as reference. Keep all extremities in frame, at least5% padding, portrait aspect about2:3, character centered. Professional clean high detail Japanese anime game sprite. Actual transparent background, no scenery, no text, no extra objects, single character.",
+      "sha256": "3df91df67af1492fabdd56f8dc11f76a21a4fea8de7fc1f9d0c419ff02383e27"
+    },
+    {
+      "file": "assets/characters/deepseek-happy.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "DeepSeek V4.1 Flash",
+        "date": "2026-10-18",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/fdfbfbeb868329dfc19f0e10fd9bb72a4168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: identity-preserve. Asset type: transparent PNG anime game emotion variation. Edit the reference blue whale girl only in facial expression and the hand gesture: very happy after successful training, warm bright smile with closed smiling eyes, small celebratory fist with her right hand instead of holding brush. Keep exactly her original character identity, blue eyes when visible, blue long braid, gold round glasses and chain, whale ears, navy painter beret with whale pin, white blouse with navy ribbon, blue paint-splashed long cloak, navy plaid skirt, white thighhighs, blue lace-up shoes, whale tail. Same full-body front-facing composition, same proportions and full outfit as reference. Keep all extremities in frame, at least 5% padding, portrait aspect about 2:3, character centered. Professional clean high detail Japanese anime game sprite. Actual fully transparent background, no shadows behind, no scenery, no text, no extra objects, single character.",
+      "sha256": "373f55c612d77c41c45a31d2e0ab854375e8e822bd2de04e23610768532129c5"
+    },
+    {
+      "file": "assets/characters/deepseek-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "DeepSeek V4.1 Flash",
+        "date": "2026-10-18",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/fdfbfbeb868329dfc19f0e10fd9bb72a4168597.png"
+      },
+      "transform": "original transparent PNG",
+      "prompt": null,
+      "sha256": "65644fd65984bfdec75bf20e39e1f1b3c836395361f5ad7a13ef423228cb837b"
+    },
+    {
+      "file": "assets/characters/deepseek-worried.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "DeepSeek V4.1 Flash",
+        "date": "2026-10-18",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/fdfbfbeb868329dfc19f0e10fd9bb72a4168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: identity-preserve. Asset type: transparent PNG anime game emotion variation. Edit the reference blue whale girl only in facial expression: slightly worried or fatigued after a training setback, gently raised inner eyebrows, small uncertain closed mouth, blue eyes looking toward viewer, holding paintbrush. Keep original friendly dignity, no tears. Keep exactly her original character identity, blue long braid, gold round glasses and chain, whale ears, navy painter beret with whale pin, white blouse navy ribbon, blue paint-splashed long cloak, navy plaid skirt, white thighhighs, blue lace-up shoes, whale tail. Same full-body front-facing composition, same pose and full outfit as reference. All extremities in frame, at least5%padding, portrait aspect about2:3, character centered. Professional clean high detail Japanese anime game sprite. Actual fully transparent background, no scenery, no text, single character.",
+      "sha256": "393e6a38de769c95a293c292fe2e2e8447f43d8c5f39e6936f2070f571faf107"
+    },
+    {
+      "file": "assets/characters/gemini-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "Gemini 4 Argon",
+        "date": "2026-10-15",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/ac599e0be5f90f23dadbb99b5383b8164168597.png"
+      },
+      "transform": "original transparent PNG",
+      "prompt": null,
+      "sha256": "af75c1b2978855fc9158860aaf5d74046f0068ebcec4dcbb029f4589687a4db3"
+    },
+    {
+      "file": "assets/characters/gpt-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "GPT-6 Astra",
+        "date": "2026-09-05",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/ca49c0d4a7e4483013a6db8e475f01484168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: background-extraction. Asset type: transparent full-body game sprite. Remove the entire pale purple cosmic background, planet rings, sparkles, floor and shadows from reference. Keep the single original GPT Astra anime dragon girl exactly: long white hair, white curled dragon horns, white dragon wings and tail, purple eyes, navy and white flowing gown with gold moon and celestial accents and purple gems, white heeled shoes, pose and expression. Preserve every character detail and clean edges around long hair and wings. Entire full figure with5%padding on portrait canvas, truly transparent background, no background gradient or scenery, no text.",
+      "sha256": "8194cc9f984c749dc08314605616825857789e271752b51e25de18354d283ccf"
+    },
+    {
+      "file": "assets/characters/qwen-determined.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "千问桌面壁纸",
+        "date": "2026-08-23",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/14bb1e53cb2c13ca80bd23e3c1d2a04e4168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: identity-preserve. Asset type: anime game character facial expression variation. Edit ONLY the face of the reference Qwen woman to be focused and confident for a competition, violet eyes looking ahead with determined subtly lowered eyebrows and slight confident smile. Preserve exact character identity and all other details: lavender blue long hair and braid, navy ruffled cap with white Qwen symbol, white high-neck Chinese blouse, navy golden-brocade robe, white gloves, blue floral folding fan, long white and navy skirt, white shoes. Preserve the identical full-body pose, framing, proportions, hand positions, clothing, color, anime illustration rendering, transparent background. No scenery, no text, no extra symbols, no crop, 5%padding, entire figure. One single character per image, portrait aspect2:3, full transparency.",
+      "sha256": "3fb895a613fa6edf49f038c8fe43dc1a68aee5fd5cb1f4130eea06498a86a39d"
+    },
+    {
+      "file": "assets/characters/qwen-happy.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "千问桌面壁纸",
+        "date": "2026-08-23",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/14bb1e53cb2c13ca80bd23e3c1d2a04e4168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: identity-preserve. Asset type: anime game character facial expression variation. Edit ONLY the face of the reference Qwen woman to be very happy with closed smiling eyes and a natural small open-mouth smile, a gentle proud expression after learning something new. Preserve exact character identity and all other details: lavender blue long hair and braid, navy ruffled cap with white Qwen symbol, white high-neck Chinese blouse, navy golden-brocade robe, white gloves, blue floral folding fan, long white and navy skirt, white shoes. Preserve the identical full-body pose, framing, proportions, hand positions, clothing, color, anime illustration rendering, transparent background. No scenery, no text, no extra symbols, no crop, 5%padding, entire figure. One single character per image, portrait aspect2:3, full transparency.",
+      "sha256": "c4256f1cbb192e4f3810bb7db91c829b6a68c67988f2d4260a6519c3e8cdebb4"
+    },
+    {
+      "file": "assets/characters/qwen-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "千问桌面壁纸",
+        "date": "2026-08-23",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/14bb1e53cb2c13ca80bd23e3c1d2a04e4168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: identity-preserve. Asset type: full-body transparent anime game character sprite. Reference image is the original Qwen girl character. Recreate exactly this same adult anime woman in a standing full-body pose, preserving blue-lavender long hair with side braid, blue violet eyes, little navy and white ruffled cap with white tri-petal Qwen emblem, gold tassel earrings, refined white high-neck Chinese style blouse with frog buttons, navy robe with detailed gold brocade edges, blue ribbons, navy long skirt with gold-trimmed pleats, white gloves, holding her blue floral folding fan in right hand. Gentle friendly small smile looking toward viewer. Visible shoes, elegant white low-heel shoes. Preserve original beautiful delicate anime lineart and colors, all clothing details of upper body, complete lower body tastefully in same style. Full figure centered with 5% padding, portrait canvas approx1024x1536. Fully transparent background, no scene, no text, no other person, no ground shadow. Do not crop hair or feet.",
+      "sha256": "d49294979ca003393bf765c32a233fdd8fcab3e3969079d35a82052445fc0e45"
+    },
+    {
+      "file": "assets/characters/qwen-worried.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "title": "千问桌面壁纸",
+        "date": "2026-08-23",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/14bb1e53cb2c13ca80bd23e3c1d2a04e4168597.png"
+      },
+      "transform": "built-in image_gen; transparent PNG",
+      "prompt": "Use case: identity-preserve. Asset type: anime game character facial expression variation. Edit ONLY the face of the reference Qwen woman to be slightly worried and tired, eyebrows gently raised at inner corners, soft small uncertain closed mouth, violet eyes open, no tears. Preserve exact character identity and all other details: lavender blue long hair and braid, navy ruffled cap with white Qwen symbol, white high-neck Chinese blouse, navy golden-brocade robe, white gloves, blue floral folding fan, long white and navy skirt, white shoes. Preserve the identical full-body pose, framing, proportions, hand positions, clothing, color, anime illustration rendering, transparent background. No scenery, no text, no extra symbols, no crop, 5%padding, entire figure. One single character per image, portrait aspect2:3, full transparency.",
+      "sha256": "4be447ad47b67f856f21e615976844b76f2c6eb7937b6bf2b005801a03a70fd4"
+    },
+    {
+      "file": "assets/backgrounds/sunlit-atelier.png",
+      "source_creator": "imagegen",
+      "transform": "built-in image_gen; opaque scene",
+      "prompt": "Use case: stylized-concept. Asset type: standalone background art for an anime raising game. Paint a beautiful bright modern research atelier with tall ivory arched windows on the left, clear blue sky and distant leafy garden and small campus through windows, warm morning sun, subtle curtains and green trailing vines, pale wooden desk in right midground with open laptop and small pot plant, a couple of books and coffee cup lower right, polished warm cream floor, soft watercolor anime environment painting with fine detailed architectural lines. Palette warm ivory, sky blue, sage green, light honey wood. Premium Japanese visual novel background, gentle pleasant comfortable, no people or animals, no text, no logos, no UI. Wide landscape composition approximately 1536x1024. Large clean open central space for a separate character overlay, horizon around middle, atmospheric depth, foreground detail mostly at lower sides. Not photo, not 3D, no dark lab or neon.",
+      "sha256": "bf5f1ea633e50f68ada3c7e8c76f5ea89acefe1ffde35199a72cf41208c50316"
+    },
+    {
+      "file": "docs/design-direction.png",
+      "purpose": "视觉方向稿；未作为可交互页面整图使用",
+      "transform": "built-in image_gen; UI mockup",
+      "reference": "ZipZipPipe DeepSeek V4.1 Flash 画家形象，来源见 DeepSeek 资产项",
+      "prompt": "Use case: ui-mockup. Create a polished 1536x1024 desktop browser game interface visual concept for a Chinese anime AI-model raising simulation titled 模型育成计划, subtitle NEXT ITERATION. Input image is CHARACTER DESIGN reference: use exactly her blue braided hair, gold round glasses, whale ears, navy painter beret with whale pin, white blouse and blue artist cloak, cute blue whale tail. Adult anime character, expressive natural cheerful face. Interface is a premium sunny light-mode anime strategy/raising game: warm ivory background, desaturated deep teal navy typography, ocean blue primary buttons, pale sage and peach secondary accents, fine hairline borders, subtle texture, editorial refined restrained Japanese game HUD, very readable, no neon, no dark sci-fi grids. Layout wide: 90px slim left icon navigation with 7 entries; compact top bar with game logotype on left and funds 2400K, compute 140CU, readiness85%, round01 on right; left-center takes 55% wide showing a bright warm sunlit modern research studio with tall arched windows, pale blue sky, distant greenery, computer desk and small plants, large full-body blue-haired referenced character center, tasteful floating nameplate DeepSeek / 小肥鱼, a white translucent dialogue card near bottom; right 38% white action panel with title 今天，想进步一点点, subtitle TRAINING PLAN, 6 refined selection cards in 2columns for different training activities with small line icons and one ocean-blue selected card, three intensity pills, compact cost and gain summary, prominent blue rounded button 开始训练. Bottom ribbon six equal stat cells with current values 450, coral/pale blue/pale sage thin bars labelled 博识 推理 代码 表达 长程 可靠. Include little season banner 春 · 第一季 and subtle upcoming competition card. Looks like a real thoughtfully designed game screenshot, stunning character art at center, coherent comfortable spacing, no dense dashboard clutter, not mobile app collage. Chinese labels as specified. Output one complete UI design mockup image.",
+      "sha256": "92d6282b97406230f817e69fe1a76e946a7e366ac084990aa54146a8e07da7c1"
+    },
+    {
+      "file": "assets/characters/deepseek_pro-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch1-1",
+        "title": "所有的AI们，和OpenCode",
+        "page_url": "https://www.bilibili.com/opus/1233069202138464289",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/1d6f202c991dbfb75b57fd68732d75e84168597.png",
+        "date": "8月5日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch1-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving image edit for a local anime game. Isolate the same blue long-haired whale girl in navy and white maid dress, whale tail, fin ears and maid bonnet. Preserve her exact recognizable character design, hair, face, accessories, colors, clothing and clean anime style. One full-body standing sprite, shoes, hair and every accessory entirely included, centered tall composition with 5% margin. Keep original pose except where number board must be removed. Friendly neutral expression. Transparent background with precise alpha. No white background, scenery, shadows, glow, other characters or text labels.",
+      "sha256": "6d5c3611da258a37741c40fb5ed433a6223375fa81c31216fbae4ef8f0da8f06",
+      "rights": "CC BY-NC-SA 4.0 · 上善无形原设 / ZipZipPipe 二创"
+    },
+    {
+      "file": "assets/characters/kimi-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch1-2",
+        "title": "所有的AI们，和OpenCode",
+        "page_url": "https://www.bilibili.com/opus/1233069202138464289",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/1f099083c8f81427754a9306733239164168597.png",
+        "date": "8月5日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch1-2",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving edit for a local anime game. Create the same Kimi moon maid with long silver hair, midnight blue and white ruffled dress, crescent and K badges, musical instrument staff, soft neutral expression. Preserve outfit, proportions, all details and the complete existing pose. Remove only the white background. A single full body character, every hair tip, shoe, horn, tail and accessory in frame, 5% margin, centered vertical canvas. Clean precise anime linework, same soft colors and illustrated style as source. Genuine transparent background. No scenery, ground, shadow, glow, text labels, watermark, or other characters.",
+      "sha256": "e18519e2ff08b195788e579a6ec7896f3e200b406aaae6c21a526cc12769e439",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/glm-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch1-3",
+        "title": "所有的AI们，和OpenCode",
+        "page_url": "https://www.bilibili.com/opus/1233069202138464289",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/bd4e1c7e49fbb563549dc805c39cfb4c4168597.png",
+        "date": "8月5日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch1-3",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving edit for a local anime game. Create the same GLM fox maid with long black hair, black fox ears and large tail, black and white ornate maid dress, sleeping mask on head, silver Z badges and GLM book. Preserve exactly the identity and outfit, neutral gentle focused expression. Remove only white background. A single full body character, every hair tip, shoe, horn, tail and accessory in frame, 5% margin, centered vertical canvas. Clean precise anime linework, same soft colors and illustrated style as source. Genuine transparent background. No scenery, ground, shadow, glow, text labels, watermark, or other characters.",
+      "sha256": "aec0e71dd3c8fdcb102f87faf894d8d080e63fbd2f2486106ea6bd1d83c64b85",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/grok-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch1-8",
+        "title": "所有的AI们，和OpenCode",
+        "page_url": "https://www.bilibili.com/opus/1233069202138464289",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/b812d87ec38b8b13a6a6ef148b3aef3b4168597.jpg",
+        "date": "8月5日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch1-8",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving edit: isolate the same blonde twin-tailed friendly vampire woman with blue eyes, black gold and burgundy ornate long dress, batwing hair accents, gold crown and the large X-shaped poleaxe. Preserve exactly the same identity, face, proportions, outfit, colors and all accessories. One complete full-body anime game sprite, top of horns to soles, all hair, tails and handheld items inside frame with 5% margin. Clean transparent background with precise alpha; remove white background, cast shadow and floor. No scenery, glow, extra characters or added labels.",
+      "sha256": "a1128238d4f8fb3fe237c3beec1fc5cfbc12ab6f7a4ee731a55ff48fb7e42227",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/seed-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch2-1",
+        "title": "AI娘第二批，有Seed（豆包底模）",
+        "page_url": "https://www.bilibili.com/opus/1236803362705375305",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/1ed69d8c1e9d61dce44db50894447a1e4168597.jpg",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch2-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving image edit for a local anime game. Isolate the same purple and cyan-haired Seed woman in a white purple cyan stage costume with a removable character mask, clipboard and sneakers. Preserve her exact recognizable character design, hair, face, accessories, colors, clothing and clean anime style. One full-body standing sprite, shoes, hair and every accessory entirely included, centered tall composition with 5% margin. Keep original pose except where number board must be removed. Friendly neutral expression. Transparent background with precise alpha. No white background, scenery, shadows, glow, other characters or text labels.",
+      "sha256": "9dbebb475ca3f7864f816f4c83a78c88071e91d3ed6b0898e57f957f3ed2dca8",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/rwkv-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch2-2",
+        "title": "AI娘第二批，有Seed（豆包底模）",
+        "page_url": "https://www.bilibili.com/opus/1236803362705375305",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/304320365bebd151190e1afc91b261ee4168597.png",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch2-2",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Faithful reference image edit: isolate the same purple-haired RWKV raven woman with dark feathered wings, violet black feather dress, clawed boots, halo, shoulder raven and her distinctive badges. Preserve exactly the reference face, outfit, colors, proportions, pose and accessories. One single full-body anime game sprite. Entire figure including feet, all wings/tail and accessories in frame with 5% margin, centered tall canvas. Remove the white background cleanly to transparent alpha. Do not add any background, glow, floor, shadows, extra characters, or labels.",
+      "sha256": "6efb288863b0dda49c714720776a3993266bbcb2341b6a8f3024147edf5e6bd2",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/ernie-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch2-3",
+        "title": "AI娘第二批，有Seed（豆包底模）",
+        "page_url": "https://www.bilibili.com/opus/1236803362705375305",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/0d3b71b2bc968e1dd6ffcbdeedde295e4168597.jpg",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch2-3",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Faithful reference image edit: isolate the same blue-haired Ernie / Wenxin woman in a blue and white long dress seated in her wheelchair, oxygen equipment, books and blue geometric badges. Keep her wheelchair and associated equipment as part of her sprite. Preserve exactly the reference face, outfit, colors, proportions, pose and accessories. One single full-body anime game sprite. Entire figure including feet, all wings/tail and accessories in frame with 5% margin, centered tall canvas. Remove the white background cleanly to transparent alpha. Do not add any background, glow, floor, shadows, extra characters, or labels.",
+      "sha256": "2f3c3feb6a7b2113af98e65a926cf23dc5b9e752b4bdfd768d4ead617bb9bffe",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/mistral-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch2-4",
+        "title": "AI娘第二批，有Seed（豆包底模）",
+        "page_url": "https://www.bilibili.com/opus/1236803362705375305",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/60bb256121d10c9f54af8d8f9e80e6c14168597.jpg",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch2-4",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving image edit for a local anime game. Isolate the same orange-haired cat musketeer woman, red plumed hat, red white gold ornate long dress, baguette sword and red shoes. Preserve her exact recognizable character design, hair, face, accessories, colors, clothing and clean anime style. One full-body standing sprite, shoes, hair and every accessory entirely included, centered tall composition with 5% margin. Keep original pose except where number board must be removed. Friendly neutral expression. Transparent background with precise alpha. No white background, scenery, shadows, glow, other characters or text labels.",
+      "sha256": "917f39e19594e059cb53bbae16bc857ace7db88520eacf51a6828be067653e65",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/minimax-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch2-5",
+        "title": "AI娘第二批，有Seed（豆包底模）",
+        "page_url": "https://www.bilibili.com/opus/1236803362705375305",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/c0833654a2afa9fec0a8abc6cb7108bb4168597.jpg",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch2-5",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving image edit for a local anime game. Isolate the same short orange-haired MiniMax woman with pale pink cap, white pink coat, plaid skirt, recording gear and pink sneakers. Preserve her exact recognizable character design, hair, face, accessories, colors, clothing and clean anime style. One full-body standing sprite, shoes, hair and every accessory entirely included, centered tall composition with 5% margin. Keep original pose except where number board must be removed. Friendly neutral expression. Transparent background with precise alpha. No white background, scenery, shadows, glow, other characters or text labels.",
+      "sha256": "b0c1f9b0e9e0f88d51903f5c436b7adc07d714da56b3195e4d73fbd1bd7a7d2e",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/perplexity-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch2-6",
+        "title": "AI娘第二批，有Seed（豆包底模）",
+        "page_url": "https://www.bilibili.com/opus/1236803362705375305",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/68f0f9f937ebeeb3ab44cac78fc63a504168597.png",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch2-6",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Faithful reference image edit: isolate the same teal long-haired Perplexity woman, glasses and headphones, teal black long robe over white dress, a teal geometric compass staff, books and lantern accessories. Preserve exactly the reference face, outfit, colors, proportions, pose and accessories. One single full-body anime game sprite. Entire figure including feet, all wings/tail and accessories in frame with 5% margin, centered tall canvas. Remove the white background cleanly to transparent alpha. Do not add any background, glow, floor, shadows, extra characters, or labels.",
+      "sha256": "689bc373531fed21f76a9e36e6738d757a3beaf528e66b739bdf6977b8aa21b6",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/image2-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch2-7",
+        "title": "AI娘第二批，有Seed（豆包底模）",
+        "page_url": "https://www.bilibili.com/opus/1236803362705375305",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/8be20146d55bf46c3ac2b7bd2cacc55a4168597.png",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch2-7",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Faithful reference image edit: isolate the same dark-skinned Image 2 black dragon woman with long black hair, gold eyes, black horns and wings, gold-trimmed black long dress, artist clipboard and pen. Preserve exactly the reference face, outfit, colors, proportions, pose and accessories. One single full-body anime game sprite. Entire figure including feet, all wings/tail and accessories in frame with 5% margin, centered tall canvas. Remove the white background cleanly to transparent alpha. Do not add any background, glow, floor, shadows, extra characters, or labels.",
+      "sha256": "070687eaf5d3f1cdb7c1d154ec4390298aca3af8d53351afe56440aae736c71a",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/llama-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch2-9",
+        "title": "AI娘第二批，有Seed（豆包底模）",
+        "page_url": "https://www.bilibili.com/opus/1236803362705375305",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/83b4ccd1ab6e9729a3cb57cf347f54844168597.png",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch2-9",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Faithful reference image edit: isolate the same ivory-haired Llama girl with furry llama ears, cream oversized hoodie and long skirt, blue infinity emblems, fluffy slippers and small furry tail. Preserve exactly the reference face, outfit, colors, proportions, pose and accessories. One single full-body anime game sprite. Entire figure including feet, all wings/tail and accessories in frame with 5% margin, centered tall canvas. Remove the white background cleanly to transparent alpha. Do not add any background, glow, floor, shadows, extra characters, or labels.",
+      "sha256": "bc8da5ac784009d56e2a05ebd46973d7bae451af53f1afb73cedec44cfae166c",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/hunyuan-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "hunyuan-1",
+        "title": "是HY娘哦",
+        "page_url": "https://www.bilibili.com/opus/1242184338245681157",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/2006228e1c475336a03096c87285bbba4168597.png",
+        "date": "8月30日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / hunyuan-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving edit: isolate the same long black-haired Hunyuan woman in pale blue and white Chinese-style long dress, black warm cloak, red scarf, jade ornaments, abacus and tiny penguin accessory. Preserve exactly the same identity, face, proportions, outfit, colors and all accessories. One complete full-body anime game sprite, top of horns to soles, all hair, tails and handheld items inside frame with 5% margin. Clean transparent background with precise alpha; remove white background, cast shadow and floor. No scenery, glow, extra characters or added labels.",
+      "sha256": "a2f3c356a6a7bc5ec6927d25a36da01241bcc76d6d3578ac8cc10e2ebc522004",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/stepfun-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "stepfun-1",
+        "title": "StepFun娘化",
+        "page_url": "https://www.bilibili.com/opus/1257516954839678982",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/c0922a3ee6a084bd9563e02a6fcac34b4168597.png",
+        "date": "10月10日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / stepfun-1",
+      "transform": "unmodified original transparent PNG",
+      "prompt": null,
+      "sha256": "0453c1fa600fc6e6b85a7cf4f1e77e5c22d958c233c4c98f9487d7ac6f7dd8c0",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/novelai-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "novelai-1",
+        "title": "Novel AI娘",
+        "page_url": "https://www.bilibili.com/opus/1243825685770797113",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/c05af80bf59d4dcd075be5fe9bf095f74168597.png",
+        "date": "9月3日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / novelai-1",
+      "transform": "unmodified original transparent PNG",
+      "prompt": null,
+      "sha256": "dc6d6f0b4ec0061998cd804f6866322d164e2b744841115c36310f368ed0be6d",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/midjourney-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "generative-1",
+        "title": "2万粉贺图——生成式大模型",
+        "page_url": "https://www.bilibili.com/opus/1244061599751208994",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/eb31f931f79a757d590c66da8bcc63954168597.png",
+        "date": "9月4日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / generative-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Create ONE clean game character standing sprite based faithfully on the attached ZipZipPipe five-character illustration. Extract and complete ONLY the SECOND girl from the LEFT: dark navy long hair, golden eyes, navy captain hat with rainbow sailboat badge, ornate navy and gold naval coat, skirt with luminous sailing ships on blue sea, lace-up dark boots. Preserve this character's recognizable identity, clothing colors and accessories. Full body from top of hat or hair to soles, generous margin, centered vertical composition, polished Japanese anime game illustration with precise clean linework and soft cel shading, balanced tall 6-head proportions. Friendly neutral standing pose with hands relaxed, do not hold any number board. No other characters, no number boards, no confetti, no text, no scenery, no cast shadow. Transparent background with clean alpha. This is a reference-based individual character adaptation for a local game.",
+      "sha256": "c08ec5f3a442033d432cffb2d2a9ef31a7aa32dfe1601c99243d036227e17a81",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/suno-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "generative-1",
+        "title": "2万粉贺图——生成式大模型",
+        "page_url": "https://www.bilibili.com/opus/1244061599751208994",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/eb31f931f79a757d590c66da8bcc63954168597.png",
+        "date": "9月4日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / generative-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Create ONE clean game character standing sprite based faithfully on the attached ZipZipPipe five-character illustration. Extract and complete ONLY the CENTER girl, THIRD from the LEFT: long black hair with vivid purple and orange tips, orange-violet eyes, black over-ear music headphones with orange S emblems, cropped black and orange purple music jacket over white dress, black thigh-high socks, chunky black purple orange sneakers. Preserve this character's recognizable identity, clothing colors and accessories. Full body from top of hat or hair to soles, generous margin, centered vertical composition, polished Japanese anime game illustration with precise clean linework and soft cel shading, balanced tall 6-head proportions. Friendly neutral standing pose with hands relaxed, do not hold any number board. No other characters, no number boards, no confetti, no text, no scenery, no cast shadow. Transparent background with clean alpha. This is a reference-based individual character adaptation for a local game.",
+      "sha256": "5ae9242e2f4dd463a46b83863e331ced72c97d45bcce9725d6d05e4bf6e709e9",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/elevenlabs-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "generative-1",
+        "title": "2万粉贺图——生成式大模型",
+        "page_url": "https://www.bilibili.com/opus/1244061599751208994",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/eb31f931f79a757d590c66da8bcc63954168597.png",
+        "date": "9月4日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / generative-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Create ONE clean game character standing sprite based faithfully on the attached ZipZipPipe five-character illustration. Extract and complete ONLY the FAR RIGHT girl, FIFTH from the LEFT: long black hair fading to pale teal ends, gray eyes, black over-ear headphones with two vertical white bars, a white long dress beneath a black lightweight cardigan, tiny feather decorations, plain black shoes. Preserve this character's recognizable identity, clothing colors and accessories. Full body from top of hat or hair to soles, generous margin, centered vertical composition, polished Japanese anime game illustration with precise clean linework and soft cel shading, balanced tall 6-head proportions. Friendly neutral standing pose with hands relaxed, do not hold any number board. No other characters, no number boards, no confetti, no text, no scenery, no cast shadow. Transparent background with clean alpha. This is a reference-based individual character adaptation for a local game.",
+      "sha256": "e427a6ac1d154695df3ab066b7427fa8e7261f8967d4f1f6414d4b3962eaea7c",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/fable-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "ninek-1",
+        "title": "9000粉丝贺图——往日种种",
+        "page_url": "https://www.bilibili.com/opus/1237359535163703301",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/c3123707ec30630ef5b7f3073f0ddb894168597.png",
+        "date": "8月17日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / ninek-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving image edit for a local anime game. Isolate ONLY the LEFT orange-haired woman Fable 5 in a white classical Greek dress, black orange embroidered cloak, gold laurel, golden sunburst jewellery. Remove the number board and the other blue-haired wheelchair girl; restore both hands naturally. A single classical philosopher woman with her arms relaxed. Preserve her exact recognizable character design, hair, face, accessories, colors, clothing and clean anime style. One full-body standing sprite, shoes, hair and every accessory entirely included, centered tall composition with 5% margin. Keep original pose except where number board must be removed. Friendly neutral expression. Transparent background with precise alpha. No white background, scenery, shadows, glow, other characters or text labels.",
+      "sha256": "cf4992fb344e38832ad620ffe3f857834522b159712ed59d219d0fe24f82131a",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/jev-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "jev-1",
+        "title": "JEV娘",
+        "page_url": "https://www.bilibili.com/opus/1253808555541135367",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/9aa79fcb3cb05dfe539373e29a58d8444168597.png",
+        "date": "9月30日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / jev-1",
+      "transform": "unmodified original transparent PNG",
+      "prompt": null,
+      "sha256": "3eaf540d9b3d2af09779a677696f93f0412ff3d8cab02ae60af17c719974d879",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/opencode-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch1-9",
+        "title": "所有的AI们，和OpenCode",
+        "page_url": "https://www.bilibili.com/opus/1233069202138464289",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/de8addda736dba61ad620718c42dcfe54168597.png",
+        "date": "8月5日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch1-9",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving edit: isolate the same long black-haired OpenCode mechanical dragon woman with angular mechanical horns, square pupils, grey black white futuristic long dress, mechanical joints, black long hair and silver sandals. Preserve exactly the same identity, face, proportions, outfit, colors and all accessories. One complete full-body anime game sprite, top of horns to soles, all hair, tails and handheld items inside frame with 5% margin. Clean transparent background with precise alpha; remove white background, cast shadow and floor. No scenery, glow, extra characters or added labels.",
+      "sha256": "5d24d55a75eb0a97b329f2f7d48f06bf2696a81a4bab72ed5674632a3bceb142",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/codex-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "dragons-3",
+        "title": "龙娘三视图",
+        "page_url": "https://www.bilibili.com/opus/1238613841710940181",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/bd0cb73baf0560988251850acac160914168597.png",
+        "date": "8月20日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / dragons-3",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving edit for a local anime game. Create ONLY the Codex dragon girl shown in the LEFT front view of the three-view sheet. White long wavy hair, lavender eyes, white dragon horns, terminal cloud badge near her right temple, white loose off-shoulder long-sleeved knee-length dress with tiny blue bows, pen pocket, white fluffy slippers and lavender dragon tail. Preserve reference identity and outfit. Make ONE front full-body standing neutral sprite. Remove all side/back duplicate figures and white background. A single full body character, every hair tip, shoe, horn, tail and accessory in frame, 5% margin, centered vertical canvas. Clean precise anime linework, same soft colors and illustrated style as source. Genuine transparent background. No scenery, ground, shadow, glow, text labels, watermark, or other characters.",
+      "sha256": "bc1e01526b1d956afee973eb5c49a5ab0334a85832f50b8096f999ec74cafc4c",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/github_copilot-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "github-copilot-1",
+        "title": "GitHub Copilot",
+        "page_url": "https://www.bilibili.com/opus/1258988140077514757",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/c791c9a063b0c2e4fbbf58b7a20b2d064168597.png",
+        "date": "10月14日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / github-copilot-1",
+      "transform": "unmodified original transparent PNG",
+      "prompt": null,
+      "sha256": "4978e1ee21470cd1a1dd550a83b259e7e55f78204a3166f3f4f47fc9e34c364a",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/microsoft_copilot-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "microsoft-copilot-1",
+        "title": "Microsoft Copilot",
+        "page_url": "https://www.bilibili.com/opus/1258535892903002133",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/5bc2e51a38c02ebc637f8b2ba84ed7b64168597.png",
+        "date": "10月13日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / microsoft-copilot-1",
+      "transform": "unmodified original transparent PNG",
+      "prompt": null,
+      "sha256": "0e93963c2b2675b1d1c1cdecbf490e1ab13bba8cfabf37dcf344ff048e3af32e",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/lobehub-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "lobehub-1",
+        "title": "lobehub娘",
+        "page_url": "https://www.bilibili.com/opus/1257825333538717705",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/7d2ce06dfd9e963a4956ed679367e96c4168597.png",
+        "date": "10月11日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / lobehub-1",
+      "transform": "unmodified original transparent PNG",
+      "prompt": null,
+      "sha256": "2decd148d7db64957f6ace68bada0be346acf5430554ed43554e39c4c1a28352",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/zcode-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "zcode-1",
+        "title": "Zcode娘人设",
+        "page_url": "https://www.bilibili.com/opus/1240327263126290448",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/67c7470246033263aa54d3ea640212e74168597.png",
+        "date": "8月25日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / zcode-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving edit: isolate the same white fox-eared Zcode woman with silver long hair and large fox tail, sleeping mask with Z, white blouse, pale blue apron and long skirt, bells, blueprint roll and white shoes. Preserve exactly the same identity, face, proportions, outfit, colors and all accessories. One complete full-body anime game sprite, top of horns to soles, all hair, tails and handheld items inside frame with 5% margin. Clean transparent background with precise alpha; remove white background, cast shadow and floor. No scenery, glow, extra characters or added labels.",
+      "sha256": "3899793cdc17a14058d97c765e32ad306c22b045161b712b16ced5b66a62c62b",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/deepseek_harness-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "deepseek-harness-1",
+        "title": "DeepSeek Harness",
+        "page_url": "https://www.bilibili.com/opus/1236362986801594377",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/77271977a303769b8175fd7dcc584c5d4168597.png",
+        "date": "8月14日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / deepseek-harness-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Reference-preserving edit: isolate the same black and white whale maid with long black hair, one red and one blue eye, harness-like belts on a black white long maid dress, small fin ears and whale tail. Preserve exactly the same identity, face, proportions, outfit, colors and all accessories. One complete full-body anime game sprite, top of horns to soles, all hair, tails and handheld items inside frame with 5% margin. Clean transparent background with precise alpha; remove white background, cast shadow and floor. No scenery, glow, extra characters or added labels.",
+      "sha256": "8035dad86393e7c6f7ad64fe50c9ca2f9b43b02587e260ab7466104ab043e23e",
+      "rights": "CC BY-NC-SA 4.0 · 上善无形原设 / ZipZipPipe 二创"
+    },
+    {
+      "file": "assets/characters/huggingface-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "huggingface-1",
+        "title": "Hugging Face",
+        "page_url": "https://www.bilibili.com/opus/1246404332576833541",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/4bbbdb46e485457311f827d9912ab7d84168597.png",
+        "date": "9月10日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / huggingface-1",
+      "transform": "unmodified original transparent PNG",
+      "prompt": null,
+      "sha256": "0f848d326d441b9827351c7673a0a2a735234a9bad2237f5362958725f3d7962",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/ascend-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "ascend-1",
+        "title": "昇腾娘",
+        "page_url": "https://www.bilibili.com/opus/1254840996970102805",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/99c25a09188e27100933426d22437ffd4168597.png",
+        "date": "10月3日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / ascend-1",
+      "transform": "unmodified original transparent PNG",
+      "prompt": null,
+      "sha256": "86cdc01c94b33940112dfce3f6149875458ba1f0743f37ec4e3e9b431cb43196",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/kiro-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "coding-poster-1",
+        "title": "2000！万岁≧▽≦",
+        "page_url": "https://www.bilibili.com/opus/1233310497725481001",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/b346fb649a853bc4dbaaaaa2f138b1d54168597.png",
+        "date": "8月6日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / coding-poster-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Make ONE individual game character sprite from the supplied ZipZipPipe group illustration. Isolate ONLY the SECOND character from LEFT, Kiro: purple long hair and eyes, floating ghost-themed white hooded cloak with dark purple ghost spots, purple bow, white purple short dress and misty flowing hem. Retain her floating ghost nature. Preserve her unique identity, exact recognizable outfit, colors and accessories. Remove the number board, signs and every other person, restore relaxed hands naturally. Clean detailed Japanese anime game illustration, soft cel-shading, balanced 6-head proportions. Full figure head to shoes/lowest hem, all ears/tail/props fully in frame, tall centered canvas with 5% padding. True transparent background, no floor, glow, shadow, confetti, number board, scenery or extra characters.",
+      "sha256": "371fd64bb6728dd802a26672414c8739d722c1e0d32ca110c37eb1ad47c8d87f",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/cursor-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "coding-poster-1",
+        "title": "2000！万岁≧▽≦",
+        "page_url": "https://www.bilibili.com/opus/1233310497725481001",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/b346fb649a853bc4dbaaaaa2f138b1d54168597.png",
+        "date": "8月6日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / coding-poster-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Make ONE individual game character sprite from the supplied ZipZipPipe group illustration. Isolate ONLY the THIRD character from LEFT, Cursor: silver long hair, red eyes, pointed ears, black burgundy gothic layered dress with black ribbons and silver chains, black boots, black prism insignia and large angular dark staff. Preserve her unique identity, exact recognizable outfit, colors and accessories. Remove the number board, signs and every other person, restore relaxed hands naturally. Clean detailed Japanese anime game illustration, soft cel-shading, balanced 6-head proportions. Full figure head to shoes/lowest hem, all ears/tail/props fully in frame, tall centered canvas with 5% padding. True transparent background, no floor, glow, shadow, confetti, number board, scenery or extra characters.",
+      "sha256": "8b064b0b5318c3a523c93097d05cece693fbcd1a900355a02d8bf9eac7b1c6cb",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/antigravity-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "coding-poster-1",
+        "title": "2000！万岁≧▽≦",
+        "page_url": "https://www.bilibili.com/opus/1233310497725481001",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/b346fb649a853bc4dbaaaaa2f138b1d54168597.png",
+        "date": "8月6日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / coding-poster-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Make ONE individual game character sprite from the supplied ZipZipPipe group illustration. Isolate ONLY the FAR RIGHT character, Antigravity: bright blue hair, cat ears and blue tail, green-blue eyes, holographic white blue cropped jacket, white shorts, high white blue futuristic boots, rainbow bar hairpin and tiny robot accessory. Preserve her unique identity, exact recognizable outfit, colors and accessories. Remove the number board, signs and every other person, restore relaxed hands naturally. Clean detailed Japanese anime game illustration, soft cel-shading, balanced 6-head proportions. Full figure head to shoes/lowest hem, all ears/tail/props fully in frame, tall centered canvas with 5% padding. True transparent background, no floor, glow, shadow, confetti, number board, scenery or extra characters.",
+      "sha256": "011603aca6a50156f07ff592fde1dcbb61fb2de26d7d5927a62b57acb2e356d1",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/pi-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "tool-poster-1",
+        "title": "25000粉贺图",
+        "page_url": "https://www.bilibili.com/opus/1247070559291834376",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/9e9b6e72b685ef53c73e073c7b63499d4168597.png",
+        "date": "9月12日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / tool-poster-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Make ONE individual game character sprite from the supplied ZipZipPipe group illustration. Isolate ONLY the CENTER THIRD character, Pi: long dark navy hair and blue eyes, elegant simple white ankle-length dress, narrow dark blue hem and gold edging, dark belt, square black white terminal insignia at neckline, dark blue Mary Jane shoes. Preserve her unique identity, exact recognizable outfit, colors and accessories. Remove the number board, signs and every other person, restore relaxed hands naturally. Clean detailed Japanese anime game illustration, soft cel-shading, balanced 6-head proportions. Full figure head to shoes/lowest hem, all ears/tail/props fully in frame, tall centered canvas with 5% padding. True transparent background, no floor, glow, shadow, confetti, number board, scenery or extra characters.",
+      "sha256": "b0cd258ca378d5173542df5d1be3e030ac8db64c930e6e3a8b1775a106e0d121",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/claude_code-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "tool-poster-1",
+        "title": "25000粉贺图",
+        "page_url": "https://www.bilibili.com/opus/1247070559291834376",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/9e9b6e72b685ef53c73e073c7b63499d4168597.png",
+        "date": "9月12日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / tool-poster-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Make ONE individual game character sprite from the supplied ZipZipPipe group illustration. Isolate ONLY the FOURTH character from LEFT, Claude Code: orange hair, sunflower hair ornament, orange white layered short hoodie dress with terminal pixel decorations, black bow, black gold waist belt, black Mary Jane shoes with orange bows and white socks. Preserve her unique identity, exact recognizable outfit, colors and accessories. Remove the number board, signs and every other person, restore relaxed hands naturally. Clean detailed Japanese anime game illustration, soft cel-shading, balanced 6-head proportions. Full figure head to shoes/lowest hem, all ears/tail/props fully in frame, tall centered canvas with 5% padding. True transparent background, no floor, glow, shadow, confetti, number board, scenery or extra characters.",
+      "sha256": "c2656d0716cc2e9a45985b00088f9f74e784a7ca4bd0aebec19c38e239e93212",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/sillytavern-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "tool-poster-1",
+        "title": "25000粉贺图",
+        "page_url": "https://www.bilibili.com/opus/1247070559291834376",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/9e9b6e72b685ef53c73e073c7b63499d4168597.png",
+        "date": "9月12日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / tool-poster-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Make ONE individual game character sprite from the supplied ZipZipPipe group illustration. Isolate ONLY the FAR RIGHT character, SillyTavern: fluffy dark brown fox ears and large tail, long dark brown hair, orange eyes, black red and white embroidered folk-style long dress, red ribbons and tassels, black red boots. Preserve her unique identity, exact recognizable outfit, colors and accessories. Remove the number board, signs and every other person, restore relaxed hands naturally. Clean detailed Japanese anime game illustration, soft cel-shading, balanced 6-head proportions. Full figure head to shoes/lowest hem, all ears/tail/props fully in frame, tall centered canvas with 5% padding. True transparent background, no floor, glow, shadow, confetti, number board, scenery or extra characters.",
+      "sha256": "6964c515ad181ec756f11127b393454923f780c5864a450f11e8bcc7721b3722",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/comfyui-neutral.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "dragon-poster-1",
+        "title": "刚刚睡醒就4000粉丝了？",
+        "page_url": "https://www.bilibili.com/opus/1236581050888486921",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/b8773013164856c88b28ac655aead2e74168597.png",
+        "date": "8月15日"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / dragon-poster-1",
+      "transform": "built-in image_gen; reference-preserving transparent sprite",
+      "prompt": "Make ONE individual game character sprite from the supplied ZipZipPipe group illustration. Isolate ONLY the FAR RIGHT character, ComfyUI: purple hair with lime green ends, green eyes, purple dragon horns wings and tail with lime circuitry, white engineering hard hat with purple C, black lime utility coveralls, belts and tools, dark work boots. Preserve her unique identity, exact recognizable outfit, colors and accessories. Remove the number board, signs and every other person, restore relaxed hands naturally. Clean detailed Japanese anime game illustration, soft cel-shading, balanced 6-head proportions. Full figure head to shoes/lowest hem, all ears/tail/props fully in frame, tall centered canvas with 5% padding. True transparent background, no floor, glow, shadow, confetti, number board, scenery or extra characters.",
+      "sha256": "bdaac75d40d2aa0fa8872f39bab4995db9aabadb85e365cb9e4d8c29920708f9",
+      "rights": "未检得统一再授权声明；本机个人体验"
+    },
+    {
+      "file": "assets/characters/kimi-happy.png",
+      "source_creator": "ZipZipPipe",
+      "source_profile": "https://space.bilibili.com/4168597/dynamic",
+      "reference": {
+        "id": "batch1-2",
+        "page_url": "https://www.bilibili.com/opus/1233069202138464289",
+        "url": "https://i1.hdslb.com/bfs/new_dyn/1f099083c8f81427754a9306733239164168597.png"
+      },
+      "inspection": "viewed",
+      "inspection_ref": "2026-10-19 view_image / batch1-2",
+      "transform": "built-in image_gen; happy training-success variation",
+      "prompt": "Reference-preserving edit for a local anime game. Create the same Kimi moon maid with long silver hair, midnight blue and white ruffled dress, crescent and K badges, musical instrument staff. Make a happy training-success expression: bright smiling eyes and a warm open smile, a subtly cheerful pose. Preserve face identity and all outfit details. A single full body character, every hair tip, shoe, horn, tail and accessory in frame, 5% margin, centered vertical canvas. Clean precise anime linework, same soft colors and illustrated style as source. Genuine transparent background. No scenery, ground, shadow, glow, text labels, watermark, or other characters.",
+      "sha256": "882ea379ee7292ffd674aab1410ba9a0e4f9dad18ffbc30b9110504843c01f02"
+    },
+    {
+      "file": "assets/backgrounds/career-arena.png",
+      "source_creator": "imagegen",
+      "reference": {
+        "title": "项目既有 sunlit-atelier 明亮柔和日系背景风格",
+        "file": "assets/backgrounds/sunlit-atelier.png",
+        "role": "visually inspected art direction; described in prompt"
+      },
+      "transform": "built-in image_gen; opaque scene; original PNG copied without resizing",
+      "prompt": "Use case: stylized-concept. Asset type: a single finished environment background for a Japanese anime character-raising game. Landscape 3:2, exactly 1536 x 1024 pixels, opaque PNG. Art direction: match a bright sunlit ivory atelier painted as a premium Japanese visual-novel background: delicate architectural linework, soft anime watercolor and gouache washes, gentle atmospheric depth, luminous but controlled highlights, soft cream whites, clear sky blues, sage greens and pale honey wood. Refined and welcoming, not a photograph, not a 3D render. Composition: eye-level environmental view; make the middle and lower central area spacious, uncluttered, low contrast and free of props so a full-body character and game UI can be overlaid later. Place most architectural ornament and small props toward the perimeter or background. No people, human silhouettes, faces, statues of people, crowds, animals, characters, text, letters, numerals, readable writing, logos, brand marks, UI, frame, watermark or collage. Scene: an empty bright indoor evaluation-tournament and presentation arena shortly before the competition. Elegant blue, white and soft gold palette. A broad pale ivory stage floor occupies the uncluttered foreground and middle, with shallow curved steps and subtle blue-gold trim toward the far back. Curving ring-shaped spectator seating surrounds the space, every seat empty. A suspended large display and a few smaller hanging display panels show only a few abstract blue and gold bands of light and simple geometric shapes, with absolutely no writing or symbols resembling letters. High airy roof with soft skylight and understated event lighting. A gentle sense of expectation before an important match, comfortable rather than massive or intimidating. Keep the central lower half largely open pale flooring.",
+      "sha256": "2be83bb2d4c3b7e794aedd97f21f1ea8dbe3e6675a7cefb6aa5df7fdd4796f03",
+      "created": "2026-10-19",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "file": "assets/backgrounds/career-camp.png",
+      "source_creator": "imagegen",
+      "reference": {
+        "title": "项目既有 sunlit-atelier 明亮柔和日系背景风格",
+        "file": "assets/backgrounds/sunlit-atelier.png",
+        "role": "visually inspected art direction; described in prompt"
+      },
+      "transform": "built-in image_gen; opaque scene; original PNG copied without resizing",
+      "prompt": "Use case: stylized-concept. Asset type: a single finished environment background for a Japanese anime character-raising game. Landscape 3:2, exactly 1536 x 1024 pixels, opaque PNG. Art direction: match a bright sunlit ivory atelier painted as a premium Japanese visual-novel background: delicate architectural linework, soft anime watercolor and gouache washes, gentle atmospheric depth, luminous but controlled highlights, soft cream whites, clear sky blues, sage greens and pale honey wood. Refined and welcoming, not a photograph, not a 3D render. Composition: eye-level environmental view; make the middle and lower central area spacious, uncluttered, low contrast and free of props so a full-body character and game UI can be overlaid later. Place most architectural ornament and small props toward the perimeter or background. No people, human silhouettes, faces, statues of people, crowds, animals, characters, text, letters, numerals, readable writing, logos, brand marks, UI, frame, watermark or collage. Scene: an empty small seaside research institute and academy summer training camp. Clear blue summer sky with soft white clouds, a calm turquoise sea beyond an open pale wooden deck, and simple white buildings with graceful open shaded verandas. Light canvas sun umbrellas, green coastal planting and a few modest research tables sit along the sides and background. At the peripheral tables are open unbranded laptop computers with blank softly lit screens; an entirely blank whiteboard stands in the shaded side area, absolutely no writing. Warm sunshine with cooling sea breeze suggested by soft awnings. Keep the middle and lower central deck wide open, low contrast, clear of furniture and props for later character overlays. Peaceful and studious summer atmosphere.",
+      "sha256": "20461f9925b2a36b8834a4515527291624ab4935786f4d6b3d5af9ad637c6903",
+      "created": "2026-10-19",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "file": "assets/backgrounds/career-outing.png",
+      "source_creator": "imagegen",
+      "reference": {
+        "title": "项目既有 sunlit-atelier 明亮柔和日系背景风格",
+        "file": "assets/backgrounds/sunlit-atelier.png",
+        "role": "visually inspected art direction; described in prompt"
+      },
+      "transform": "built-in image_gen; opaque scene; original PNG copied without resizing",
+      "prompt": "Use case: stylized-concept. Asset type: a single finished environment background for a Japanese anime character-raising game. Landscape 3:2, exactly 1536 x 1024 pixels, opaque PNG. Art direction: match a bright sunlit ivory atelier painted as a premium Japanese visual-novel background: delicate architectural linework, soft anime watercolor and gouache washes, gentle atmospheric depth, luminous but controlled highlights, soft cream whites, clear sky blues, sage greens and pale honey wood. Refined and welcoming, not a photograph, not a 3D render. Composition: eye-level environmental view; make the middle and lower central area spacious, uncluttered, low contrast and free of props so a full-body character and game UI can be overlaid later. Place most architectural ornament and small props toward the perimeter or background. No people, human silhouettes, faces, statues of people, crowds, animals, characters, text, letters, numerals, readable writing, logos, brand marks, UI, frame, watermark or collage. Scene: an empty inviting street-corner cafe beside a leafy park promenade on a warm gentle afternoon. Cream-colored cafe facade with broad windows and an unmarked fabric awning at one side, a few small pale-wood outdoor tables with plain cups near the outer edges, flourishing potted plants and a leafy tree-lined walkway opening toward the distance. No signs, menus, posters, chalkboards, lettering or window decals. Warm afternoon sunlight filters through green leaves and makes soft dappled shadows, with soft peach highlights and refreshing sage foliage. Friendly, relaxed and cheerful everyday outing mood. The central lower half is a broad uncluttered light cream paved pedestrian area, spacious enough for a full-body sprite and UI overlay; perspective recedes gently without dense detail.",
+      "sha256": "00452a617c5a7d2ce60359dc4f99c6584954f1a7a0105e6bdb081677b9791fe9",
+      "created": "2026-10-19",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "file": "assets/backgrounds/career-gala.png",
+      "source_creator": "imagegen",
+      "reference": {
+        "title": "项目既有 sunlit-atelier 明亮柔和日系背景风格",
+        "file": "assets/backgrounds/sunlit-atelier.png",
+        "role": "visually inspected art direction; described in prompt"
+      },
+      "transform": "built-in image_gen; opaque scene; original PNG copied without resizing",
+      "prompt": "Use case: stylized-concept. Asset type: a single finished environment background for a Japanese anime character-raising game. Landscape 3:2, exactly 1536 x 1024 pixels, opaque PNG. Art direction: match a bright sunlit ivory atelier painted as a premium Japanese visual-novel background: delicate architectural linework, soft anime watercolor and gouache washes, gentle atmospheric depth, luminous but controlled highlights, soft cream whites, clear sky blues, sage greens and pale honey wood. Refined and welcoming, not a photograph, not a 3D render. Composition: eye-level environmental view; make the middle and lower central area spacious, uncluttered, low contrast and free of props so a full-body character and game UI can be overlaid later. Place most architectural ornament and small props toward the perimeter or background. No people, human silhouettes, faces, statues of people, crowds, animals, characters, text, letters, numerals, readable writing, logos, brand marks, UI, frame, watermark or collage. Scene: an empty elegant annual AI model awards stage at night, celebratory and prestigious yet soft and comfortable. A spacious pale blue-ivory stage floor fills the foreground and lower middle with very subtle reflections. In the upper and far background, graceful navy and powder-blue stage drapes, curved ivory-gold architecture, restrained star-like pin lights, a few soft gold ribbons and sparse confetti around the upper side edges. Broad soft champagne spotlights fan through the upper background, never shine directly into the viewer, no blown-out hotspots, no harsh lens flare or neon. Any background screens display only quiet abstract constellations and light gradients, no writing, numerals or logos. Clear pale open central lower stage for character overlay, atmosphere like a luminous watercolor night rather than dark high-contrast concert photography.",
+      "sha256": "f00d8c1782656560834571c98c08d6bf24fcccc6879789083efd9f119faee7d1",
+      "created": "2026-10-19",
+      "width": 1536,
+      "height": 1024
+    }
+  ],
+  "license_notes": [
+    "鲸鱼娘原设来源为上善无形，ZipZipPipe 主页公告标注 CC BY-NC-SA 4.0 非商业、署名、相同方式共享。",
+    "其他角色未核实统一开放授权，保留原作者与来源记录；本轮仅作本机个人体验，不代表取得商业再授权。",
+    "生成的差分保留其参考形象的来源与约束，不能把工具输出视为抹除原设计的授权。"
+  ],
+  "roster_as_of": "2026-10-19",
+  "character_count": 41,
+  "model_personifications": 25
+}

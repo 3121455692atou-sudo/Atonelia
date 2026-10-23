@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-claude",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/aa6e8649701c91e5ac8f43ff28b97a924168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / artist-claude",
+  "kind": "image",
+  "original_sha256": null,
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.329647+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "Claude / Claude桌面壁纸",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "Claude / Claude桌面壁纸"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1239937623660691478",
+  "use": "reference-only"
+}

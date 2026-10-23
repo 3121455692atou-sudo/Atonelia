@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f6f4ec" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="经营一家 AI 模型公司：按真实月份走史实剧本，或在自洽世界里从零开局，也可以联机和别人同场。找数据、立项炼模型、跑榜、发布、融资上市。" />
+  <title>模型育成计划 · AI 模型公司经营模拟</title>
+  <!-- 样式按区块拆在 src/career/css/ 里，按这个顺序加载（后面的盖前面的；窄屏断点都在 mobile.css）。 -->
+  <link rel="stylesheet" href="./src/career/css/base.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/layout.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/topbar.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/home.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/office.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/overlay.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/picker.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/panels.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/mobile.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/strategy.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/naming.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/history.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/archive.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/train.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/solo.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/mp.css?v=4" />
+  <link rel="preload" as="image" href="./assets/thumbs/bg-sunlit-atelier.webp" />
+</head>
+<body>
+  <noscript>请启用 JavaScript 以开始育成。</noscript>
+  <div id="app" class="app"></div>
+  <div id="overlay-root"></div>
+  <div id="toast-root" class="toast-root" role="status" aria-live="polite"></div>
+  <!-- 入口不要加 ?v= 之类的查询串：scripts/ui_smoke.mjs 按 ./src/career/ui/app.js 导入来读游戏状态，地址不同会再加载出一份 app.js，页面上会同时跑两份游戏。界面模块之间共用的东西在 state.js，不从 app.js 导入。 -->
+  <script type="module" src="./src/career/ui/app.js"></script>
+</body>
+</html>

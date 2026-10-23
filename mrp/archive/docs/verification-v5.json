@@ -1,0 +1,70 @@
+{
+  "version": "0.5.0",
+  "verified_at": "2026-10-19",
+  "tests": {"tests": 120, "suites": 22, "pass": 120, "fail": 0, "new_personal_event_tests": 16},
+  "content": {
+    "personal_episodes": 67,
+    "authored_choices": 134,
+    "source_records": 67,
+    "history_lines": 27,
+    "mapped_cultivation_routes": 28,
+    "character_model_lines": 25,
+    "legacy_research_lines": ["Phi", "LLaDA"],
+    "npc_cultivation_lines": 0,
+    "unresolved_identities": [],
+    "official_search_excerpt_only": ["ernie45", "pplx_research", "pplx_index", "suno3"],
+    "fable_identity": "Anthropic Claude Fable",
+    "jev_identity": "TypeSafe AI Jev",
+    "facts_separate_from_authored_fiction": true
+  },
+  "automated_scenarios": [
+    "all 134 choices settle once and serialize into valid saves",
+    "eligibility requires active model, turn, training count, previous event and cooldown",
+    "other model previews and legacy save queries are read-only",
+    "pending story survives serialization without duplicate initialization",
+    "insufficient funds leaves state unchanged and free choice available",
+    "actual rewards respect caps including zero and already-over-cap states",
+    "published model capabilities stay frozen",
+    "personal R&D charges are prepaid and quarter settlement does not charge twice",
+    "season continuation retains personal story history",
+    "corrupt queues, choices, rewards and duplicate records rejected"
+  ],
+  "real_browser": {
+    "qa_origin": "http://localhost:8765",
+    "model": "Qwen",
+    "training_at_turn": 1,
+    "first_auto_trigger_turn": 2,
+    "defer_then_reload_then_resume": true,
+    "paid_choice": {"cost_kc": 8, "reliability_gain": 6, "reasoning_gain": 5, "readiness_change": -2},
+    "reload_then_completed_replay": true,
+    "second_auto_trigger_turn": 6,
+    "free_choice": {"cost_kc": 0, "expression_gain": 5, "tool_use_gain": 4, "company_trust_gain": 1},
+    "quarter_checked_at_turn": 7,
+    "quarter_rnd_kc": 20.8,
+    "quarter_rnd_components_kc": {"training": 12.8, "personal_event": 8},
+    "quarter_new_cash_charges_kc": 110,
+    "quarter_rnd_charged_again": false,
+    "other_model_preview": ["Fable 5", "JEV"],
+    "other_model_choice_buttons_disabled": true,
+    "preview_kept_active_model": "Qwen",
+    "console_errors_or_warnings_observed": 0,
+    "original_127_origin_progress_advanced": false,
+    "original_127_current_turn_and_cash_rechecked": false,
+    "original_page_binding_note": "Existing user tab binding timed out; no UI mutations on the original origin in this iteration."
+  },
+  "responsive": {
+    "desktop": {"viewport": "1440x900", "story_width": 721, "story_scroll_width": 721, "body_font_px": 14},
+    "mobile": {"viewport": "390x844", "document_width": 385, "document_scroll_width": 385, "modal_width": 353, "modal_scroll_width": 353, "footer_button_height": 44, "footer_top": 740.796875, "footer_bottom": 784.796875, "long_story_scrolls": true},
+    "compact": {"viewport": "1024x768", "document_width": 1024, "document_scroll_width": 1024, "modal_width": 778, "modal_scroll_width": 778},
+    "method": "Same-origin iframes rendering the actual game; no synthetic UI screenshot."
+  },
+  "proofs": ["screenshots/personal-story-desktop.png", "screenshots/personal-story-mobile.png"],
+  "new_art_generation_calls": 0,
+  "new_external_model_calls": 0,
+  "limits": [
+    "All event choices have automated engine validation; manual browser play covered Qwen episodes 1 and 2 plus other-model previews, not every full storyline.",
+    "Previous 192-turn campaign stress simulation is documented in verification-v4.json and was not repeated as manual acceptance for this iteration.",
+    "Four official sources were verified through official search excerpts only, as recorded in source metadata.",
+    "Existing file-upload and web BYOK limitations from v0.4.1 remain; this iteration does not claim their end-to-end acceptance."
+  ]
+}

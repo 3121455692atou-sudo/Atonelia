@@ -1,0 +1,148 @@
+{
+  "version": "0.4.1",
+  "verified_at": "2026-10-19",
+  "tests": {
+    "tests": 104,
+    "suites": 20,
+    "pass": 104,
+    "fail": 0
+  },
+  "campaign": {
+    "kind": "deterministic_engine_simulation",
+    "real_browser_full_campaign": false,
+    "starting_cash_kc": 100000,
+    "completed_turns": 192,
+    "quarters": 32,
+    "final_cash_kc": 89324.9656,
+    "serving_cases": 12,
+    "abuse_cases": 6,
+    "proxy_records": 40,
+    "all_states_valid": true,
+    "all_previews_read_only": true
+  },
+  "mobile": [
+    {
+      "page": "模型服务",
+      "delivery": [
+        {
+          "bottom": 763.5,
+          "top": 715.5
+        }
+      ],
+      "scrollWidth": 385,
+      "width": 385
+    },
+    {
+      "page": "算力来源",
+      "delivery": [
+        {
+          "bottom": 763.5,
+          "top": 715.5
+        }
+      ],
+      "scrollWidth": 385,
+      "width": 385
+    },
+    {
+      "page": "路由策略",
+      "delivery": [
+        {
+          "bottom": 763.5,
+          "top": 715.5
+        }
+      ],
+      "scrollWidth": 385,
+      "width": 385
+    },
+    {
+      "page": "应用与网关",
+      "delivery": [
+        {
+          "bottom": 763.5,
+          "top": 715.5
+        }
+      ],
+      "scrollWidth": 385,
+      "width": 385
+    },
+    {
+      "page": "口碑与诉讼",
+      "delivery": [
+        {
+          "bottom": 763.5,
+          "top": 715.5
+        }
+      ],
+      "scrollWidth": 385,
+      "width": 385
+    },
+    {
+      "page": "财报",
+      "delivery": [
+        {
+          "bottom": 763.5,
+          "top": 715.5
+        }
+      ],
+      "scrollWidth": 385,
+      "width": 385
+    }
+  ],
+  "original_save": {
+    "origin": "http://127.0.0.1:8765",
+    "turn": 1,
+    "cash_kc": 2400,
+    "separate_qa_origin": "http://localhost:8765"
+  },
+  "roster": {
+    "models": 25,
+    "applications": 14,
+    "infrastructure": 2,
+    "total": 41,
+    "public_posts_reviewed": 144
+  },
+  "assistant_consult": {
+    "provider": "OCG",
+    "model": "deepseek-flash",
+    "total_tokens": 775,
+    "authenticated_request_success": true,
+    "opencode_session_marker": true,
+    "credentials_packaged": false
+  },
+  "browser_scenarios": [
+    "new Kimi and creative training/happy sprite",
+    "four specialist focus/data/recipe mappings",
+    "API/Plan/Coding Plan enable",
+    "Tavern audience",
+    "public API vs OpenCode/Cursor app-only access saved",
+    "proxy pool appears then manually revoked",
+    "abuse case filed then remediation paid and history retained",
+    "first six-turn quarter statement",
+    "gallery 41/search/category/empty/character changes",
+    "mobile six company pages plus training/gallery",
+    "compact app gateway"
+  ],
+  "limits": [
+    "192-turn campaign is engine simulation with 100000 kc starting cash, not manual full story acceptance or standard-start balance acceptance",
+    "browser file import upload not end-to-end verified",
+    "web BYOK live-key CORS not verified",
+    "most new companions have neutral sprite only",
+    "all business/gateway/incident operations are fictional local simulation"
+  ],
+  "npc_correction": {
+    "trainable_model_characters": 25,
+    "npc_characters": 16,
+    "npc_cultivation_rejected": true,
+    "npc_save_rejected": true,
+    "legacy_npc_avatar_ignored": true,
+    "npc_has_training_stats": false,
+    "model_avatar_options_browser_verified": 25,
+    "new_game_routes_browser_verified": 28,
+    "npc_routes_browser_verified": 0,
+    "npc_visit_browser_verified": "OpenCode; cultivation stage remained Qwen",
+    "npc_navigation_browser_verified": "applications",
+    "mobile_npc_dialog_width": 385,
+    "mobile_npc_dialog_scroll_width": 385,
+    "real_progress_advanced": false
+  }
+}

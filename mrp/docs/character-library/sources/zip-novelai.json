@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-novelai",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/c05af80bf59d4dcd075be5fe9bf095f74168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / novelai-1",
+  "kind": "image",
+  "original_sha256": "dc6d6f0b4ec0061998cd804f6866322d164e2b744841115c36310f368ed0be6d",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.512731+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "NovelAI / Novel AI娘",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "NovelAI / Novel AI娘"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1243825685770797113",
+  "use": "reference-only"
+}

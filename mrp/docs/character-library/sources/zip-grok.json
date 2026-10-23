@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-grok",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/b812d87ec38b8b13a6a6ef148b3aef3b4168597.jpg",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / batch1-8",
+  "kind": "image",
+  "original_sha256": "730d6ea99cb5cda25035aaf75d8815a01761a660b1ecba156b9cc6b3c48df66c",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.361645+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "Grok / 所有的AI们，和OpenCode",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "Grok / 所有的AI们，和OpenCode"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1233069202138464289",
+  "use": "reference-only"
+}

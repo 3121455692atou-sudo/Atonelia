@@ -1,0 +1,28 @@
+{"company":"gpt","sc":"y2023","seeds":8,"id":"hn_gpt4","name":"GPT-4","real":"2023-03-14","used":8,"ok":8,"voided":0,"early":0}
+{"company":"gpt","sc":"y2023","seeds":8,"id":"hn_gpt4o","name":"GPT-4o","real":"2024-05-13","used":8,"ok":6,"voided":0,"early":0}
+{"company":"gpt","sc":"y2023","seeds":8,"id":"hn_o1","name":"o1","real":"2024-09-12","used":8,"ok":8,"voided":0,"early":0}
+{"company":"gpt","sc":"y2024","seeds":8,"id":"hn_gpt4o","name":"GPT-4o","real":"2024-05-13","used":8,"ok":0,"voided":0,"early":0}
+{"company":"gpt","sc":"y2024","seeds":8,"id":"hn_o1","name":"o1","real":"2024-09-12","used":8,"ok":8,"voided":0,"early":0}
+{"company":"claude","sc":"y2023","seeds":8,"id":"hn_claude3_opus","name":"Claude 3 Opus","real":"2024-03-04","used":0,"ok":0,"voided":8,"early":0}
+{"company":"claude","sc":"y2023","seeds":8,"id":"hn_claude35_sonnet","name":"Claude 3.5 Sonnet","real":"2024-06-20","used":4,"ok":4,"voided":4,"early":0}
+{"company":"claude","sc":"y2023","seeds":8,"id":"hn_claude_opus4","name":"Claude Opus 4","real":"2025-05-22","used":8,"ok":2,"voided":0,"early":0}
+{"company":"claude","sc":"y2024","seeds":8,"id":"hn_claude3_opus","name":"Claude 3 Opus","real":"2024-03-04","used":8,"ok":8,"voided":0,"early":0}
+{"company":"claude","sc":"y2024","seeds":8,"id":"hn_claude35_sonnet","name":"Claude 3.5 Sonnet","real":"2024-06-20","used":8,"ok":0,"voided":0,"early":0}
+{"company":"claude","sc":"y2024","seeds":8,"id":"hn_claude_opus4","name":"Claude Opus 4","real":"2025-05-22","used":8,"ok":8,"voided":0,"early":0}
+{"company":"claude","sc":"y2025","seeds":8,"id":"hn_claude_opus4","name":"Claude Opus 4","real":"2025-05-22","used":8,"ok":8,"voided":0,"early":0}
+{"company":"fable","sc":"y2023","seeds":8,"id":"hn_fable5","name":"Claude Fable 5","real":"2026-06-09","used":8,"ok":8,"voided":0,"early":0}
+{"company":"fable","sc":"y2024","seeds":8,"id":"hn_fable5","name":"Claude Fable 5","real":"2026-06-09","used":0,"ok":0,"voided":0,"early":0}
+{"company":"fable","sc":"y2025","seeds":8,"id":"hn_fable5","name":"Claude Fable 5","real":"2026-06-09","used":0,"ok":0,"voided":0,"early":0}
+{"company":"fable","sc":"y2026","seeds":8,"id":"hn_fable5","name":"Claude Fable 5","real":"2026-06-09","used":8,"ok":8,"voided":0,"early":0}
+{"company":"gemini","sc":"y2023","seeds":8,"id":"hn_gemini15_pro","name":"Gemini 1.5 Pro","real":"2024-02-15","used":0,"ok":0,"voided":8,"early":0}
+{"company":"gemini","sc":"y2024","seeds":8,"id":"hn_gemini15_pro","name":"Gemini 1.5 Pro","real":"2024-02-15","used":0,"ok":0,"voided":8,"early":0}
+{"company":"llama","sc":"y2023","seeds":8,"id":"hn_llama2","name":"Llama 2","real":"2023-07-18","used":6,"ok":6,"voided":2,"early":0}
+{"company":"llama","sc":"y2023","seeds":8,"id":"hn_llama31_405b","name":"Llama 3.1 405B","real":"2024-07-23","used":0,"ok":0,"voided":8,"early":0}
+{"company":"llama","sc":"y2024","seeds":8,"id":"hn_llama31_405b","name":"Llama 3.1 405B","real":"2024-07-23","used":0,"ok":0,"voided":8,"early":0}
+{"company":"mistral","sc":"y2023","seeds":8,"id":"hn_mistral7b","name":"Mistral 7B","real":"2023-09-27","used":0,"ok":0,"voided":8,"early":8}
+{"company":"mistral","sc":"y2023","seeds":8,"id":"hn_mixtral","name":"Mixtral 8x7B","real":"2023-12-11","used":0,"ok":0,"voided":8,"early":8}
+{"company":"grok","sc":"y2023","seeds":8,"id":"hn_grok3","name":"Grok 3","real":"2025-02-17","used":8,"ok":8,"voided":0,"early":0}
+{"company":"grok","sc":"y2024","seeds":8,"id":"hn_grok3","name":"Grok 3","real":"2025-02-17","used":7,"ok":7,"voided":1,"early":0}
+{"company":"grok","sc":"y2025","seeds":8,"id":"hn_grok3","name":"Grok 3","real":"2025-02-17","used":8,"ok":8,"voided":0,"early":0}
+{"company":"qwen","sc":"y2023","seeds":8,"id":"hn_qwen25","name":"Qwen2.5","real":"2024-09-19","used":7,"ok":7,"voided":1,"early":0}
+{"company":"qwen","sc":"y2024","seeds":8,"id":"hn_qwen25","name":"Qwen2.5","real":"2024-09-19","used":8,"ok":8,"voided":0,"early":0}

@@ -1,0 +1,138 @@
+/* 公司历程（P3.U4）：SOTA 角标、三枚徽章、历程时间线。手机整页纵向滚动，不横向溢出。 */
+
+/* ---------- SOTA 角标：现在持标是金色，已经交出去是灰色 ---------- */
+.sota-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 600;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+.sota-badge--now {
+  white-space: nowrap;
+  letter-spacing: .5px;
+  color: #3b2a08;
+  background: linear-gradient(135deg, #f4dd9e, #c39a52);
+  border: 1px solid #a97f36;
+  box-shadow: 0 1px 3px rgba(163, 122, 48, .28);
+}
+.sota-badge--past {
+  color: #68717b;
+  background: #eceef0;
+  border: 1px solid #d7dade;
+  font-weight: 500;
+}
+
+/* ---------- 三枚徽章：开源最强 / 社区之选 / 能干活 ---------- */
+.model-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  vertical-align: middle;
+}
+.model-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.model-badge--open_top { color: #2b6b4b; background: #e4f3e9; border: 1px solid #c3e2ce; }
+.model-badge--community { color: #2f6a8f; background: #e4f0f8; border: 1px solid #c5deee; }
+.model-badge--works { color: #8a5a18; background: #fbf0da; border: 1px solid #ecd4a8; }
+
+/* ---------- 榜单页：图后面的标记条 ---------- */
+.board-marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.board-mark {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 5px 8px;
+  border-radius: 10px;
+  background: #f7f7f2;
+  border: 1px solid var(--line);
+}
+.board-mark b {
+  min-width: 0;
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+.board-mark small { color: var(--muted); font-size: 11.5px; }
+
+/* ---------- 对手页：档案卡里那一行 ---------- */
+.rival-marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+/* ---------- 公司历程：分块时间线 ---------- */
+.hist-block {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--white);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+.hist-block h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+.hist-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.hist-list li {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fbfaf5;
+  border: 1px solid #efeee7;
+  min-width: 0;
+}
+.hist-list li > span {
+  font-family: var(--font-num);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+/* 起止日期各占一行、各自不折行（“2024 年 12 月”不能把“月”挤到下一行）。 */
+.hist-list li > span i { display: block; font-style: normal; white-space: nowrap; }
+.hist-list li > div { min-width: 0; display: grid; gap: 1px; }
+.hist-list li b { font-size: 13.5px; overflow-wrap: anywhere; }
+.hist-list li small { color: var(--ink-2); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.hist-empty { margin: 0; }
+
+/* ---------- 375px：日期单独一行，标签和名字都换行，不横向溢出 ---------- */
+@media (max-width: 520px) {
+  .hist-list li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .board-mark { width: 100%; }
+  .sota-badge--now { white-space: nowrap; }
+}

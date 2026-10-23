@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f6f0" />
+  <meta name="color-scheme" content="light" />
+  <meta name="description" content="在阳光洒进实验室的时候，和你的模型伙伴一起，走向下一个版本。" />
+  <title>模型育成计划 · 旧版经营模式</title>
+  <link rel="stylesheet" href="./src/ui/styles.css?v=4" />
+  <link rel="preload" as="image" href="./assets/backgrounds/sunlit-atelier.png" />
+</head>
+<body>
+<svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5c-4-3-9-2-9-2v16s5-1 9 2c4-3 9-2 9-2V3s-5-1-9 2v16"/></symbol>
+<symbol id="i-brain" viewBox="0 0 24 24"><path d="M9 4C6 1 2 5 4 8c-4 2-3 7 0 8-1 4 4 6 7 3V5m2 0c3-4 8-1 7 3 4 2 3 7 0 8 1 4-4 6-7 3V5M7 8l3 2m-5 4 5 1m5-5 3-2m-3 7 4-1"/></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6m-3-15-4 18"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 16a3 3 0 0 0 2-3V6a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h2v5l5-5h8ZM7 8h10M7 12h6"/></symbol>
+<symbol id="i-network" viewBox="0 0 24 24"><circle cx="12" cy="3" r="2"/><circle cx="3" cy="13" r="2"/><circle cx="21" cy="13" r="2"/><circle cx="12" cy="21" r="2"/><path d="m10.6 4.5-6 7m9-7 6 7m-15 3 6 5m9-5-6 5M5 13h14"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6l9-4Z"/></symbol>
+<symbol id="i-data" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 4 18 4 18 0V5M3 12c0 4 18 4 18 0"/></symbol>
+<symbol id="i-cup" viewBox="0 0 24 24"><path d="M6 3h12v7a6 6 0 0 1-12 0V3ZM6 5H2v3c0 3 2 5 5 5M18 5h4v3c0 3-2 5-5 5M12 16v5m-5 1h10"/></symbol>
+<symbol id="i-coffee" viewBox="0 0 24 24"><path d="M3 8h14v6a7 7 0 0 1-14 0V8Zm14 0h2a3 3 0 0 1 0 6h-2M2 22h17M6 2v2m4-2v2m4-2v2"/></symbol>
+<symbol id="i-company" viewBox="0 0 24 24"><path d="M3 22V8h8v14m0-19h10v19M1 22h22M6 11h2m-2 4h2m-2 4h2m6-12h4m-4 4h4m-4 4h4m-4 4h4"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1 3-6Z"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 2 6 0 1 3 3 1 3 4-2 2 0 3-3 2-1 4-5 1-2-3-3-1-3-4 2-3 0-3 3-2 1-4Z"/><circle cx="12" cy="12" r="4"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M3 12h18m-7-7 7 7-7 7"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></symbol>
+<symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 2 10 5v10l-10 5-10-5V7l10-5Zm0 10 10-5M2 7l10 5v10M7 4.5l10 5"/></symbol>
+<symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8 6 4 6 4-6m-4 6v7m-5-7h10m-10 4h10"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 2.8 7.2L22 12l-7.2 2.8L12 22l-2.8-7.2L2 12l7.2-2.8L12 2Z"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3h1Zm3 0v7h10V3M7 21v-7h10v7"/></symbol>
+</defs></svg>
+<noscript>请启用 JavaScript 以开始育成。</noscript>
+<a class="skip-link" href="#tab-content">跳转到当前行动</a>
+<div id="app-root" class="app-root" data-app-version="0.1.0">
+<header id="top-hud" class="top-hud" aria-label="顶部状态栏">
+  <a class="brand" href="./" aria-label="模型育成计划首页"><svg class="brand-mark"><use href="#i-spark"/></svg><div><h1>模型育成计划<span class="brand-dot">.</span></h1><span class="eyebrow">NEXT ITERATION</span></div><span class="edition">下一版</span></a>
+  <ul class="hud-pills" id="hud-pills" aria-label="核心资源与状态">
+    <li id="hud-financial" class="resource resource--gold"><svg><use href="#i-coin"/></svg><div><strong data-hud-value="financial">2400</strong><small>k</small><span>研究资金</span></div></li>
+    <li id="hud-compute" class="resource"><svg><use href="#i-cube"/></svg><div><strong data-hud-value="compute">140</strong><small>CU</small><span>可用算力</span></div></li>
+    <li id="hud-readiness" class="resource resource--ready"><div class="readiness-ring"><strong data-hud-value="readiness">85%</strong></div><div><span class="ready-title">集群状态</span><span>训练就绪度</span></div></li>
+  </ul>
+  <div class="round-meta"><span class="eyebrow">ROUND</span><strong id="round-number">01</strong><span id="turn-badge">第 1 回合</span></div>
+  <div class="hud-controls">
+    <button id="btn-tutorial" class="icon-btn" title="新手教程" aria-label="新手教程" aria-pressed="false">?</button>
+    <details class="save-menu"><summary class="icon-btn" title="存档菜单" aria-label="存档菜单"><svg><use href="#i-save"/></svg></summary><div class="save-menu__panel"><span class="eyebrow">YOUR PROGRESS</span><button id="btn-export-save" class="btn">导出存档</button><button id="btn-import-save" class="btn">导入存档</button><button id="btn-research-view" class="btn" aria-pressed="false">研究视图</button><small id="autosave-status">进度保存在此浏览器</small></div></details>
+    <input id="import-save-input" type="file" accept=".json,application/json" hidden />
+  </div>
+  <ul class="alert-pills" id="alert-pills" aria-label="风险警报"><li id="alert-data" hidden>数据 <span data-alert-value="data"></span></li><li id="alert-legal" hidden>合规 <span data-alert-value="legal"></span></li><li id="alert-bubble" hidden>泡沫 <span data-alert-value="bubble"></span></li></ul>
+</header>
+<nav id="main-tabs" class="main-tabs" role="tablist" aria-label="游戏导航" aria-orientation="vertical">
+  <span class="nav-caption eyebrow">WORKSPACE</span>
+  <button id="tab-train" class="tab is-active" role="tab" data-tab="train" aria-selected="true" aria-controls="tab-content"><svg><use href="#i-book"/></svg><span>育成训练</span><small>TRAINING</small></button>
+  <button id="tab-data" class="tab" role="tab" data-tab="data" aria-selected="false" aria-controls="tab-content" tabindex="-1"><svg><use href="#i-data"/></svg><span>数据工坊</span><small>DATA</small></button>
+  <button id="tab-prep" class="tab" role="tab" data-tab="prep" aria-selected="false" aria-controls="tab-content" tabindex="-1"><svg><use href="#i-coffee"/></svg><span>休息整备</span><small>RECOVERY</small></button>
+  <button id="tab-race" class="tab" role="tab" data-tab="race" aria-selected="false" aria-controls="tab-content" tabindex="-1"><svg><use href="#i-cup"/></svg><span>赛事中心</span><small>COMPETE</small></button>
+  <button id="tab-company" class="tab" role="tab" data-tab="company" aria-selected="false" aria-controls="tab-content" tabindex="-1"><svg><use href="#i-company"/></svg><span>实验室</span><small>LAB</small></button>
+  <button id="tab-codex" class="tab" role="tab" data-tab="codex" aria-selected="false" aria-controls="tab-content" tabindex="-1"><svg><use href="#i-star"/></svg><span>模型图鉴</span><small>ARCHIVE</small></button>
+  <button id="tab-settings" class="tab" role="tab" data-tab="settings" aria-selected="false" aria-controls="tab-content" tabindex="-1"><svg><use href="#i-settings"/></svg><span>设置</span><small>SETTINGS</small></button>
+  <div class="nav-bottom"><button id="btn-new-game" class="new-game" title="选择模型并开始新一局">＋<span>新的育成</span></button><span class="nav-version">LOCAL · v0.5.0</span></div>
+</nav>
+<section id="tutorial-banner" class="tutorial-banner" hidden aria-label="新手教程" aria-live="polite"><div><span id="tutorial-step-counter" class="eyebrow"></span><h2 id="tutorial-step-title"></h2><p id="tutorial-step-text"></p></div><div class="actions-row"><button id="btn-tutorial-prev" class="btn">上一步</button><button id="btn-tutorial-next" class="btn btn--primary">下一步</button><button id="btn-tutorial-skip" class="btn btn--link">关闭</button></div><ol id="tutorial-dots" hidden></ol></section>
+<main id="main-workspace" class="main-workspace">
+ <section id="stage-column" class="stage-column" aria-label="角色舞台与模型状态">
+  <div class="studio-heading"><span class="eyebrow">A LITTLE BETTER, TOGETHER.</span><div class="studio-model"><span id="character-family">Qwen</span><button class="text-btn" data-action="open-partners">更换形象 <span>↗</span></button></div><p id="character-identity">和你一起，走向下一个版本。</p></div>
+  <div class="season-card"><svg><use href="#i-sun"/></svg><div><strong id="season-short">春 · 第一季</strong><span id="season-badge">车库里的第一行权重</span></div><span class="season-dot"></span></div>
+  <div id="character-stage" class="character-stage" data-emotion="neutral"><div class="character-stage__portrait" data-character-portrait></div><div class="stage-motes" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>
+  <div class="stage-status"><span class="status-dot"></span><span id="character-emotion">平静</span><span class="status-divider"></span><span id="stage-parameters">4B · LoRA</span><button class="text-btn" data-action="open-overview">模型档案 ↗</button></div>
+  <div id="character-dialogue" class="character-dialogue" aria-label="角色对白" aria-live="polite"><div class="dialogue-topline"><span id="dialogue-speaker">千问</span><span class="eyebrow">WITH YOU</span><button class="icon-btn" data-action="char-speak" aria-label="和伙伴聊一句" title="和伙伴聊一句"><svg><use href="#i-chat"/></svg></button></div><p id="dialogue-text">早上好，今天也一起进步一点点吧。</p></div>
+  <div class="stage-credit"><button class="text-btn" data-action="open-art-credits">角色美术 · ZipZipPipe ↗</button><span>For a brighter tomorrow.</span></div>
+ </section>
+ <section id="action-column" class="action-column" aria-label="行动与入口">
+  <div id="tab-content" class="tab-content" role="tabpanel" aria-labelledby="tab-train" tabindex="0" data-active-tab="train">
+   <section data-tab-panel="train" class="tab-panel" aria-label="育成训练"></section><section data-tab-panel="data" class="tab-panel" aria-label="数据工坊" hidden></section><section data-tab-panel="prep" class="tab-panel" aria-label="休息整备" hidden></section><section data-tab-panel="race" class="tab-panel" aria-label="赛事中心" hidden></section><section data-tab-panel="company" class="tab-panel" aria-label="实验室" hidden></section><section data-tab-panel="codex" class="tab-panel" aria-label="模型图鉴" hidden></section><section data-tab-panel="settings" class="tab-panel" aria-label="设置" hidden></section>
+  </div>
+  <div id="primary-action" class="training-commit" hidden></div>
+  <footer id="turn-footer" class="turn-footer" aria-label="回合操作"><div><span id="turn-main-action-status" class="turn-status-badge is-available">本回合可以行动</span><span id="turn-preview-text" class="turn-footer__preview-text">选择训练方向，预览本次的成长。</span><span id="turn-footer-turn" hidden></span></div><button id="btn-next-turn" class="next-turn" title="本回合结算后进入下一回合">跳过本回合 <svg><use href="#i-arrow"/></svg></button></footer>
+ </section>
+</main>
+<footer class="growth-footer" aria-label="模型能力"><div class="growth-label"><svg><use href="#i-spark"/></svg><div><strong>成长记录</strong><span class="eyebrow">CURRENT STATS</span></div></div><section id="stats-panel" class="stats-panel" aria-label="模型能力"></section><button class="growth-detail icon-btn" data-action="stats-detail" aria-label="查看能力详情">↗</button></footer>
+<div id="modal-root" class="modal-root" hidden></div><div id="toast-root" class="toast-root" role="status" aria-live="polite"></div>
+<div id="model-summary" hidden></div><div id="risks-panel" hidden></div><div id="deck-panel" hidden></div>
+</div>
+<script type="module" src="./src/ui/app.js?v=4"></script>
+</body></html>

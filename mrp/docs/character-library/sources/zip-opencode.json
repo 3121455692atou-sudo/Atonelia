@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-opencode",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/de8addda736dba61ad620718c42dcfe54168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / batch1-9",
+  "kind": "image",
+  "original_sha256": "06ae5275908dba4c90a6c7480dbcb51d5cdebee2d728aa5c07f68d9067d90093",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.546707+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "OpenCode / 所有的AI们，和OpenCode",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "OpenCode / 所有的AI们，和OpenCode"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1233069202138464289",
+  "use": "reference-only"
+}

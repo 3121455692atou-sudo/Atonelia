@@ -1,0 +1,101 @@
+/* 训练作业的界面（P2.4b，规格 T10）：后台「训练」页、送评面板、模型页的工序标签、主界面“进行中”卡的作业行。
+   这张表是 P2.4b 新加的，它自己的窄屏断点写在本文件末尾（其余页面的断点仍在 mobile.css）。 */
+
+/* ---------- 通用 ---------- */
+.link-btn { border: 0; background: none; padding: 0; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--accent); cursor: pointer; text-align: left; }
+.link-btn:hover { text-decoration: underline; }
+.card-head .link-btn { margin-left: auto; }
+.mini-prog { display: inline-block; vertical-align: middle; width: 42px; height: 5px; margin-right: 6px; border-radius: 3px; background: #e6e5dd; overflow: hidden; }
+.mini-prog i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+.check-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 12.5px; color: var(--ink-2); }
+.check-lines li::before { content: "· "; color: var(--muted); }
+.stage-pill { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; background: #f1efe6; color: var(--ink-2); }
+
+/* ---------- 训练页 ---------- */
+.train-sub { font-size: 13px; color: var(--ink-2); }
+.job-row { border-top: 1px solid var(--line); padding: 8px 0; display: grid; gap: 8px; }
+.train-jobs .card-head + .job-row { border-top: 0; }
+.job-main { display: grid; grid-template-columns: 30px minmax(0, 1.4fr) auto auto minmax(0, 1.3fr) 34px; grid-template-areas: "n name prio cards state more"; align-items: center; gap: 6px 10px; font-size: 13px; }
+.job-n { grid-area: n; font-weight: 700; color: var(--accent); text-align: center; }
+.job-name { grid-area: name; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+.job-prio { grid-area: prio; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--white); font-size: 12px; color: var(--ink-2); }
+.job-prio.is-high { background: var(--accent-soft); border-color: #c5def0; color: var(--accent); font-weight: 700; }
+.job-cards { grid-area: cards; font-family: var(--font-num); font-size: 12.5px; white-space: nowrap; }
+.job-cards small { color: var(--muted); font-family: var(--font-ui); }
+.job-state { grid-area: state; min-width: 0; font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+.job-state.warn { color: var(--warn); }
+.job-state.muted { color: var(--muted); }
+.job-more { grid-area: more; width: 32px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--white); font-weight: 700; line-height: 1; }
+.job-more[aria-expanded="true"] { background: var(--accent-soft); border-color: #c5def0; }
+.job-row.is-paused .job-name { color: var(--muted); }
+.job-menu { display: grid; gap: 8px; padding: 10px 12px; margin-left: 30px; border-radius: 12px; background: #f7f8f4; border: 1px solid var(--line); }
+.job-menu .ops, .model-head .ops, .model-sub .ops, .train-health .ops, .now-ops { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.job-cap { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); }
+.job-cap input, .form input[type="number"] { width: 96px; max-width: 100%; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: #fff; }
+.form input[type="number"] { width: 100%; }
+.job-cap small { color: var(--muted); }
+/* 训练页的表单（新作业、⋯ 菜单里改方向、下一代计划）：选项文字长（“自动（每 7 天换到涨得最多的方向）”），格子和下拉框都允许缩到一列宽，不把页面撑宽。 */
+.newjob-form .form label, .job-post label, .train-plan .form label { min-width: 0; }
+.newjob-form .form select, .job-post select, .train-plan .form select { width: 100%; max-width: 100%; min-width: 0; }
+/* 评测中的候选、检修：没有优先级和“最多 N 张”，一行是 标签｜名字｜还剩几天｜按钮。 */
+.eval-row .job-main, .repair-row .job-main { grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.3fr) auto; grid-template-areas: "n name state btn"; }
+.eval-row .job-n, .repair-row .job-n { font-size: 11px; padding: 3px 8px; border-radius: 6px; background: #e6f4ec; color: var(--ok); }
+.repair-row .job-n { background: #fff1de; color: var(--warn); }
+.eval-row .btn, .repair-row .btn { grid-area: btn; }
+.newjob-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.newjob-tabs .chip-btn { white-space: normal; text-align: left; }
+.newjob-tabs .chip-btn small { font-size: 11.5px; opacity: .8; }
+.newjob-form { display: grid; gap: 8px; padding-top: 4px; border-top: 1px dashed var(--line); }
+.newjob-form > .card { border-style: dashed; }
+.model-row { display: grid; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+.train-models .card-head + .model-row { border-top: 0; }
+.model-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.model-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; flex: 1 1 220px; min-width: 0; padding: 0; border: 0; background: none; text-align: left; font: inherit; color: inherit; }
+button.model-name { cursor: pointer; }
+.model-name small { color: var(--ink-2); font-size: 12.5px; overflow-wrap: anywhere; }
+.model-name em { font-style: normal; font-size: 12px; color: var(--accent); font-weight: 600; }
+.model-detail { display: grid; gap: 8px; padding: 10px 12px; border-radius: 12px; background: #f7f8f4; border: 1px solid var(--line); }
+.model-detail .pick-list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+.model-sub { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding-left: 12px; font-size: 13px; }
+.model-sub small { color: var(--ink-2); }
+.submit-box { display: grid; gap: 8px; }
+.plan-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13.5px; }
+.train-log details summary { cursor: pointer; font-weight: 700; color: var(--ink-2); }
+.train-log .kv { margin-top: 8px; }
+.train-log .kv li b { white-space: nowrap; }
+
+/* ---------- 送评面板（主界面的选择面板和训练页原位展开的同一块） ---------- */
+.tier-pick { border: 0; margin: 0; padding: 0; display: grid; gap: 6px; min-width: 0; }
+.tier-pick legend { font-size: 12.5px; font-weight: 700; color: var(--ink-2); margin-bottom: 4px; }
+.tier-opt { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: start; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+.tier-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.tier-opt span { display: grid; gap: 2px; min-width: 0; }
+.tier-opt b { font-size: 13px; }
+.tier-opt small { font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+.paper-row { display: grid; gap: 4px; }
+.paper-row .toggle { margin: 0; }
+.small-pick { display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+.small-pick select { padding: 7px 8px; border-radius: 9px; border: 1px solid var(--line); background: #fff; max-width: 100%; }
+.eval-now { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--ink-2); }
+
+/* ---------- 主界面“进行中”卡的作业行（点一行在原位展开操作） ---------- */
+.now-job { width: 100%; padding: 2px 4px; margin: 0 -4px; border-radius: 8px; border: 0; background: none; text-align: left; font: inherit; color: inherit; cursor: pointer; box-sizing: content-box; }
+.now-job:hover, .now-job.is-open { background: #f3f5f7; }
+.now-job small.warn { color: var(--warn); }
+.now-ops { padding: 2px 0 6px 52px; }
+.now-sum { grid-template-columns: minmax(0, 1fr) auto; }
+.now-sum small { white-space: normal; }
+
+/* ---------- 窄屏 ---------- */
+@media (max-width: 860px) {
+  /* 每个作业两行：编号｜名字｜⋯，下面是 优先级｜张数｜状态；⋯ 在原位展开操作。 */
+  .job-main { grid-template-columns: 26px auto auto minmax(0, 1fr) 34px; grid-template-areas: "n name name name more" "n prio cards state state"; }
+  .eval-row .job-main, .repair-row .job-main { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "n name btn" "n state state"; }
+  .job-menu { margin-left: 0; }
+  .now-ops { padding-left: 0; }
+}
+@media (max-width: 480px) {
+  .job-main { grid-template-columns: 22px auto minmax(0, 1fr) 34px; grid-template-areas: "n name name more" "n prio cards cards" "n state state state"; }
+  .job-cards { white-space: normal; }
+  .model-sub { padding-left: 0; }
+}

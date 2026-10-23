@@ -1,0 +1,10 @@
+import { readFileSync } from 'node:fs';
+const rows = readFileSync(new URL('./grid.ndjson', import.meta.url), 'utf8').trim().split('\n').map(l => JSON.parse(l));
+const fails = rows.filter(r => r.fail); if (fails.length) console.log('FAIL', fails);
+const key = r => `${r.tier}/${r.year}/n${r.n}/${r.routes}/ref:${r.ref}/anc:${r.anchor}${r.clamp ? '/clamp' : ''}${r.shill ? '/shill' : ''}${r.horizon !== 5 ? '/h' + r.horizon : ''}${r.supply !== 2 ? '/supply' + r.supply : ''}`;
+const groups = {};
+for (const r of rows.filter(r => !r.fail)) (groups[key(r)] ??= []).push(r);
+const med = a => { const b = a.filter(x => x !== null && x !== undefined && Number.isFinite(x)).sort((x, y) => x - y); return b.length ? b[Math.floor((b.length - 1) / 2)] : null; };
+const cols = ['firstQ', 'spreadMean', 'leadMean', 'acadStart', 'probeQ', 'realOpenRef', 'acadOverDays', 'endBest', 'realOpenEnd', 'realFrontEnd', 'swaps', 'stallMax', 'lead8Max', 'holderViol', 'acadViol', 'leaderFmed', 'allFmed', 'kinLift', 'acadEnd', 'techEvents', 'errors', 'crashed', 'msPerCoDay'];
+console.log(['config', 'k', ...cols, 'band', 'seeds:endBest'].join('\t'));
+for (const [k, g] of Object.entries(groups)) console.log([k, g.length, ...cols.map(c => { const v = med(g.map(r => r[c])); return v === null ? '-' : Math.round(v * 100) / 100; }), g.filter(r => r.band).length + '/' + g.length, g.map(r => `${r.seed}:${r.endBest}/${r.swaps}/${r.stallMax}`).join(' ')].join('\t'));

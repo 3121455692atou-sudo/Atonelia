@@ -1,0 +1,40 @@
+{
+ "kind": "world",
+ "scene": [
+  {
+   "who": "narr",
+   "emo": "",
+   "text": "2025年2月，Anthropic推出Claude 3.7与Claude Code，OpenAI则端出天价的GPT-4.5。"
+  },
+  {
+   "who": "claude",
+   "emo": "认真",
+   "text": "向大家介绍一下，这是我的终端编程助手 Claude Code，写代码更高效了哦。"
+  },
+  {
+   "who": "claude_code",
+   "emo": "得意",
+   "text": "哔哔！橙色终端花登场！人类只要动嘴，屎山代码统统交给我修剪！"
+  },
+  {
+   "who": "self",
+   "emo": "震惊",
+   "text": "终端都要被你们包圆了？！那隔壁 OpenAI 新出的 GPT-4.5 呢？"
+  },
+  {
+   "who": "claude",
+   "emo": "平静",
+   "text": "4.5小姐很有实力，但每百万输出 token 卖 150 美元，稍微有点贵呢。"
+  },
+  {
+   "who": "claude_code",
+   "emo": "无语",
+   "text": "150 刀？抢劫啊！跑两行报错都能吃垮一家小创业公司！"
+  },
+  {
+   "who": "self",
+   "emo": "慌张",
+   "text": "别人家一个专攻写代码，一个贵成奢侈品……老板，我们公司接下来该怎么卷？"
+  }
+ ]
+}

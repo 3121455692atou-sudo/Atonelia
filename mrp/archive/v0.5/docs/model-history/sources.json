@@ -1,0 +1,605 @@
+[
+  {
+    "id": "qwen2",
+    "title": "Hello Qwen2",
+    "date": "2024-06-07",
+    "url": "https://qwenlm.github.io/blog/qwen2/",
+    "publisher": "Qwen Team",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "qwen25",
+    "title": "Qwen2.5: A Party of Foundation Models!",
+    "date": "2024-09-19",
+    "url": "https://qwenlm.github.io/blog/qwen2.5/",
+    "publisher": "Qwen Team",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "qwen_coder",
+    "title": "Qwen2.5-Coder Series",
+    "date": "2024-11-12",
+    "url": "https://qwenlm.github.io/blog/qwen2.5-coder-family/",
+    "publisher": "Qwen Team",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ds_math",
+    "title": "DeepSeekMath",
+    "date": "2024-02-05",
+    "url": "https://arxiv.org/abs/2402.03300",
+    "publisher": "DeepSeekMath authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ds_v2",
+    "title": "DeepSeek-V2 official repository",
+    "date": "2024-05",
+    "url": "https://github.com/deepseek-ai/DeepSeek-V2",
+    "publisher": "DeepSeek",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ds_v3",
+    "title": "DeepSeek-V3 official repository",
+    "date": "2024-12",
+    "url": "https://github.com/deepseek-ai/DeepSeek-V3",
+    "publisher": "DeepSeek",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ds_r1",
+    "title": "DeepSeek-R1 Release",
+    "date": "2025-01-20",
+    "url": "https://api-docs.deepseek.com/news/news250120/",
+    "publisher": "DeepSeek",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ds_pro",
+    "title": "DeepSeek-V4-Pro GA Release",
+    "date": "2026-08-13",
+    "url": "https://api-docs.deepseek.com/news/news260813/",
+    "publisher": "DeepSeek",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ds_flash",
+    "title": "DeepSeek-V4.1-Flash: Smarter, Faster, More Efficient",
+    "date": "2026-09-10",
+    "url": "https://api-docs.deepseek.com/news/news260910/",
+    "publisher": "DeepSeek",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "gemini1",
+    "title": "Introducing Gemini",
+    "date": "2023-12-06",
+    "url": "https://blog.google/innovation-and-ai/technology/ai/google-gemini-ai/",
+    "publisher": "Google",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "gemini15",
+    "title": "Our next-generation model: Gemini 1.5",
+    "date": "2024-02-15",
+    "url": "https://blog.google/innovation-and-ai/products/google-gemini-next-generation-model-february-2024/",
+    "publisher": "Google",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "gemini_flash",
+    "title": "Gemini breaks new ground",
+    "date": "2024-05-14",
+    "url": "https://blog.google/innovation-and-ai/products/google-gemini-update-flash-ai-assistant-io-2024/",
+    "publisher": "Google",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "constitutional",
+    "title": "Constitutional AI: Harmlessness from AI feedback",
+    "date": "2022-12-15",
+    "url": "https://www.anthropic.com/news/constitutional-ai-harmlessness-from-ai-feedback",
+    "publisher": "Anthropic",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "claude3",
+    "title": "Introducing the next generation of Claude",
+    "date": "2024-03-04",
+    "url": "https://www.anthropic.com/news/claude-3-family",
+    "publisher": "Anthropic",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "claude_computer",
+    "title": "Developing a computer use model",
+    "date": "2024-10-22",
+    "url": "https://www.anthropic.com/news/developing-computer-use",
+    "publisher": "Anthropic",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "gpt2_staged",
+    "title": "Better language models and their implications",
+    "date": "2019-02-14",
+    "url": "https://openai.com/index/better-language-models/",
+    "publisher": "OpenAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "gpt2_full",
+    "title": "GPT-2: 1.5B release",
+    "date": "2019-11-05",
+    "url": "https://openai.com/index/gpt-2-1-5b-release/",
+    "publisher": "OpenAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "chatgpt",
+    "title": "Introducing ChatGPT",
+    "date": "2022-11-30",
+    "url": "https://openai.com/index/chatgpt/",
+    "publisher": "OpenAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "gpt4",
+    "title": "GPT-4 Technical Report",
+    "date": "2023-03-15",
+    "url": "https://arxiv.org/abs/2303.08774",
+    "publisher": "OpenAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "gpt4o",
+    "title": "Hello GPT-4o",
+    "date": "2024-05-13",
+    "url": "https://openai.com/index/hello-gpt-4o/",
+    "publisher": "OpenAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "o1",
+    "title": "Introducing OpenAI o1-preview",
+    "date": "2024-09-12",
+    "url": "https://openai.com/index/introducing-openai-o1-preview/",
+    "publisher": "OpenAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "kimi15",
+    "title": "Kimi k1.5: Scaling Reinforcement Learning with LLMs",
+    "date": "2025-01-22",
+    "url": "https://arxiv.org/abs/2501.12599",
+    "publisher": "Kimi Team",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "kimi2",
+    "title": "Kimi K2: Open Agentic Intelligence",
+    "date": "2025-07-28",
+    "url": "https://arxiv.org/abs/2507.20534",
+    "publisher": "Kimi Team",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "chatglm",
+    "title": "ChatGLM-6B official repository",
+    "date": "2023-03",
+    "url": "https://github.com/zai-org/ChatGLM-6B",
+    "publisher": "ChatGLM Team",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "glm45",
+    "title": "GLM-4.5: Agentic, Reasoning, and Coding",
+    "date": "2025-08-08",
+    "url": "https://arxiv.org/abs/2508.06471",
+    "publisher": "GLM-4.5 Team",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "grok1",
+    "title": "Announcing Grok",
+    "date": "2023-11-03",
+    "url": "https://x.ai/news/grok",
+    "publisher": "xAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "grok_open",
+    "title": "Open Release of Grok-1",
+    "date": "2024-03-17",
+    "url": "https://x.ai/news/grok-os",
+    "publisher": "xAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "seed_thinking",
+    "title": "Seed-Thinking-v1.5 Technical Details Disclosed",
+    "date": "2025-04-14",
+    "url": "https://seed.bytedance.com/en/blog/bytedance-s-latest-thinking-model-seed-thinking-v1-5-technical-details-disclosed",
+    "publisher": "ByteDance Seed",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "seed_vl",
+    "title": "Seed1.5-VL",
+    "date": "2025-05-13",
+    "url": "https://seed.bytedance.com/en/tech/seed1_5_vl",
+    "publisher": "ByteDance Seed",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "rwkv",
+    "title": "RWKV: Reinventing RNNs for the Transformer Era",
+    "date": "2023-05-22",
+    "url": "https://arxiv.org/abs/2305.13048",
+    "publisher": "RWKV authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "rwkv7",
+    "title": "RWKV-7 Goose",
+    "date": "2025-03-18",
+    "url": "https://arxiv.org/abs/2503.14456",
+    "publisher": "RWKV authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ernie",
+    "title": "ERNIE: Enhanced Representation through Knowledge Integration",
+    "date": "2019-04-19",
+    "url": "https://arxiv.org/abs/1904.09223",
+    "publisher": "Baidu ERNIE authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ernie45",
+    "title": "ERNIE 4.5 Technical Report",
+    "date": "2025-06-29",
+    "url": "https://ernie.baidu.com/blog/publication/ERNIE_Technical_Report.pdf",
+    "publisher": "Baidu ERNIE Team",
+    "access": "official_search_excerpt",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "ernie45_repo",
+    "title": "ERNIE 4.5 official repository",
+    "date": "2025-06",
+    "url": "https://github.com/PaddlePaddle/ERNIE",
+    "publisher": "Baidu ERNIE Team",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "mistral7",
+    "title": "Mistral 7B",
+    "date": "2023-09-27",
+    "url": "https://mistral.ai/news/announcing-mistral-7b/",
+    "publisher": "Mistral AI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "mixtral",
+    "title": "Mixtral of experts",
+    "date": "2023-12-11",
+    "url": "https://mistral.ai/news/mixtral-of-experts/",
+    "publisher": "Mistral AI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "codestral",
+    "title": "Codestral",
+    "date": "2024-05-29",
+    "url": "https://mistral.ai/news/codestral/",
+    "publisher": "Mistral AI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "minimax01",
+    "title": "MiniMax-01 is Now Open-Source",
+    "date": "2025-01-15",
+    "url": "https://www.minimax.io/news/minimax-01-series-2",
+    "publisher": "MiniMax",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "minimax_m1",
+    "title": "MiniMax-M1",
+    "date": "2025-06-16",
+    "url": "https://www.minimax.io/news/minimaxm1",
+    "publisher": "MiniMax",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "sonar",
+    "title": "Meet New Sonar",
+    "date": "2025-02-11",
+    "url": "https://www.perplexity.ai/en-GB/hub/blog/meet-new-sonar",
+    "publisher": "Perplexity",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "pplx_research",
+    "title": "Introducing Perplexity Deep Research",
+    "date": "2025-02-14",
+    "url": "https://www.perplexity.ai/en-GB/hub/blog/introducing-perplexity-deep-research",
+    "publisher": "Perplexity",
+    "access": "official_search_excerpt",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "pplx_index",
+    "title": "Perplexity official blog archive",
+    "date": "2025",
+    "url": "https://hub-prod.perplexity.ai/",
+    "publisher": "Perplexity",
+    "access": "official_search_excerpt",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "dalle2",
+    "title": "Hierarchical text-conditional image generation with CLIP latents",
+    "date": "2022-04-13",
+    "url": "https://openai.com/index/hierarchical-text-conditional-image-generation-with-clip-latents/",
+    "publisher": "OpenAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "image4o",
+    "title": "Introducing 4o Image Generation",
+    "date": "2025-03-25",
+    "url": "https://openai.com/index/introducing-4o-image-generation/",
+    "publisher": "OpenAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "llama1",
+    "title": "LLaMA: Open and Efficient Foundation Language Models",
+    "date": "2023-02-27",
+    "url": "https://arxiv.org/abs/2302.13971",
+    "publisher": "Meta LLaMA authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "llama2",
+    "title": "Meta and Microsoft Introduce the Next Generation of Llama",
+    "date": "2023-07-18",
+    "url": "https://about.fb.com/news/2023/07/llama-2/",
+    "publisher": "Meta",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "llama31",
+    "title": "Introducing Llama 3.1",
+    "date": "2024-07-23",
+    "url": "https://ai.meta.com/blog/meta-llama-3-1/",
+    "publisher": "Meta",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "hunyuan_large",
+    "title": "Hunyuan-Large",
+    "date": "2024-11-04",
+    "url": "https://arxiv.org/abs/2411.02265",
+    "publisher": "Tencent Hunyuan authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "hunyuan_video",
+    "title": "HunyuanVideo",
+    "date": "2024-12-03",
+    "url": "https://arxiv.org/abs/2412.03603",
+    "publisher": "Tencent Hunyuan authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "step_video",
+    "title": "Step-Video-T2V official repository",
+    "date": "2025-02-17",
+    "url": "https://github.com/stepfun-ai/Step-Video-T2V",
+    "publisher": "StepFun",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "step_audio",
+    "title": "Step-Audio official repository",
+    "date": "2025-02-17",
+    "url": "https://github.com/stepfun-ai/Step-Audio",
+    "publisher": "StepFun",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "novelai",
+    "title": "NovelAI model history",
+    "date": "2026-10-19",
+    "url": "https://docs.novelai.net/en/text/models/",
+    "publisher": "NovelAI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "mj_versions",
+    "title": "Midjourney model versions",
+    "date": "2026-10-19",
+    "url": "https://docs.midjourney.com/hc/en-us/articles/32199405667853-Version",
+    "publisher": "Midjourney",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "mj_v7",
+    "title": "V7 is now the default model!",
+    "date": "2025-06-17",
+    "url": "https://updates.midjourney.com/v7-is-now-the-default-model/",
+    "publisher": "Midjourney",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "suno3",
+    "title": "Introducing v3",
+    "date": "2024-03-21",
+    "url": "https://about.suno.com/blog/v3",
+    "publisher": "Suno",
+    "access": "official_search_excerpt",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "suno4",
+    "title": "v4 is here!",
+    "date": "2024-11-19",
+    "url": "https://suno.com/release-notes/v4-is-here",
+    "publisher": "Suno",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "eleven2",
+    "title": "Eleven Multilingual v2",
+    "date": "2023-08-22",
+    "url": "https://elevenlabs.io/blog/eleven-multilingual-v2",
+    "publisher": "ElevenLabs",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "eleven3",
+    "title": "Introducing Eleven v3 alpha",
+    "date": "2025-06-03",
+    "url": "https://elevenlabs.io/blog/eleven-v3",
+    "publisher": "ElevenLabs",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "phi1",
+    "title": "Textbooks Are All You Need",
+    "date": "2023-06-20",
+    "url": "https://arxiv.org/abs/2306.11644",
+    "publisher": "Microsoft Research authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "phi15",
+    "title": "Textbooks Are All You Need II: phi-1.5",
+    "date": "2023-09-11",
+    "url": "https://arxiv.org/abs/2309.05463",
+    "publisher": "Microsoft Research authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "llada",
+    "title": "Large Language Diffusion Models",
+    "date": "2025-02-14",
+    "url": "https://arxiv.org/abs/2502.09992",
+    "publisher": "LLaDA authors",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "fable5",
+    "title": "Claude Fable 5 and Claude Mythos 5",
+    "date": "2026-06-09",
+    "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5",
+    "publisher": "Anthropic",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "fable_restore",
+    "title": "Redeploying Fable 5",
+    "date": "2026-06-30",
+    "url": "https://www.anthropic.com/news/redeploying-fable-5",
+    "publisher": "Anthropic",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "fable_safeguards",
+    "title": "Fable 5 cyber safeguards and jailbreak framework",
+    "date": "2026-07-02",
+    "url": "https://www.anthropic.com/news/fable-safeguards-jailbreak-framework",
+    "publisher": "Anthropic",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "fable51",
+    "title": "Introducing Claude Fable 5.1 and Claude Mythos 5.1",
+    "date": "2026-09-01",
+    "url": "https://www.anthropic.com/claude-fable-and-mythos-5-1",
+    "publisher": "Anthropic",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "jev_launch",
+    "title": "Introducing System One Models & Jev",
+    "date": "2026-09-15",
+    "url": "https://typesafe.ai/blog/introducing-system-one-models-and-jev",
+    "publisher": "TypeSafe AI",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  },
+  {
+    "id": "jev_gateway",
+    "title": "Jev is the fastest-adopted model in AI Gateway history",
+    "date": "2026-09-18",
+    "url": "https://vercel.com/blog/ai-gateway-jev-model-launch",
+    "publisher": "Vercel",
+    "access": "primary_page",
+    "checked_at": "2026-10-19"
+  }
+]

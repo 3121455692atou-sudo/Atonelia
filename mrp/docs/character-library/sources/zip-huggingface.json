@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-huggingface",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/4bbbdb46e485457311f827d9912ab7d84168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / huggingface-1",
+  "kind": "image",
+  "original_sha256": "0f848d326d441b9827351c7673a0a2a735234a9bad2237f5362958725f3d7962",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.587086+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "Hugging Face / Hugging Face",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "Hugging Face / Hugging Face"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1246404332576833541",
+  "use": "reference-only"
+}

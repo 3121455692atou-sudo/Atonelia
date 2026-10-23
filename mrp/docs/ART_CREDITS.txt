@@ -1,0 +1,254 @@
+美术鸣谢 · v0.4.1 · 2026-10-19
+
+作者：ZipZipPipe
+主页：https://space.bilibili.com/4168597/dynamic
+
+本次收录 25 位可育成模型、14 位工具 NPC 及 2 位设施 NPC。NPC 仅参与世界互动，不可育成、训练或参赛。核对公开动态 144 条；同角色的换装、表情不重复计数。详尽核对范围、可编辑观察记录和来源回执见 character-library/。
+背景、透明全身延展、去背景与表情差分使用内置 imagegen；部分透明原图保留不修改。完整生成提示词、参考图与文件校验值见 art-manifest.json。
+鲸鱼娘原设来源为上善无形，ZipZipPipe 二创，保留 CC BY-NC-SA 4.0 的非商业、署名、相同方式共享说明。
+其他角色未核实统一开放授权；本机个人体验不代表取得商业再授权。工具生成的差分不抹除参考设计的来源与约束。
+角色标签、对白、育成能力和路线由游戏作同人改编，不代表作者原设、官方模型历史或现实性能。
+
+逐角色原帖与署名：
+
+Qwen · 千问
+千问桌面壁纸
+https://www.bilibili.com/opus/1239583108485873687
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+DeepSeek Flash · 小肥鱼 · 画家
+DeepSeek V4.1 Flash
+https://www.bilibili.com/opus/1260500926350753799
+署名：ZipZipPipe；CC BY-NC-SA 4.0 · 上善无形原设 / ZipZipPipe 二创
+
+Gemini · 哈基米 · Argon
+Gemini 4 Argon
+https://www.bilibili.com/opus/1259436942689304579
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Claude · 克劳德
+Claude桌面壁纸
+https://www.bilibili.com/opus/1239937623660691478
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+GPT · Astra
+GPT-6 Astra
+https://www.bilibili.com/opus/1244428286878023718
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+DeepSeek Pro · 大肥鱼 · 女仆
+所有的AI们，和OpenCode
+https://www.bilibili.com/opus/1233069202138464289
+署名：ZipZipPipe；CC BY-NC-SA 4.0 · 上善无形原设 / ZipZipPipe 二创
+
+Kimi · 月下的旋律
+所有的AI们，和OpenCode
+https://www.bilibili.com/opus/1233069202138464289
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+GLM · 智谱狐娘
+所有的AI们，和OpenCode
+https://www.bilibili.com/opus/1233069202138464289
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Grok · 黑金吸血鬼
+所有的AI们，和OpenCode
+https://www.bilibili.com/opus/1233069202138464289
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Seed · 豆包底模
+AI娘第二批，有Seed（豆包底模）
+https://www.bilibili.com/opus/1236803362705375305
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+RWKV · 鸦鸦
+AI娘第二批，有Seed（豆包底模）
+https://www.bilibili.com/opus/1236803362705375305
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+ERNIE · 文心一言
+AI娘第二批，有Seed（豆包底模）
+https://www.bilibili.com/opus/1236803362705375305
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Mistral · 法棍骑士
+AI娘第二批，有Seed（豆包底模）
+https://www.bilibili.com/opus/1236803362705375305
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+MiniMax · 灵感记录者
+AI娘第二批，有Seed（豆包底模）
+https://www.bilibili.com/opus/1236803362705375305
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Perplexity · 提灯的检索者
+AI娘第二批，有Seed（豆包底模）
+https://www.bilibili.com/opus/1236803362705375305
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Image 2 · 黑龙画师
+AI娘第二批，有Seed（豆包底模）
+https://www.bilibili.com/opus/1236803362705375305
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Llama · 困困羊驼
+AI娘第二批，有Seed（豆包底模）
+https://www.bilibili.com/opus/1236803362705375305
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Hunyuan · 混元
+是HY娘哦
+https://www.bilibili.com/opus/1242184338245681157
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+StepFun · 阶跃星辰
+StepFun娘化
+https://www.bilibili.com/opus/1257516954839678982
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+NovelAI · 金羽的书写者
+Novel AI娘
+https://www.bilibili.com/opus/1243825685770797113
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Midjourney · 远航的灵感
+2万粉贺图——生成式大模型
+https://www.bilibili.com/opus/1244061599751208994
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Suno · 旋律与节拍
+2万粉贺图——生成式大模型
+https://www.bilibili.com/opus/1244061599751208994
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+ElevenLabs · 轻声的讲述者
+2万粉贺图——生成式大模型
+https://www.bilibili.com/opus/1244061599751208994
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Fable 5 · 旧日的哲思
+9000粉丝贺图——往日种种
+https://www.bilibili.com/opus/1237359535163703301
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+JEV · 沉默的裁判者
+JEV娘
+https://www.bilibili.com/opus/1253808555541135367
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+OpenCode · 机械龙娘
+所有的AI们，和OpenCode
+https://www.bilibili.com/opus/1233069202138464289
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Codex · 白龙工程师
+龙娘三视图
+https://www.bilibili.com/opus/1238613841710940181
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验；作者注明形象来自群友或朋友，原帖未披露姓名。
+
+GitHub Copilot · 空域领航员
+GitHub Copilot
+https://www.bilibili.com/opus/1258988140077514757
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Microsoft Copilot · 彩虹助手
+Microsoft Copilot
+https://www.bilibili.com/opus/1258535892903002133
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+LobeHub · 紫色工作台
+lobehub娘
+https://www.bilibili.com/opus/1257825333538717705
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Zcode · 蒙眼工程师
+Zcode娘人设
+https://www.bilibili.com/opus/1240327263126290448
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+DeepSeek Harness · 黑白鲸鱼
+DeepSeek Harness
+https://www.bilibili.com/opus/1236362986801594377
+署名：ZipZipPipe；CC BY-NC-SA 4.0 · 上善无形原设 / ZipZipPipe 二创
+
+Hugging Face · 抱抱脸
+Hugging Face
+https://www.bilibili.com/opus/1246404332576833541
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Ascend · 昇腾狼娘
+昇腾娘
+https://www.bilibili.com/opus/1254840996970102805
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Kiro · 紫色小幽灵
+2000！万岁≧▽≦
+https://www.bilibili.com/opus/1233310497725481001
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Cursor · 银发的指针
+2000！万岁≧▽≦
+https://www.bilibili.com/opus/1233310497725481001
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Antigravity · 蓝色轻引力
+2000！万岁≧▽≦
+https://www.bilibili.com/opus/1233310497725481001
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Pi · 纯白终端
+25000粉贺图
+https://www.bilibili.com/opus/1247070559291834376
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+Claude Code · 橙色终端花
+25000粉贺图
+https://www.bilibili.com/opus/1247070559291834376
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验；作者注明形象来自群友或朋友，原帖未披露姓名。
+
+SillyTavern · 酒馆狐娘
+25000粉贺图
+https://www.bilibili.com/opus/1247070559291834376
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+ComfyUI · 节点工程师
+刚刚睡醒就4000粉丝了？
+https://www.bilibili.com/opus/1236581050888486921
+署名：ZipZipPipe；未检得统一再授权声明；本机个人体验
+
+
+育成模式新增场景 · 2026-10-19
+使用内置 imagegen 生成，延续 sunlit-atelier.png 的明亮柔和日系动画水彩风格。均为 1536×1024 不透明 PNG，画面无人物、文字或 Logo，中下部预留角色立绘与 UI 叠加空间；完整提示词与校验值见 art-manifest.json。
+
+assets/backgrounds/career-arena.png · 评测赛场 · built-in image_gen; original opaque PNG
+assets/backgrounds/career-camp.png · 夏季集训营 · built-in image_gen; original opaque PNG
+assets/backgrounds/career-outing.png · 外出 · built-in image_gen; original opaque PNG
+assets/backgrounds/career-gala.png · 年度模型大赏 · built-in image_gen; original opaque PNG
+
+
+事件背景 · 2026-10-19（v0.7）
+由 Codex 内置 imagegen 生成，日系视觉小说背景美术风格，1536×1024，画面无人物、文字或 Logo。
+
+assets/backgrounds/event-court.png · 法庭（诉讼）
+assets/backgrounds/event-exchange.png · 交易所与敲钟台（IPO、融资、股价）
+assets/backgrounds/event-datacenter.png · AI 数据中心（算力、宕机、429、Agent 安全事故）
+assets/backgrounds/event-launch.png · 发布会舞台（新模型发布、范式变化）
+assets/backgrounds/event-lab-night.png · 深夜办公室（历史时刻、训练日常）
+assets/backgrounds/event-port.png · 集装箱港口（出口管制）
+assets/backgrounds/event-hearing.png · 听证会会议室（监管、立法）
+
+
+硬件照片 · 2026-10-19（v0.7）
+来自 Wikimedia Commons，按各自许可署名使用；完整字段见 assets/hardware/CREDITS.json，游戏内在照片下方显示作者与许可链接。
+没有可用授权实拍的型号用同代外形照或整机柜照代替，并在图上注明（例如 H200 用 H100 照片，Vera Rubin 用 GB200 NVL72 整柜）。
+CC BY-SA 4.0 的三张（b200、rubin、ascend910b）衍生使用须以相同方式共享。
+
+assets/hardware/h100.jpg · NVIDIA H100 (极客湾Geekerwan) 001.png · 极客湾Geekerwan · CC BY 3.0 · https://commons.wikimedia.org/wiki/File:NVIDIA_H100_(%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_001.png
+assets/hardware/h200.jpg · NVIDIA H100 (极客湾Geekerwan) 018.png · 极客湾Geekerwan · CC BY 3.0 · https://commons.wikimedia.org/wiki/File:NVIDIA_H100_(%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_018.png · 示意替身
+assets/hardware/a100.jpg · NVIDIA H100 (极客湾Geekerwan) 011.png · 极客湾Geekerwan · CC BY 3.0 · https://commons.wikimedia.org/wiki/File:NVIDIA_H100_(%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_011.png · 示意替身
+assets/hardware/b200.jpg · Nvidia DGX-B200-HGX.jpg · Pokiiri · CC BY-SA 4.0 · https://commons.wikimedia.org/wiki/File:Nvidia_DGX-B200-HGX.jpg
+assets/hardware/rubin.jpg · Nvidia DGX GB200.jpg · Pokiiri · CC BY-SA 4.0 · https://commons.wikimedia.org/wiki/File:Nvidia_DGX_GB200.jpg · 示意替身
+assets/hardware/ascend910b.jpg · WAIC 2025 - Atlas SuperPoD 03.jpg · Xuthoria · CC BY-SA 4.0 · https://commons.wikimedia.org/wiki/File:WAIC_2025_-_Atlas_SuperPoD_03.jpg · 示意替身
+assets/hardware/rack.jpg · CSIRO ScienceImage 11313 The CSIRO GPU cluster at the data centre.jpg · CSIRO (Commonwealth Scientific and Industrial Research Organisation) · CC BY 3.0 · https://commons.wikimedia.org/wiki/File:CSIRO_ScienceImage_11313_The_CSIRO_GPU_cluster_at_the_data_centre.jpg
+assets/hardware/gb200.jpg · Eindrücke von der COMPUTEX 2024 ( 极客湾Geekerwan) 22.png · 极客湾Geekerwan · CC BY 3.0 · https://commons.wikimedia.org/wiki/File:Eindr%C3%BCcke_von_der_COMPUTEX_2024_(_%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_22.png
+assets/hardware/h100_quad.jpg · NVIDIA H100 (极客湾Geekerwan) 024.png · 极客湾Geekerwan · CC BY 3.0 · https://commons.wikimedia.org/wiki/File:NVIDIA_H100_(%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_024.png

@@ -1,0 +1,119 @@
+/* 窄屏：所有按宽度的断点都在这里，按原来的先后顺序排，放在最后加载，盖住前面的基础规则。 */
+
+/* ---------- 窄屏 ---------- */
+@media (max-width: 980px) {
+  .home { grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr); }
+  .res small { display: none; }
+}
+@media (max-width: 860px) {
+  .select-body { grid-template-columns: 1fr; }
+  .select-detail { position: fixed; inset: auto 0 0 0; top: auto; height: auto; max-height: 88dvh; z-index: 20; border-left: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -12px 40px rgba(31, 52, 72, .25); }
+  .select-detail--empty { display: none; }
+  .select-detail__close { display: grid; position: absolute; top: 10px; right: 10px; z-index: 3; }
+  .select-detail__art { flex: none; height: 34dvh; min-height: 0; }
+  .scenario-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px 14px 4px; }
+  .scenario { padding: 10px 12px; }
+  .scenario b { font-size: 14px; line-height: 1.35; }
+  .scenario small { font-size: 12px; }
+  .scenario-desc { padding: 4px 14px 0; }
+  .select-grid { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); padding: 12px 14px 32px; gap: 10px; }
+  .app--home { height: auto; min-height: 100dvh; overflow: visible; }
+  .topbar { flex-wrap: wrap; gap: 6px 10px; padding: 8px 12px; position: sticky; top: 0; z-index: 10; }
+  .date-block { min-width: 0; }
+  .date-block b { font-size: 22px; }
+  .date-block small { display: none; }
+  .goal-card { order: 3; flex-basis: 100%; margin-right: 0; }
+  .res-block { margin-left: auto; gap: 8px; }
+  .btn--office span { display: none; }
+  .btn--office { min-height: 36px; padding: 0 10px; }
+  .home { display: flex; flex-direction: column; }
+  .stage { height: max(270px, 38dvh); flex: none; }
+  .nameplate { bottom: 84px; }
+  .bubble { min-height: 0; padding: 9px 12px; }
+  .bubble p { font-size: 13.5px; }
+  .panel { border-left: 0; overflow: visible; padding: 12px; }
+  .next-step { order: -1; margin-top: 0; }
+  .next-btn b { font-size: 18px; }
+  .ops-card { grid-template-columns: repeat(3, 1fr); row-gap: 8px; }
+  .office { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .office-nav { flex-direction: row; align-items: center; padding: 8px; border-right: 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .office-title { display: none; }
+  .office-nav nav { display: flex; gap: 2px; }
+  .office-nav nav button { white-space: nowrap; padding: 7px 10px; font-size: 13px; }
+  .office-close { margin: 0 0 0 6px; flex: none; min-height: 34px; padding: 0 12px; font-size: 12.5px; }
+  .office-body { padding: 14px 12px 40px; }
+  .result-hero { grid-template-columns: 120px 1fr; }
+  .result-hero img { height: 170px; }
+  .result-rank .rank { font-size: 70px; }
+  .breakdown { grid-template-columns: 1fr 1fr; }
+  .offers { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .title-card { padding: 20px 16px; }
+  .title-card h1 { font-size: 30px; }
+  .title-screen { padding-bottom: 100px; }
+  .title-lineup { height: 62dvh; }
+  .title-lineup img:nth-child(1), .title-lineup img:nth-child(5) { display: none; }
+  .title-lineup img { margin: 0 -14%; }
+  .select-grid { grid-template-columns: repeat(3, 1fr); }
+  .pick-co, .pick-model { display: none; }
+  .res:nth-child(3) { display: none; }
+  .dim { grid-template-columns: 54px 1fr 38px; }
+  .act-row .act b { font-size: 13.5px; }
+  .act-row .act small { display: none; }
+  .bars li { grid-template-columns: 22px minmax(60px, 110px) 1fr 54px; font-size: 11.5px; }
+  /* 名字一栏只有 60–110px：括号后缀不显示，省略号只截主名（完整名字在 title 里）。 */
+  .bars .nm-sfx { display: none; }
+  .overlay:not(.overlay--vn):not(.overlay--bench):not(.overlay--office) { align-items: end; padding: 0; }
+  .overlay:not(.overlay--vn):not(.overlay--bench):not(.overlay--office) .sheet { border-radius: 22px 22px 0 0; max-height: 92dvh; }
+  .vn-char { height: 70%; margin: 0 -14%; }
+  .vn-top b { font-size: 15px; padding: 4px 10px; }
+  .vn-text { font-size: 15px; }
+  .suite li { grid-template-columns: 96px 1fr 56px; font-size: 12px; }
+  .news li, .goals li { grid-template-columns: 1fr; }
+  .stage-chips { padding: 8px 8px 0; gap: 4px; }
+}
+
+@media (max-width: 480px) {
+  .hw-card figure { aspect-ratio: 2 / 1; }
+  .ev-art { height: 120px; }
+}
+
+@media (max-width: 860px) {
+  .speed { order: 2; padding: 3px 8px 3px 3px; }
+  .speed-play span { display: none; }
+  .speed-play { min-height: 32px; padding: 0 10px; }
+  .ticker span + span { display: none; }
+  .stage-fx { place-items: center; padding-top: 16px; }
+  .quick { margin-top: 0; }
+  .overlay--office .sheet { width: 100%; border-radius: 0; }
+  .office-body { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .now-row small { white-space: normal; text-align: right; }
+  .quick-btn { font-size: 11px; padding: 8px 0 6px; }
+  /* 手机上新闻条和芯片条左边对齐（芯片条左右留 8px）。要写在上面的基础 .ticker 规则之后，不然会被它盖掉。 */
+  .ticker { margin: 5px 8px 0; }
+}
+
+@media (max-width: 860px) {
+  .overlay--office .office { grid-template-rows: auto minmax(0, 1fr); }
+}
+
+@media (max-width: 860px) {
+  .topbar { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "date res" "speed goal"; gap: 6px 10px; padding: 6px 10px; }
+  .topbar .date-block { grid-area: date; }
+  .topbar .res-block { grid-area: res; justify-self: end; margin-left: 0; }
+  .topbar .speed { grid-area: speed; order: 0; }
+  .topbar .goal-card { grid-area: goal; order: 0; flex-basis: auto; margin: 0; padding: 3px 8px 3px 3px; gap: 6px; }
+  .topbar .goal-tag { padding: 3px 5px; font-size: 10px; }
+  .topbar .goal-card strong { font-size: 12.5px; }
+  .topbar .goal-card small { font-size: 11px; }
+  .panel > .now-card { order: 0; }
+  .panel > .quick { order: 1; }
+  .panel > .model-card { order: 2; }
+  .panel > .ops-card { order: 3; }
+}
+
+@media (max-width: 520px) { .res-block { gap: 8px; } .res .ico { width: 15px; height: 15px; } }
+@media (max-width: 480px) { .lab-row { grid-template-columns: 1fr auto; } .lab-row .progress { grid-column: 1 / -1; grid-row: 2; } }

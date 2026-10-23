@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-microsoft-copilot",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/5bc2e51a38c02ebc637f8b2ba84ed7b64168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / microsoft-copilot-1",
+  "kind": "image",
+  "original_sha256": "0e93963c2b2675b1d1c1cdecbf490e1ab13bba8cfabf37dcf344ff048e3af32e",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.563092+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "Microsoft Copilot / Microsoft Copilot",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "Microsoft Copilot / Microsoft Copilot"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1258535892903002133",
+  "use": "reference-only"
+}

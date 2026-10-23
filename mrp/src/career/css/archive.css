@@ -1,0 +1,185 @@
+/* 图鉴（P3.U3，规格 E10）：角色卡与原位抽屉、美术与授权清单、对话设置。
+   子页用页内小标签切换；手机整页纵向滚动，375px 不横向溢出。 */
+
+/* ---------- 子页标签 ---------- */
+.archive-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.archive-tab {
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.archive-tab:hover { border-color: var(--accent); color: var(--accent); }
+.archive-tab.is-on { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 700; }
+
+/* ---------- 角色卡 ---------- */
+.arch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.arch-card {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+.arch-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center 6%;
+  border-radius: 10px;
+  background: #eef2f5;
+}
+.arch-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; min-width: 0; }
+.arch-meta b { min-width: 0; font-size: 13.5px; overflow-wrap: anywhere; }
+.arch-meta small { min-width: 0; color: var(--muted); font-size: 11.5px; overflow-wrap: anywhere; }
+.arch-meta .pill { padding: 1px 6px; background: #f1efe6; color: var(--ink-2); font-size: 10.5px; white-space: normal; }
+.arch-belong { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+.arch-quote { margin: 0; color: var(--ink-2); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+.arch-card .btn { justify-self: start; }
+
+/* ---------- 原位抽屉：网格里的下一项，占满整行 ---------- */
+.arch-drawer {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid #bcd6e8;
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  background: #f8fbfd;
+  box-shadow: 0 4px 14px rgba(31, 52, 72, .06);
+}
+.arch-drawer-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
+.arch-drawer-head b { min-width: 0; font-size: 14.5px; overflow-wrap: anywhere; }
+.chat-note { margin: 0; color: var(--ink-2); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.chat-note .btn { margin-left: 4px; }
+.chat-log { display: grid; gap: 6px; min-width: 0; max-height: 320px; overflow-y: auto; }
+.chat-empty { margin: 0; }
+.chat-msg {
+  display: flex;
+  gap: 7px;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid #e7e9e4;
+  border-radius: 10px;
+  background: var(--white);
+}
+.chat-msg > div { min-width: 0; }
+.chat-msg b { display: block; font-size: 12px; }
+.chat-msg b small { margin-left: 4px; color: var(--muted); font-weight: 400; font-size: 10.5px; }
+.chat-msg p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.chat-msg--me { background: #f4f8fb; border-color: #d7e5ef; }
+.chat-msg--err { background: #fff7f4; border-color: #f0cfc2; color: #8a3d26; }
+.chat-face { flex: none; width: 34px; height: 34px; border-radius: 50%; object-fit: cover; object-position: center 8%; background: #eef2f5; }
+.chat-send { display: flex; align-items: flex-end; gap: 8px; min-width: 0; }
+.chat-send textarea {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  resize: vertical;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.chat-send .btn { flex: none; }
+
+/* ---------- 美术与授权 ---------- */
+.credit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.credit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
+  gap: 8px 14px;
+  align-items: start;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid #efeee7;
+  border-radius: 10px;
+  background: #fbfaf5;
+}
+.credit-who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 7px; min-width: 0; }
+.credit-who b { min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+.credit-who small { min-width: 0; color: var(--ink-2); font-size: 12px; overflow-wrap: anywhere; }
+.credit-who .pill { padding: 1px 6px; background: #f1efe6; color: var(--muted); font-size: 10.5px; }
+.credit-license { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; min-width: 0; font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+.credit-license a { color: var(--accent); overflow-wrap: anywhere; }
+
+/* ---------- 对话设置 ---------- */
+.chat-settings {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  max-width: 680px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+.chat-settings p { margin: 0; }
+.chat-field { display: grid; gap: 3px; min-width: 0; font-size: 12.5px; }
+.chat-field > span { color: var(--ink-2); font-weight: 600; }
+.chat-field input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fdfcf8;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+.chat-check { display: flex; align-items: flex-start; gap: 7px; min-width: 0; font-size: 12.5px; line-height: 1.55; }
+.chat-check input { flex: none; margin-top: 3px; }
+.chat-check span { min-width: 0; overflow-wrap: anywhere; }
+.chat-warning { padding: 7px 10px; border-radius: 10px; background: #fff4e3; color: #7c571b; font-size: 12.5px; line-height: 1.6; }
+.chat-notice { padding: 6px 9px; border-radius: 9px; background: #eaf4ee; color: #2b6b4b; font-size: 12.5px; line-height: 1.55; }
+
+/* ---------- 窄屏：整页滚动，抽屉和清单都单列 ---------- */
+@media (max-width: 860px) {
+  .arch-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .chat-log { max-height: none; overflow-y: visible; }
+  .credit-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .arch-grid { grid-template-columns: 1fr; }
+  .arch-thumb { aspect-ratio: 16 / 10; object-position: center 10%; }
+  .chat-send { flex-direction: column; align-items: stretch; }
+  .chat-send .btn { align-self: flex-end; }
+  .arch-drawer, .chat-settings { padding: 10px; }
+}

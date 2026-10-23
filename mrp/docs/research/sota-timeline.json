@@ -1,0 +1,977 @@
+{
+ "llm": [
+  {
+   "month": "2023-01",
+   "sota": "ChatGPT（GPT-3.5）",
+   "company": "OpenAI",
+   "runnerUps": [],
+   "note": "缩写：T=/Users/mac/model-raising-plan/docs/research/timeline-2023-2026.json，R=/Users/mac/model-raising-plan/src/career/data/rivals.js，Arena 块=T:L11171（文本榜 sota_by_date）。本轮共享的 WebSearch 配额已用尽，凡是凭记忆、没能联网核对的条目都标为 low。本月：ChatGPT 于 2022-11-30 上线，是当时唯一面向大众的前沿对话模型（T:L7，https://openai.com/index/chatgpt/）。置信 high"
+  },
+  {
+   "month": "2023-02",
+   "sota": "ChatGPT（GPT-3.5）",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Bard（2023-02-06 宣布，只给受信测试者）",
+    "LLaMA 65B（开源，MMLU 63.4）"
+   ],
+   "note": "Bard 见 T:L67；LLaMA 见 T:L82（https://ai.meta.com/blog/large-language-model-llama-meta-ai/）。置信 high"
+  },
+  {
+   "month": "2023-03",
+   "sota": "GPT-4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 1（2023-03-14）",
+    "Bard（2023-03-21 公开抢先体验）"
+   ],
+   "note": "GPT-4 于 2023-03-14 发布，MMLU 86.4、HumanEval 67.0（T:L159，https://arxiv.org/abs/2303.08774）；Claude 1 见 T:L114，Bard 见 T:L208。置信 high"
+  },
+  {
+   "month": "2023-04",
+   "sota": "GPT-4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 1",
+    "Bard"
+   ],
+   "note": "没有出现新的前沿模型；依据同 T:L159。置信 high"
+  },
+  {
+   "month": "2023-05",
+   "sota": "GPT-4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 1",
+    "PaLM 2（Bard，2023-05-10）"
+   ],
+   "note": "Arena 首期榜单 GPT-4 第一，1274 分（Arena 块，https://lmsys.org/blog/2023-05-10-leaderboard/）；PaLM 2 见 T:L328。置信 high"
+  },
+  {
+   "month": "2023-06",
+   "sota": "GPT-4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 1",
+    "PaLM 2"
+   ],
+   "note": "MT-Bench 榜首 GPT-4 8.99（T:L11147 MT-Bench 块）。置信 high"
+  },
+  {
+   "month": "2023-07",
+   "sota": "GPT-4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 2（2023-07-11）",
+    "Llama 2 70B（开源）"
+   ],
+   "note": "Claude 2：HumanEval 71.2（T:L418）；Llama 2 70B：MMLU 68.9（T:L437）。置信 high"
+  },
+  {
+   "month": "2023-08",
+   "sota": "GPT-4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 2",
+    "PaLM 2"
+   ],
+   "note": "依据同 T:L159、T:L418。置信 high"
+  },
+  {
+   "month": "2023-09",
+   "sota": "GPT-4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 2",
+    "GPT-4V"
+   ],
+   "note": "GPT-4V 于 2023-09-25 上线（T:L595）。置信 high"
+  },
+  {
+   "month": "2023-10",
+   "sota": "GPT-4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 2",
+    "文心大模型 4.0（厂商自称不逊于 GPT-4）"
+   ],
+   "note": "文心 4.0 的说法属厂商自报，没有独立榜单佐证。置信 high（指 GPT-4 居首）"
+  },
+  {
+   "month": "2023-11",
+   "sota": "GPT-4 Turbo",
+   "company": "OpenAI",
+   "runnerUps": [
+    "GPT-4",
+    "Claude 2.1",
+    "Grok-1"
+   ],
+   "note": "GPT-4 Turbo 于 2023-11-06 发布（T:L766），MT-Bench 9.32（T:L11147）；Claude 2.1 见 T:L811，Grok-1 见 T:L746。置信 high"
+  },
+  {
+   "month": "2023-12",
+   "sota": "GPT-4 Turbo",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Gemini Ultra（2023-12-06 宣布，次年 2 月才可用）",
+    "Gemini Pro（Bard）",
+    "Claude 2.1"
+   ],
+   "note": "Arena 2023-12 榜首 GPT-4-Turbo (1106)，1243 分（Arena 块）；Gemini 1.0 宣称 MMLU 90.0（T:L884）。置信 high"
+  },
+  {
+   "month": "2024-01",
+   "sota": "GPT-4 Turbo（0125）",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Bard（Gemini Pro）",
+    "Claude 2.1",
+    "GLM-4（厂商自报接近 GPT-4）"
+   ],
+   "note": "Arena 到 2024-03 才被 Claude 3 Opus 超过（Arena 块）。「Bard (Gemini Pro) 1 月升到 Arena 第 2」是记忆，low。置信 medium"
+  },
+  {
+   "month": "2024-02",
+   "sota": "GPT-4 Turbo",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Gemini 1.0 Ultra（Gemini Advanced，2024-02-08）",
+    "Gemini 1.5 Pro（2024-02-15 限量预览）"
+   ],
+   "note": "Gemini Advanced 见 T:L1076；Gemini 1.5 Pro 只对白名单开发者开放，MMLU 81.9（T:L1091）。Arena 榜首仍是 GPT-4 Turbo（Arena 块）。置信 medium"
+  },
+  {
+   "month": "2024-03",
+   "sota": "Claude 3 Opus",
+   "company": "Anthropic",
+   "runnerUps": [
+    "GPT-4 Turbo",
+    "Gemini 1.5 Pro"
+   ],
+   "note": "2024-03-04 发布，GPQA 50.4、MMLU 86.8（T:L1185）；是第一个登上 Arena 榜首的非 OpenAI 模型，1253 分（Arena 块）。置信 high"
+  },
+  {
+   "month": "2024-04",
+   "sota": "Claude 3 Opus / GPT-4 Turbo（2024-04-09）并列",
+   "company": "Anthropic / OpenAI",
+   "runnerUps": [
+    "Gemini 1.5 Pro",
+    "Llama 3 70B（开源）"
+   ],
+   "note": "gpt-4-turbo-2024-04-09：MATH 73.4、GPQA 49.3（T:L1338）；Llama 3 70B：MMLU 82.0（T:L1426）。「4 月中 GPT-4-Turbo-0409 在 Arena 反超 Opus」是记忆，low。置信 medium"
+  },
+  {
+   "month": "2024-05",
+   "sota": "GPT-4o",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 3 Opus",
+    "Gemini 1.5 Pro（I/O 更新）"
+   ],
+   "note": "2024-05-13 发布（T:L1468），登顶 Arena，1289 分（Arena 块）。置信 high"
+  },
+  {
+   "month": "2024-06",
+   "sota": "Claude 3.5 Sonnet / GPT-4o 并列",
+   "company": "Anthropic / OpenAI",
+   "runnerUps": [
+    "Gemini 1.5 Pro",
+    "Qwen2-72B（开源）"
+   ],
+   "note": "Claude 3.5 Sonnet 于 2024-06-20 发布，GPQA 59.4、HumanEval 92.0（T:L1681），GPQA 当时最高（T:L11263）；Arena 榜首仍是 GPT-4o。口碑上 Claude 3.5 Sonnet 是编码最强。置信 medium"
+  },
+  {
+   "month": "2024-07",
+   "sota": "Claude 3.5 Sonnet / GPT-4o 并列",
+   "company": "Anthropic / OpenAI",
+   "runnerUps": [
+    "Llama 3.1 405B（开源）",
+    "Gemini 1.5 Pro",
+    "Mistral Large 2"
+   ],
+   "note": "Llama 3.1 405B 发布，GPQA 50.7、MMLU 87.3，开源模型首次进入 GPT-4 档（T:L1830）。置信 medium"
+  },
+  {
+   "month": "2024-08",
+   "sota": "GPT-4o（chatgpt-4o-latest）/ Claude 3.5 Sonnet",
+   "company": "OpenAI / Anthropic",
+   "runnerUps": [
+    "Gemini 1.5 Pro Exp 0801",
+    "Grok-2",
+    "Llama 3.1 405B"
+   ],
+   "note": "Arena 2024-08 榜首 chatgpt-4o-latest，1317 分（Arena 块）；Grok-2：MMLU-Pro 75.5（T:L1899）。「Gemini 1.5 Pro Exp 0801 在 8 月初短暂登顶 Arena」是记忆，low。置信 medium"
+  },
+  {
+   "month": "2024-09",
+   "sota": "o1-preview",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude 3.5 Sonnet",
+    "GPT-4o",
+    "o1-mini"
+   ],
+   "note": "2024-09-12 发布，GPQA 73.3（T:L1990）；Arena 1355 分登顶（Arena 块）；MATH 85.5（T:L11010）。置信 high"
+  },
+  {
+   "month": "2024-10",
+   "sota": "o1-preview / Claude 3.5 Sonnet（新版）并列",
+   "company": "OpenAI / Anthropic",
+   "runnerUps": [
+    "GPT-4o",
+    "Gemini 1.5 Pro 002"
+   ],
+   "note": "Claude 3.5 Sonnet（新版）于 2024-10-22 发布，SWE-bench Verified 49.0、OSWorld 14.9（T:L2157），MMLU-Pro 77.6（T:L11340）；推理与 Arena 仍以 o1-preview 领先（Arena 块）。置信 medium"
+  },
+  {
+   "month": "2024-11",
+   "sota": "o1-preview（推理）/ Claude 3.5 Sonnet（新版）（编码）",
+   "company": "OpenAI / Anthropic",
+   "runnerUps": [
+    "Gemini-Exp-1114/1121",
+    "chatgpt-4o-latest-1120",
+    "DeepSeek-R1-Lite-Preview",
+    "QwQ-32B-Preview（开源）"
+   ],
+   "note": "R1-Lite-Preview 于 11-20 发布，只在网页端开放（T:L2298）；QwQ-32B-Preview 于 11-28 开源，是第一个开源推理预览（T:L2313）。T:L11260 说明本地数据集删掉了谷歌实验版，「Gemini-Exp-1114/1121 与 4o-1120 轮流占 Arena 榜首」是记忆，low。置信 medium"
+  },
+  {
+   "month": "2024-12",
+   "sota": "o1 / o1 pro",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Gemini-Exp-1206",
+    "Claude 3.5 Sonnet（新版）",
+    "DeepSeek-V3（开源）",
+    "Gemini 2.0 Flash Thinking（实验版）"
+   ],
+   "note": "o1 于 2024-12-05 发布，MATH 96.4、GPQA 75.7（T:L2363）；o1 (high) 的 GPQA 76.8 当时最高（T:L11263），FrontierMath 14.7（T:L11994）；o1 pro 见 T:L2383。o3 只在 12-20 预告，未上线（T:L2514）。DeepSeek-V3 于 12-26 开源（T:L2535）。「Gemini-Exp-1206 登顶 Arena」是记忆，low。置信 high"
+  },
+  {
+   "month": "2025-01",
+   "sota": "o1 / o1 pro",
+   "company": "OpenAI",
+   "runnerUps": [
+    "DeepSeek-R1（开源，01-20）",
+    "Gemini 2.0 Flash Thinking Exp 01-21",
+    "o3-mini（01-31）",
+    "Kimi k1.5（闭源）"
+   ],
+   "note": "R1 官方说法是与 o1「comparable」，没有超过。HF 模型卡里 R1 对 o1-1217：持平或领先的有 AIME24 79.8/79.2、MATH-500 97.3/96.4、LiveCodeBench 65.9/63.4、SWE-V 49.2/48.9；落后的有 GPQA 71.5/75.7、SimpleQA 30.1/47.0、Aider 53.3/61.7、MMLU 90.8/91.8（https://huggingface.co/deepseek-ai/DeepSeek-R1，2026-10-20 WebFetch 核对）。HLE 当时最高是 o1 8.0（T:L11690）；o3-mini 的 LiveCodeBench 67.4、FrontierMath 18.6 都刷新纪录（T:L2730、T:L11378、T:L11994）。触发条件可参考：当时唯一的开源推理模型 QwQ-32B-Preview 明显弱于 o1（T:L2313），Kimi k1.5 同日发布但闭源（T:L2616），R1 采用 MIT 许可，英伟达单日暴跌（R 无关，见 /Users/mac/model-raising-plan/src/career/data/world.js:30）。「R1 在 Arena 排第 3、风格控制下与 o1 并列」是记忆，low。置信 high（o1 仍是整体 SOTA）"
+  },
+  {
+   "month": "2025-02",
+   "sota": "Claude 3.7 Sonnet / Grok 3（多强并立）",
+   "company": "Anthropic / xAI",
+   "runnerUps": [
+    "o3-mini (high)",
+    "GPT-4.5（02-27，非推理）",
+    "o1 pro",
+    "Gemini 2.0 Pro（实验版）"
+   ],
+   "note": "Grok 3 于 02-17 发布（T:L2795），Grok-3 preview 在 Arena 1412 登顶（Arena 块）；Claude 3.7 Sonnet 于 02-24 发布，SWE-bench V 62.3（T:L2861），64K thinking 下 GPQA 79.7 创纪录（T:L11263）；o3-mini-high AIME 2025 86.7 最高（T:L11626）；GPT-4.5 SimpleQA 62.5、MMLU 90.8（T:L2912）。置信 medium"
+  },
+  {
+   "month": "2025-03",
+   "sota": "Gemini 2.5 Pro",
+   "company": "Google",
+   "runnerUps": [
+    "Claude 3.7 Sonnet",
+    "Grok 3",
+    "o1 pro",
+    "DeepSeek-V3-0324（开源）"
+   ],
+   "note": "03-25 发布，首发即以明显优势登顶 Arena（T:L3111）；HLE 18.8、GPQA 84.0 都是新高（T:L11690、T:L11263）。Arena 1443 分系凭记忆，low（Arena 块）。置信 high"
+  },
+  {
+   "month": "2025-04",
+   "sota": "Gemini 2.5 Pro / o3 并列",
+   "company": "Google / OpenAI",
+   "runnerUps": [
+    "o4-mini",
+    "Claude 3.7 Sonnet",
+    "GPT-4.1",
+    "Qwen3-235B-A22B（开源）"
+   ],
+   "note": "o3 于 04-16 发布（T:L3328），HLE 20.3 最高（T:L11690），ARC-AGI-2 6.5（T:L11873）；o4-mini 的 MATH-500 98.2、AIME25 91.7（T:L3345）；Llama 4 刷榜争议见 T:L9152。置信 medium"
+  },
+  {
+   "month": "2025-05",
+   "sota": "Gemini 2.5 Pro / Claude Opus 4 / o3",
+   "company": "Google / Anthropic / OpenAI",
+   "runnerUps": [
+    "DeepSeek-R1-0528（开源）",
+    "Claude Sonnet 4"
+   ],
+   "note": "Claude Opus 4 于 05-22 发布，SWE-bench V 72.5（工具版 73.2）、ARC-AGI-2 8.6 都是新高（T:L3650、T:L11462、T:L11873）；R1-0528 的 AIME24 91.4（T:L3685）。「Gemini 2.5 Pro I/O 版（05-06）保持 Arena 榜首」是记忆，low。置信 medium"
+  },
+  {
+   "month": "2025-06",
+   "sota": "Gemini 2.5 Pro（正式版）",
+   "company": "Google",
+   "runnerUps": [
+    "o3-pro",
+    "Claude Opus 4",
+    "o3"
+   ],
+   "note": "06-17 转正式版（T:L3839），Arena 1477 分登顶（Arena 块）；o3-pro 见 T:L3756。置信 medium"
+  },
+  {
+   "month": "2025-07",
+   "sota": "Grok 4 / Grok 4 Heavy",
+   "company": "xAI",
+   "runnerUps": [
+    "Gemini 2.5 Pro",
+    "o3-pro",
+    "Claude Opus 4",
+    "Kimi K2（开源）",
+    "Qwen3-235B-A22B-2507（开源）",
+    "GLM-4.5（开源）"
+   ],
+   "note": "07-09 发布（T:L3936）；GPQA 87.0、HLE 25.4、ARC-AGI-2 16.0、AIME25 92.5 都是当时最高（T:L11263、T:L11690、T:L11873、T:L11626）。Arena 榜首仍是 Gemini 2.5 Pro。开源模型见 T:L3991、T:L4028、T:L4085、T:L4122。置信 medium-high"
+  },
+  {
+   "month": "2025-08",
+   "sota": "GPT-5",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude Opus 4.1",
+    "Grok 4",
+    "Gemini 2.5 Pro（Arena 第一）",
+    "gpt-oss-120b（开源）"
+   ],
+   "note": "08-07 发布（T:L4262）；AIME25 95.0、FrontierMath 55.4、SWE-bench V 74.9 都是新高（T:L11626、T:L11994、T:L11462）；GPT-5 (high) 首发 Arena 1462 分，排第 2（T:L11260）。置信 high"
+  },
+  {
+   "month": "2025-09",
+   "sota": "GPT-5 / Claude Sonnet 4.5 并列",
+   "company": "OpenAI / Anthropic",
+   "runnerUps": [
+    "Gemini 2.5 Pro",
+    "Grok 4",
+    "Qwen3-Max"
+   ],
+   "note": "Claude Sonnet 4.5 于 09-29 发布，SWE-bench V 77.2、OSWorld 61.4 第一（T:L4681）；综合推理仍是 GPT-5。置信 medium"
+  },
+  {
+   "month": "2025-10",
+   "sota": "GPT-5（含 GPT-5 Pro）/ Claude Sonnet 4.5",
+   "company": "OpenAI / Anthropic",
+   "runnerUps": [
+    "Gemini 2.5 Pro",
+    "Claude Haiku 4.5",
+    "GLM-4.6（开源）"
+   ],
+   "note": "GPT-5 Pro：HLE 31.6、ARC-AGI-2 18.3（T:L11690、T:L11873）。置信 medium"
+  },
+  {
+   "month": "2025-11",
+   "sota": "Gemini 3 Pro",
+   "company": "Google",
+   "runnerUps": [
+    "Claude Opus 4.5（编码第一）",
+    "GPT-5.1",
+    "Grok 4.1",
+    "Kimi K2 Thinking（开源）"
+   ],
+   "note": "11-18 发布，是第一个 Arena 破 1500 分的模型（1501），HLE 37.5、GPQA 91.9、ARC-AGI-2 31.1（T:L4915）；Opus 4.5 的 SWE-bench V 80.9、ARC-AGI-2 37.6（T:L4990）；Grok 4.1 思考版 11-17 短暂登顶 Arena，1483 分（T:L4897）。置信 high"
+  },
+  {
+   "month": "2025-12",
+   "sota": "Gemini 3 Pro / GPT-5.2 并列",
+   "company": "Google / OpenAI",
+   "runnerUps": [
+    "Gemini 3 Deep Think",
+    "Claude Opus 4.5",
+    "DeepSeek-V3.2（开源）"
+   ],
+   "note": "GPT-5.2 于 12-11 发布（T:L5111）：AIME25 100（T:L11626）、ARC-AGI-1 90.5（Pro，T:L11812）、ARC-AGI-2 54.2（Pro，T:L11873）、FrontierMath 74.0（Pro，T:L11994）、GDPval 70.9（T:L12662）。Gemini 3 Deep Think：HLE 41.0、ARC-AGI-2 45.1（T:L5074）。Arena 仍是 Gemini 3 Pro。置信 medium"
+  },
+  {
+   "month": "2026-01",
+   "sota": "Gemini 3 Pro / GPT-5.2 / Claude Opus 4.5 三强",
+   "company": "Google / OpenAI / Anthropic",
+   "runnerUps": [
+    "Kimi K2.5（开源，01-27）"
+   ],
+   "note": "Arena 2026-02 才被 Opus 4.6 超过（Arena 块）；Kimi K2.5：GPQA 87.6、SWE-bench V 76.8（T:L5331）。置信 medium"
+  },
+  {
+   "month": "2026-02",
+   "sota": "Claude Opus 4.6 / Gemini 3.1 Pro 并列",
+   "company": "Anthropic / Google",
+   "runnerUps": [
+    "Gemini 3 Deep Think（02 版）",
+    "GPT-5.3-Codex",
+    "GPT-5.2",
+    "GLM-5（开源）",
+    "Qwen3.5-397B（开源）"
+   ],
+   "note": "Opus 4.6 于 02-05 发布，Arena 1503 分登顶，ARC-AGI-2 69.2（T:L5428、Arena 块）；Gemini 3.1 Pro 于 02-19 发布，GPQA 94.4、HLE 46.4、ARC-AGI-1 98.0（T:L5664、T:L11263、T:L11690、T:L11812）；Deep Think 的 ARC-AGI-2 84.6（T:L5496）。置信 medium"
+  },
+  {
+   "month": "2026-03",
+   "sota": "GPT-5.4",
+   "company": "OpenAI",
+   "runnerUps": [
+    "Claude Opus 4.6（Arena 第一）",
+    "Gemini 3.1 Pro"
+   ],
+   "note": "03-05 发布（T:L5736）：OSWorld-V 75.0、GDPval 83.0；GPT-5.4 Pro 的 GPQA 94.6、FrontierMath 82.5 都是新高（T:L11263、T:L11994）。置信 medium"
+  },
+  {
+   "month": "2026-04",
+   "sota": "GPT-5.5 / Claude Opus 4.7（公开模型）；Claude Mythos Preview（限定发布）",
+   "company": "OpenAI / Anthropic",
+   "runnerUps": [
+    "Claude Mythos Preview（不公开）",
+    "Muse Spark",
+    "Gemini 3.1 Pro",
+    "DeepSeek-V4-Pro 预览（开源）",
+    "Kimi K2.6（开源）"
+   ],
+   "note": "GPT-5.5 于 04-23 发布：ARC-AGI-2 85.0、Terminal-Bench 2.0 82.7，Pro 版 FrontierMath 87.7（T:L6196、T:L11994）。Opus 4.7 于 04-16 发布，SWE-bench V 87.6（T:L6091）。Mythos Preview 于 04-07 发布，只给 Glasswing 合作方：SWE-bench V 93.9、HLE 56.8（T:L5980）。Muse Spark 的 Contemplating 模式 HLE 58（T:L6025）。置信 medium"
+  },
+  {
+   "month": "2026-05",
+   "sota": "Claude Opus 4.8",
+   "company": "Anthropic",
+   "runnerUps": [
+    "GPT-5.5",
+    "Gemini 3.5 Flash",
+    "Qwen3.7-Max"
+   ],
+   "note": "05-28 发布，SWE-bench V 88.6、HLE 49.8、OSWorld-V 83.4（T:L6459）；Gemini 3.5 Flash 见 T:L6391。置信 medium"
+  },
+  {
+   "month": "2026-06",
+   "sota": "Claude Fable 5",
+   "company": "Anthropic",
+   "runnerUps": [
+    "Claude Opus 4.8",
+    "GPT-5.5",
+    "GLM-5.2（开源）"
+   ],
+   "note": "06-09 发布，HLE 57.8（T:L6538），ARC-AGI-2 89.2、ARC-AGI-1 98.5 都是新高（T:L11873、T:L11812）；06-12 因美国出口管制暂停，07-01 恢复（T:L6538）。GLM-5.2 见 T:L6594。置信 high"
+  },
+  {
+   "month": "2026-07",
+   "sota": "Claude Opus 5 / GPT-5.6 Sol 并列",
+   "company": "Anthropic / OpenAI",
+   "runnerUps": [
+    "Claude Fable 5",
+    "Kimi K3（开源）",
+    "Muse Spark 1.1",
+    "Gemini 3.6 Flash"
+   ],
+   "note": "Opus 5 于 07-24 发布，Arena 1512 分登顶（T:L6832、Arena 块）；GPT-5.6 Sol 于 07-09 发布，ARC-AGI-2 92.5、FrontierMath 89.1 都是新高（T:L6738、T:L11873、T:L11994）；Kimi K3 的 GPQA 93.5（T:L6789）。置信 medium"
+  },
+  {
+   "month": "2026-08",
+   "sota": "Claude Opus 5 / GPT-5.6 Sol 并列",
+   "company": "Anthropic / OpenAI",
+   "runnerUps": [
+    "Claude Fable 5",
+    "Qwen3.8-Max",
+    "DeepSeek-V4-Pro-0813（开源）",
+    "Grok 4.6"
+   ],
+   "note": "Qwen3.8-Max 官方称部分评测超过 Sol 与 Fable，属厂商自报（T:L6948）；V4-Pro-0813 见 T:L7061。置信 medium"
+  },
+  {
+   "month": "2026-09",
+   "sota": "GPT-6 Astra / Claude Opus 5.5 / Claude Fable 5.1（三强）",
+   "company": "OpenAI / Anthropic",
+   "runnerUps": [
+    "Gemini 3.8 Flash",
+    "Grok 4.7",
+    "DeepSeek-V4.1-Flash（开源）"
+   ],
+   "note": "GPT-6 Astra 于 09-03 发布，GPQA 96.0、ARC-AGI-2 95.0、FrontierMath 93.7 都是新高（T:L7322、T:L11263、T:L11873、T:L11994）。Fable 5.1 于 09-01 发布，HLE 60.9，Arena 1514（T:L7247）。Opus 5.5 于 09-22 发布，Arena 1518 分登顶；官方称它多数任务「达到 Fable 5.1 水平」，即不超过 Fable（T:L7498）。置信 medium"
+  },
+  {
+   "month": "2026-10",
+   "sota": "Gemini 4 Argon",
+   "company": "Google",
+   "runnerUps": [
+    "Claude Opus 5.5（Arena 次席 1516）",
+    "GPT-6 Astra",
+    "Claude Fable 5.1",
+    "Muse Spark Open（开源）"
+   ],
+   "note": "09-30 先在 Fairwind 计划首发（T:L7628），10-13 全面开放（T:L7838）；Arena 1532 分登顶（Arena 块、T:L11260），GPQA 96.4 新高（T:L11263）。置信 high"
+  }
+ ],
+ "other": [
+  {
+   "modality": "image",
+   "month": "2023-Q1",
+   "sota": "Midjourney V5",
+   "company": "Midjourney",
+   "note": "2023-03-15 发布，季初最强是 V4（T:L178）。当时还没有竞技场，按口碑判断，置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2023-Q2",
+   "sota": "Midjourney V5.1 / V5.2",
+   "company": "Midjourney",
+   "note": "V5.1 于 05-03、V5.2 于 06-22 发布（T:L298、T:L388）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2023-Q3",
+   "sota": "Midjourney V5.2",
+   "company": "Midjourney",
+   "note": "最强开源是 SDXL 1.0（07-26，T:L454）；DALL·E 3 于 09-20 宣布，10 月才开放（T:L580）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2023-Q4",
+   "sota": "DALL·E 3（指令遵循与文字）/ Midjourney V6（美学）",
+   "company": "OpenAI / Midjourney",
+   "note": "DALL·E 3 见 T:L580；Midjourney V6 于 12-21 发布（T:L950）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2024-Q1",
+   "sota": "Midjourney V6",
+   "company": "Midjourney",
+   "note": "Ideogram 1.0 文字渲染最强（02-28，T:L1155）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2024-Q2",
+   "sota": "Midjourney V6",
+   "company": "Midjourney",
+   "note": "Imagen 3 于 05-14 私测（T:L1502）；SD3 Medium 于 06-12 开源（T:L1643）。置信 medium-low"
+  },
+  {
+   "modality": "image",
+   "month": "2024-Q3",
+   "sota": "FLUX.1 [pro] / Midjourney V6.1",
+   "company": "Black Forest Labs / Midjourney",
+   "note": "FLUX.1 于 08-01 发布（T:L1884），Midjourney V6.1 于 07-30 发布（T:L1869）；AA 文生图竞技场 2024-06 上线（T:L12902）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2024-Q4",
+   "sota": "Recraft V3（AA 榜首，1172）/ FLUX1.1 [pro]",
+   "company": "Recraft / Black Forest Labs",
+   "note": "FLUX1.1 [pro] 于 10-02 以代号 blueberry 拿到 AA 榜首（T:L2110）；Recraft V3 于 10-30 发布后登顶 AA（T:L2192、T:L12902）。置信 medium-high"
+  },
+  {
+   "modality": "image",
+   "month": "2025-Q1",
+   "sota": "GPT-4o 原生图像生成",
+   "company": "OpenAI",
+   "note": "03-25 上线（T:L3131）；季初 LMArena 文生图榜首是 Imagen 3（002），1093 分（T:L12954）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2025-Q2",
+   "sota": "GPT-Image-1（LMArena）/ Seedream 3.0（AA）",
+   "company": "OpenAI / 字节跳动",
+   "note": "LMArena 2025-06 榜首 GPT-Image-1，1136 分（T:L12954、T:L3392）；AA 2025-04 榜首 Seedream 3.0，1158 分（T:L12902、T:L3163）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2025-Q3",
+   "sota": "Nano Banana（Gemini 2.5 Flash Image）/ Seedream 4.0",
+   "company": "Google / 字节跳动",
+   "note": "Nano Banana 08-26 发布，LMArena 1146 分登顶（T:L4369、T:L12954）；Seedream 4.0 2025-09 自称 AA 登顶（T:L4431、T:L12902）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2025-Q4",
+   "sota": "Nano Banana Pro → GPT Image 1.5",
+   "company": "Google / OpenAI",
+   "note": "10 月 LMArena 榜首是开源的 HunyuanImage 3.0，1163 分（T:L4666、T:L12954）；Nano Banana Pro 11-20 发布，1236 分（T:L4975）；GPT Image 1.5 12-16 发布，1241 分（T:L5129）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2026-Q1",
+   "sota": "Nano Banana 2（Gemini 3.1 Flash Image）",
+   "company": "Google",
+   "note": "02-26 发布，LMArena 1267 分（T:L5701、T:L12954）；AA 1140 分为 low（T:L12902）。置信 medium"
+  },
+  {
+   "modality": "image",
+   "month": "2026-Q2",
+   "sota": "GPT Image 2",
+   "company": "OpenAI",
+   "note": "04-21 发布，LMArena 1398、AA 1186（T:L6181、T:L12954、T:L12902）。置信 high"
+  },
+  {
+   "modality": "image",
+   "month": "2026-Q3",
+   "sota": "GPT Image 2.5 Sunburst",
+   "company": "OpenAI",
+   "note": "09-08 发布，LMArena 1425、AA 1220（T:L7359、T:L12954、T:L12902）。置信 high"
+  },
+  {
+   "modality": "image",
+   "month": "2026-Q4（截至 10-20）",
+   "sota": "GPT Image 2.5 Sunburst",
+   "company": "OpenAI",
+   "note": "主要挑战者是 10-06 发布的 Nano Banana 2.1（T:L7695）。置信 medium"
+  },
+  {
+   "modality": "music",
+   "month": "2023-Q1",
+   "sota": "MusicLM（论文，未公开）",
+   "company": "Google",
+   "note": "论文 2023-01-26 发表（T:L52）；当时没有公开可用的高质量全曲模型。置信 low"
+  },
+  {
+   "modality": "music",
+   "month": "2023-Q2",
+   "sota": "MusicLM（AI Test Kitchen）/ MusicGen（开源）",
+   "company": "Google / Meta",
+   "note": "MusicLM 于 2023-05-10 开放试用（T:L52）；MusicGen 2023-06 开源（arXiv 2306.05284），本地时间线没有收录，凭记忆。置信 low-medium"
+  },
+  {
+   "modality": "music",
+   "month": "2023-Q3",
+   "sota": "MusicGen / Stable Audio",
+   "company": "Meta / Stability AI",
+   "note": "Stable Audio 于 2023-09 发布，凭记忆、未核对（https://stability.ai/news/stable-audio-using-ai-to-generate-music）；Suno Chirp v1 找不到可核对来源（T:L14340 已知缺口）。置信 low"
+  },
+  {
+   "modality": "music",
+   "month": "2023-Q4",
+   "sota": "Suno v2（Chirp v2）",
+   "company": "Suno",
+   "note": "网页版全面开放，并在 12-20 接入 Copilot（T:L935）；Lyria 于 11-16 发布，只用于限量的 Dream Track 30 秒配乐（T:L796）。置信 medium"
+  },
+  {
+   "modality": "music",
+   "month": "2024-Q1",
+   "sota": "Suno v3",
+   "company": "Suno",
+   "note": "03-21 发布（T:L1273，https://blog.suno.com/blog/v3）。置信 high"
+  },
+  {
+   "modality": "music",
+   "month": "2024-Q2",
+   "sota": "Udio / Suno v3.5",
+   "company": "Uncharted Labs / Suno",
+   "note": "Udio 于 04-10 公测（T:L1358）；Suno v3.5 发布日找不到来源（T:L14340 缺口）。置信 medium"
+  },
+  {
+   "modality": "music",
+   "month": "2024-Q3",
+   "sota": "Udio 1.5 / Suno v3.5",
+   "company": "Uncharted Labs / Suno",
+   "note": "本地时间线没有 Udio 1.5 条目，游戏 R 中记为 2024-07。置信 low"
+  },
+  {
+   "modality": "music",
+   "month": "2024-Q4",
+   "sota": "Suno v4",
+   "company": "Suno",
+   "note": "11-19 发布（T:L2283）。置信 high"
+  },
+  {
+   "modality": "music",
+   "month": "2025-Q1",
+   "sota": "Suno v4",
+   "company": "Suno",
+   "note": "YuE 于 01-26 开源（T:L2670）；Mureka O1 超过 Suno 是厂商自称。置信 medium"
+  },
+  {
+   "modality": "music",
+   "month": "2025-Q2",
+   "sota": "Suno v4.5",
+   "company": "Suno",
+   "note": "05-01 发布（T:L3497）。置信 medium-high"
+  },
+  {
+   "modality": "music",
+   "month": "2025-Q3",
+   "sota": "Suno v5",
+   "company": "Suno",
+   "note": "2025-09 发布（T:L4446）；Music Arena 首期榜单没有 Suno、Udio 参评，器乐榜首是 riffusion-fuzz-1-1（T:L13257）。置信 medium"
+  },
+  {
+   "modality": "music",
+   "month": "2025-Q4",
+   "sota": "Suno v5",
+   "company": "Suno",
+   "note": "Udio 10-29 与 UMG 和解并转型（T:L4828）。置信 medium"
+  },
+  {
+   "modality": "music",
+   "month": "2026-Q1",
+   "sota": "Suno v5.5 / Lyria 3",
+   "company": "Suno / Google",
+   "note": "Suno v5.5 于 03-26 发布（T:L5884）；Lyria 3 于 02-18 发布（T:L5649）。置信 medium"
+  },
+  {
+   "modality": "music",
+   "month": "2026-Q2",
+   "sota": "Suno v5.5",
+   "company": "Suno",
+   "note": "Eleven Music v2 于 05-26 发布（T:L6444）。置信 medium"
+  },
+  {
+   "modality": "music",
+   "month": "2026-Q3",
+   "sota": "Suno v6",
+   "company": "Suno",
+   "note": "09-09 发布（T:L7374）；AA 音乐竞技场人声榜第一，1146 分（T:L13274）。置信 high"
+  },
+  {
+   "modality": "music",
+   "month": "2026-Q4（截至 10-20）",
+   "sota": "Suno v6",
+   "company": "Suno",
+   "note": "AA 人声与器乐双榜第一（T:L13274）。置信 high"
+  },
+  {
+   "modality": "speech",
+   "month": "2023-Q1",
+   "sota": "ElevenLabs Prime Voice AI",
+   "company": "ElevenLabs",
+   "note": "2023-01 公测（T:L22）；VALL-E 只有论文，没有开放（T:L37）。置信 medium"
+  },
+  {
+   "modality": "speech",
+   "month": "2023-Q2",
+   "sota": "Eleven Multilingual v1",
+   "company": "ElevenLabs",
+   "note": "04-27 发布（T:L283）。置信 medium"
+  },
+  {
+   "modality": "speech",
+   "month": "2023-Q3",
+   "sota": "Eleven Multilingual v2",
+   "company": "ElevenLabs",
+   "note": "08-22 发布（T:L517）。置信 high"
+  },
+  {
+   "modality": "speech",
+   "month": "2023-Q4",
+   "sota": "Eleven Multilingual v2",
+   "company": "ElevenLabs",
+   "note": "OpenAI TTS-1-HD 于 11-06 发布（T:L781）；XTTS-v2 开源（T:L716）。置信 medium"
+  },
+  {
+   "modality": "speech",
+   "month": "2024-Q1",
+   "sota": "Eleven Multilingual v2",
+   "company": "ElevenLabs",
+   "note": "TTS Arena V1 于 02-27 上线，首批就有 ElevenLabs（T:L13016）。置信 medium"
+  },
+  {
+   "modality": "speech",
+   "month": "2024-Q2",
+   "sota": "ElevenLabs（Multilingual v2 / Turbo v2）",
+   "company": "ElevenLabs",
+   "note": "Seed-TTS 06 月只有论文和演示（arXiv 2406.02430），没有公开 API；Cartesia Sonic 见 T:L1562。置信 low-medium"
+  },
+  {
+   "modality": "speech",
+   "month": "2024-Q3",
+   "sota": "Eleven Turbo v2.5",
+   "company": "ElevenLabs",
+   "note": "发布日没核实（T:L14340 缺口）。置信 low"
+  },
+  {
+   "modality": "speech",
+   "month": "2024-Q4",
+   "sota": "ElevenLabs（Multilingual v2 / Flash v2.5）",
+   "company": "ElevenLabs",
+   "note": "Flash v2.5 于 12-18 发布（T:L2484）；CosyVoice 2 开源（T:L2450）。置信 medium-low"
+  },
+  {
+   "modality": "speech",
+   "month": "2025-Q1",
+   "sota": "ElevenLabs",
+   "company": "ElevenLabs",
+   "note": "TTS Arena V1 冻结前的最终榜首（T:L13016，low）；Sesame CSM 是对话语音演示（T:L2946）。置信 low"
+  },
+  {
+   "modality": "speech",
+   "month": "2025-Q2",
+   "sota": "MiniMax Speech-02-HD",
+   "company": "MiniMax",
+   "note": "05-16 发布，登顶 AA Speech Arena 与 HF TTS Arena（T:L3558）；Eleven v3 alpha 于 06-03 发布（T:L3723）；OpenAudio S1 自称 TTS-Arena-V2 第一（T:L3743）。置信 medium"
+  },
+  {
+   "modality": "speech",
+   "month": "2025-Q3",
+   "sota": "Eleven v3（alpha）/ MiniMax Speech-02-HD",
+   "company": "ElevenLabs / MiniMax",
+   "note": "没有查到这段时期的榜单历史。置信 low"
+  },
+  {
+   "modality": "speech",
+   "month": "2025-Q4",
+   "sota": "Eleven v3（alpha）/ MiniMax Speech-02-HD",
+   "company": "ElevenLabs / MiniMax",
+   "note": "没有查到这段时期的榜单历史。置信 low"
+  },
+  {
+   "modality": "speech",
+   "month": "2026-Q1",
+   "sota": "Inworld TTS-1.5 Max / Eleven v3（GA）",
+   "company": "Inworld / ElevenLabs",
+   "note": "Inworld 2026-01 自称 AA 第一，没给分（T:L13089）；Eleven v3 于 02-02 GA（T:L5410）。游戏 R 中没有 Inworld 家族。置信 low"
+  },
+  {
+   "modality": "speech",
+   "month": "2026-Q2",
+   "sota": "Inworld Realtime TTS 1.5 Max",
+   "company": "Inworld",
+   "note": "2026-05 厂商自称 AA 第一（T:L13089）。置信 low"
+  },
+  {
+   "modality": "speech",
+   "month": "2026-Q3",
+   "sota": "Eleven v4 / v4 Turbo",
+   "company": "ElevenLabs",
+   "note": "09-28 发布，AA Voice Arena 第一（T:L7593）。置信 medium-high"
+  },
+  {
+   "modality": "speech",
+   "month": "2026-Q4（截至 10-20）",
+   "sota": "Eleven v4 Turbo（AA 1329）/ Inworld TTS MAX（HF TTS Arena V2 1553）",
+   "company": "ElevenLabs / Inworld",
+   "note": "见 T:L13089、T:L13016。置信 high"
+  }
+ ],
+ "gameAnomalies": [
+  {
+   "month": "2025-01",
+   "model": "DeepSeek-R1（R:115）对 o1（R:67）",
+   "problem": "游戏里开源的 R1 排第一：R1 76.4，Claude 3.5 Sonnet（新版）74.8，o1 74.6。原因是 R1 的写作 82 高于 o1 的 78、Agent 45 高于 40、数学 88 高于 87。现实中 R1 只是「comparable to o1」：AIME24、MATH-500、LiveCodeBench、SWE-V 持平或略高，GPQA 71.5 对 75.7、SimpleQA 30.1 对 47.0、Aider 53.3 对 61.7、MMLU 90.8 对 91.8 都落后（https://huggingface.co/deepseek-ai/DeepSeek-R1）。整体 SOTA 仍是 o1 / o1 pro，月底还有 o3-mini。",
+   "suggestedFix": "R1 改为 [85,82,87,79,60,40]（Q 74.6），o1 改为 [87,83,88,79,80,44]（Q 76.2）。这样 R1 排第 2，比 o1 低 1.6，体现「接近但不超越」。已用补丁脚本验证排序。"
+  },
+  {
+   "month": "2024-12",
+   "model": "o1（R:67）对 Claude 3.5 Sonnet（新版）（R:77）",
+   "problem": "游戏榜首是 Claude 3.5 Sonnet（新版）74.8，o1 74.6。现实中 o1 是 SOTA：GPQA 76.8、MATH 96.4、FrontierMath 14.7 都是新高（T:L2363、T:L11263、T:L11994）。",
+   "suggestedFix": "o1 按上条改为 [87,83,88,79,80,44]（76.2）；Claude 3.5 Sonnet（新版）的 Agent 55→50（73.8）。"
+  },
+  {
+   "month": "2024-10 ~ 2024-11",
+   "model": "o1-preview（R:66）",
+   "problem": "Claude 3.5 Sonnet（新版）74.8 比 o1-preview 71.2 高 3.6。现实是两者并列前沿：o1-preview 在 Arena 1355 分登顶，GPQA 73.3（T:L1990）；Claude 新版在 SWE-bench V 49.0 领先（T:L2157）。",
+   "suggestedFix": "o1-preview 改为 [85,80,86,77,78,42]（74.0），配合上条 Claude 新版 73.8，两者并列，o1-preview 略高；2024-09 它也领先 Claude 3.5 Sonnet（70.8）。"
+  },
+  {
+   "month": "2024-02",
+   "model": "Gemini 1.5 Pro（R:88）",
+   "problem": "Gemini 1.5 Pro 71.0 超过 GPT-4 Turbo 70.0，成为游戏榜首。现实中 1.5 Pro 从 02-15 起只给白名单开发者预览（T:L1091），Arena 榜首到 2024-03 都是 GPT-4 Turbo（T:L11171）。",
+   "suggestedFix": "改为 [80,64,58,76,74,25]（69.5）。"
+  },
+  {
+   "month": "2024-06（全体）",
+   "model": "overallQ 解锁 Agent 维度（/Users/mac/model-raising-plan/src/career/sim/model.js:358）",
+   "problem": "2024-06 起 Agent 维度计入平均，所有模型的 Q 一次性掉约 9 分：GPT-4o 75.3→66.6，Claude 3 Opus 74.5→65.2，Gemini 1.5 Pro 71.0→61.8。结果游戏里的 SOTA Q 从 75.3 跌到 70.8，「前沿倒退」，和现实不符。",
+   "suggestedFix": "给 Agent 加随时间爬升的权重，比如 2024-06 为 0.25，到 2025-06 线性升到 1.0，即 Q=Σw·dim/Σw；或者 2023 年起就计入 Agent，只是早期值都很低。"
+  },
+  {
+   "month": "2024-06 ~ 2024-11",
+   "model": "Gemini 1.5 Pro（没有后续版本）",
+   "problem": "Google 停在 60.6–61.8，排在开源的 Qwen2-72B 之后。现实中 1.5 Pro（0514/0801/002）整个 2024 下半年都在 Arena 前三。「0801 在 8 月短暂登顶」是记忆，low。",
+   "suggestedFix": "新增 ['gemini','2024-08','Gemini 1.5 Pro（0801/002）','frontier',0,[85,74,72,82,76,36],'standard']，Q 69.8，排在 Claude 3.5 Sonnet 70.8 之后、GPT-4o 66.6 之前。"
+  },
+  {
+   "month": "2025-02",
+   "model": "GPT-4.5（R:68）/ latestRelease（R:340）",
+   "problem": "rivalQs 每个家族只取最新一款，于是 OpenAI 被非推理的 GPT-4.5 替换，从 o1 的 74.6 掉到 72.0。o3-mini（01-31，T:L2730）也没有收录。现实中 OpenAI 同时有 o1 pro、o3-mini-high（AIME25 86.7）和 GPT-4.5（SimpleQA 62.5，T:L2912）。",
+   "suggestedFix": "rivalQs/distillTeachers 改为取同家族近 6 个月内 Q 最高的一款，或者给 RAW 加 line 字段（flagship/reasoning/flash），只让同一 line 的新品替换旧品。新增 o3-mini 行 [84,84,90,76,78,45]（75.8）。GPT-4.5 的知识 87→90、写作 86→88（73.0）。"
+  },
+  {
+   "month": "2025-06",
+   "model": "Gemini 2.5 Pro（正式版）（R:91）",
+   "problem": "Claude Opus 4 85.2 高于 Gemini 84.4。现实中 Gemini 2.5 Pro 在 Arena 1477 分居首（T:L11171、T:L3839）。",
+   "suggestedFix": "改为 [90,88,90,88,81,72]（85.6）。"
+  },
+  {
+   "month": "2025-07",
+   "model": "Grok 4（R:103）与 Qwen3-235B-A22B-2507（R:135）",
+   "problem": "Grok 4 只有 83.2，排第 5，被开源的 Qwen3-2507（84.0）压过，而 Qwen3-2507 还高于 o3（83.4），即开源模型超过了当时的前沿。现实中 Grok 4 的 GPQA 87.0、HLE 25.4、ARC-AGI-2 16.0、AIME25 92.5 都是当时最高（T:L3936、T:L11263、T:L11690、T:L11873）。",
+   "suggestedFix": "Grok 4 改为 [90,87,94,81,60,78]（86.0，第 1）；Qwen3-2507 改为 [87,86,89,81,72,70]（82.6，低于 o3）。"
+  },
+  {
+   "month": "2025-11",
+   "model": "Gemini 3 Pro（R:92）",
+   "problem": "Claude Opus 4.5 91.4 高于 Gemini 3 Pro 90.4。现实中 Gemini 3 Pro 是第一个 Arena 破 1500 的模型，HLE 37.5、GPQA 91.9 都是新高（T:L4915）；Opus 4.5 只在编码上第一。",
+   "suggestedFix": "改为 [93,92,96,90,85,87]（91.6）。"
+  },
+  {
+   "month": "2025-12 ~ 2026-01",
+   "model": "Gemini 3 Flash（R:192）/ GPT-5.2（R:191）",
+   "problem": "Flash 成了 gemini 家族的最新款，取代了 3 Pro，Google 从 90.4 掉到 88.6；而现实中 Gemini 3 Pro 直到 2026-02 都是 Arena 第一。GPT-5.2 的 90.8 也偏低：AIME25 100、ARC-AGI-2 54.2（Pro）、FrontierMath 74.0（Pro）（T:L5111）。",
+   "suggestedFix": "用 line 字段或「家族近 6 个月最强」的规则；GPT-5.2 改为 [92,92,96,89,86,89]（91.6）。"
+  },
+  {
+   "month": "2026-05 ~ 2026-06",
+   "model": "Gemini 3.5 Flash（R:218）/ Claude Sonnet 5（R:226）",
+   "problem": "同样是 latestRelease 的结构问题：Gemini 从 3.1 Pro 的 92.6 掉到 3.5 Flash 的 91.8；claude 家族从 Opus 4.8 的 94.6 掉到 Sonnet 5 的 94.2。",
+   "suggestedFix": "同上，次档模型不替换旗舰。"
+  },
+  {
+   "month": "2026-04",
+   "model": "Claude Mythos Preview（缺失）；GPT-5.5（R:225 附近）与 Claude Opus 4.7 并列 93.8",
+   "problem": "限定发布的 Mythos Preview（SWE-bench V 93.9、HLE 56.8，T:L5980）是当时真正的最强模型，游戏里没有。",
+   "suggestedFix": "新增 restricted:true 的行：不进市场，不能当蒸馏老师，只用于「隐藏前沿」或剧情事件；公开 SOTA 照旧在 GPT-5.5 与 Opus 4.7 之间。"
+  },
+  {
+   "month": "2026-09",
+   "model": "Claude Opus 5.5（R:243）/ Claude Fable 5.1（R:84）/ GPT-6 Astra（R:240）",
+   "problem": "游戏里 Opus 5.5 是 97.0，比 Fable 5.1 的 96.0 高 1 分，和 Anthropic 官方「多数任务达到 Fable 5.1 水平」的说法矛盾（T:L7498）。GPT-6 Astra 握有 GPQA 96.0、ARC-AGI-2 95.0、FrontierMath 93.7 三项最高分（T:L7322）。",
+   "suggestedFix": "Opus 5.5 改为 [96,98,97,94,96,97]（96.4）；GPT-6 Astra 改为 [97,97,99,93,90,97]（96.6）。"
+  },
+  {
+   "month": "2026-10",
+   "model": "Gemini 4 Argon（R:244）",
+   "problem": "Argon 96.4 低于 Opus 5.5 的 97.0。现实中 Argon 在 Arena 1532 分登顶，GPQA 96.4 是新高（T:L7628、T:L7838、T:L11171、T:L11263）。",
+   "suggestedFix": "改为 [98,97,99,94,88,97]（97.0），配合上条即为第 1。"
+  },
+  {
+   "month": "全时段",
+   "model": "蒸馏后训练上限（model.js:263-264，/Users/mac/model-raising-plan/src/career/sim/game.js:573）",
+   "problem": "teacherCap 记的是历史上任何老师各维的最大值，主维上限是「老师+1」，副维完全不受限制，而且自有数据等级高于蒸馏数据时这个上限不生效。所以蒸馏出的模型可以超过老师和当时的 SOTA，和「蒸馏只能接近、不能超越」相反。",
+   "suggestedFix": "新增 sotaDims(date)，取各维在非 restricted 发布中的最大值。蒸馏后的主维和副维都限制在 min(teacherDim, sotaDim) - 1.5 以内；只有极难的特殊公司策略才能解除（如自研 RL 突破，且有算力和人才门槛）。"
+  },
+  {
+   "month": "2023-11 / 2024-01",
+   "model": "Qwen-72B（R:129）/ GLM-4",
+   "problem": "轻微问题：开源的 Qwen-72B（64.3）高于 Claude 2.1（63.5）；GLM-4（69.3）与 GPT-4 Turbo（70.0）只差 0.7。现实中 Claude 2.1 在 Arena 明显高于开源模型，GLM-4 接近 GPT-4 是厂商自报。",
+   "suggestedFix": "Qwen-72B 改为 [72,58,55,68,62,8]（63.25）；GLM-4 改为 [76,63,58,73,65,22]（67.5）。"
+  },
+  {
+   "month": "2024-08 ~ 2024-10",
+   "model": "图像 Ideogram 2.0（R:270）/ FLUX1.1 [pro]（R:262）",
+   "problem": "游戏榜首是 Ideogram 2.0（79.0）。现实中 FLUX.1 [pro] 08-01 发布，FLUX1.1 [pro] 10-02 拿到 AA 榜首（T:L2110），Recraft V3 10-30 登顶 AA（T:L2192）。游戏还把 FLUX1.1 [pro] 的日期写成 2024-11。",
+   "suggestedFix": "FLUX1.1 [pro] 的日期改为 2024-10；FLUX.1 [dev] 那一行改为代表 [pro]/[dev]，dims 改为 [87,81,62,89,60]（79.75）；Recraft V3 可选新增。"
+  },
+  {
+   "month": "2025-08",
+   "model": "图像 Nano Banana（R:266）",
+   "problem": "Nano Banana 84.0，低于 GPT-4o 图像的 85.8。现实中它在 LMArena 以 1146 分登顶（T:L4369、T:L12954）。",
+   "suggestedFix": "改为 [88,92,72,92,84]（86.0）。"
+  },
+  {
+   "month": "2023-04 ~ 2023-10",
+   "model": "音乐 Bark（R:286）",
+   "problem": "Bark 是文本生成音频/TTS 模型，本地时间线把它归为 speech（T:L223），游戏却把它当音乐榜首（31.3）。",
+   "suggestedFix": "把 Bark 移到 speech，或者音乐 dims 降到 [20,25,20,25,40]；让 MusicGen 成为 2023 年第二、三季度的榜首。"
+  },
+  {
+   "month": "2023-11 ~ 2024-02",
+   "model": "音乐 Lyria（R:298）对 Chirp v2（R:287）",
+   "problem": "Lyria 61.3 远高于 Suno v2 的 51.3。现实中 Suno v2 是公开可用的全曲生成器（T:L935），Lyria 只有限量的 30 秒 Dream Track（T:L796）。置信 low-medium。",
+   "suggestedFix": "Chirp v2 改为 [62,62,56,52,40]（58.0）；Lyria 改为 [66,50,40,72,80]（57.0）。"
+  },
+  {
+   "month": "2024-06 ~ 2025-03",
+   "model": "语音 Seed-TTS（R:315）",
+   "problem": "Seed-TTS 只有论文和演示（arXiv 2406.02430），没有公开 API，游戏却让它以 80.8 压过 ElevenLabs。现实中这段时期公认的 SOTA 是 ElevenLabs（T:L13016）。",
+   "suggestedFix": "改为 [85,84,66,76,70]（77.75），低于 Eleven Multilingual v2 的 78.0 和 Turbo v2.5 的 80.3。"
+  }
+ ]
+}

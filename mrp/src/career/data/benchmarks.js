@@ -1,0 +1,103 @@
+// 基准测试。分数由能力指数换算：score = lo + (hi - lo) · σ((x − mid) / s)，x 为能力按权重加权。
+// mid / s 按真实模型的公开成绩校准（例：GPT-4 MMLU 86.4%，Llama 2 70B 68.9%；Claude Opus 4.5 SWE-bench Verified 80.9%）。
+// kind：pct 百分比；elo 竞技场分；score10 十分制；lower 越低越好的百分比（攻击成功率、错误率等）。
+// suite：作为发布时标准评测的时间窗口；from 之前不存在。
+export const BENCHMARKS = [
+  // ---------- 语言模型 ----------
+  { id: 'mmlu', mod: 'llm', name: 'MMLU', from: '2020-09', items: 14042, kind: 'pct', w: { knowledge: 1 }, lo: 25, hi: 95, mid: 56.2, s: 11.1, suite: ['2022-01', '2024-12'],
+    desc: '57 个学科的四选一考试题。2023 年最常被引用的综合知识指标，2025 年前后头部模型普遍过 90%，基本饱和。', sample: ['高中化学', '国际法', '临床知识', '计量经济学'] },
+  { id: 'ceval', mod: 'llm', name: 'C-Eval', from: '2023-05', items: 13948, kind: 'pct', w: { knowledge: 1 }, lo: 25, hi: 95, mid: 56.2, s: 11.1, cn: 7, suite: ['2023-05', '2024-12'], cnOnly: true,
+    desc: '中文综合学科考试，覆盖初中到职业资格的 52 个科目。国产模型发布时几乎必报。', sample: ['注册会计师', '高中历史', '法律职业资格', '大学物理'] },
+  { id: 'gsm8k', mod: 'llm', name: 'GSM8K', from: '2021-10', items: 1319, kind: 'pct', w: { math: 1 }, lo: 0, hi: 97, mid: 32.3, s: 7.84, suite: ['2022-01', '2024-06'],
+    desc: '小学数学应用题，需要两到八步计算。2023 年的推理能力代表指标。', sample: ['购物找零', '工程进度', '利息计算'] },
+  { id: 'humaneval', mod: 'llm', name: 'HumanEval', from: '2021-07', items: 164, kind: 'pct', w: { code: 1 }, lo: 0, hi: 98, mid: 51.4, s: 13.8, suite: ['2022-01', '2024-12'],
+    desc: '根据函数注释写 Python 函数，用单元测试判对错（pass@1）。', sample: ['字符串处理', '列表排序', '素数判断'] },
+  { id: 'mtbench', mod: 'llm', name: 'MT-Bench', from: '2023-06', items: 80, leak: 0.6, kind: 'score10', w: { writing: 0.6, knowledge: 0.4 }, lo: 1, hi: 10, mid: 54.3, s: 10.6, suite: ['2023-06', '2024-06'],
+    desc: '80 道两轮对话题，由 GPT-4 打 1–10 分，考察写作、角色扮演、推理等。', sample: ['写作', '角色扮演', '信息抽取', 'STEM'] },
+  { id: 'arena', mod: 'llm', name: 'Chatbot Arena', from: '2023-05', items: 3000, leak: 0.4, refresh: ['2024-08', '2025-05', '2026-02'], kind: 'elo', w: { writing: 0.4, knowledge: 0.3, code: 0.15, math: 0.15 }, base: 700, k: 8.5, suite: ['2023-05', '2099-12'],
+    desc: '用户匿名对比两个模型的回答并投票，按 Elo 排名。2025 年改名 LMArena。' },
+  { id: 'math', mod: 'llm', name: 'MATH', from: '2021-03', items: 5000, kind: 'pct', w: { math: 1 }, lo: 0, hi: 100, mid: 57.9, s: 9.7, suite: ['2023-06', '2024-12'],
+    desc: '高中数学竞赛题，涵盖代数、几何、数论等七个方向。', sample: ['数论', '几何', '计数与概率'] },
+  { id: 'gpqa', mod: 'llm', name: 'GPQA Diamond', from: '2023-11', items: 198, leak: 0.8, kind: 'pct', w: { knowledge: 0.5, math: 0.5 }, lo: 25, hi: 95, mid: 76.1, s: 5.7, suite: ['2024-01', '2099-12'],
+    desc: '博士级的物理、化学、生物选择题，专家准确率约 65%，非专家查资料也只有 34%。', sample: ['有机合成', '量子力学', '分子生物学'] },
+  { id: 'mmlupro', mod: 'llm', name: 'MMLU-Pro', from: '2024-06', items: 12032, leak: 0.8, kind: 'pct', w: { knowledge: 0.7, math: 0.3 }, lo: 10, hi: 92, mid: 68.3, s: 7.7, suite: ['2024-07', '2099-12'],
+    desc: 'MMLU 的加难版：十个选项，更多需要推理的题。' },
+  { id: 'lcb', mod: 'llm', name: 'LiveCodeBench', from: '2024-03', items: 400, leak: 0.3, refresh: ['2024-09', '2025-03', '2025-09', '2026-03', '2026-09'], kind: 'pct', w: { code: 0.6, math: 0.4 }, lo: 0, hi: 95, mid: 75.3, s: 8.4, suite: ['2024-06', '2099-12'],
+    desc: '持续从 LeetCode、Codeforces 等平台收集新题，避免训练数据泄题。' },
+  { id: 'swebv', mod: 'llm', name: 'SWE-bench Verified', from: '2024-08', items: 500, kind: 'pct', w: { code: 0.6, agent: 0.4 }, lo: 0, hi: 90, mid: 64.5, s: 13.2, suite: ['2024-09', '2026-03'],
+    desc: '500 个经人工确认的真实 GitHub issue，模型要改代码让隐藏测试通过。题目全在公开仓库里，2026 年前后各家逐渐改报 SWE-bench Pro。', sample: ['django', 'sympy', 'scikit-learn', 'matplotlib'] },
+  { id: 'aime24', mod: 'llm', name: 'AIME 2024', from: '2024-02', items: 30, kind: 'pct', w: { math: 1 }, lo: 0, hi: 100, mid: 77.8, s: 6.9, suite: ['2024-09', '2025-02'],
+    desc: '美国数学邀请赛 2024 年 30 道题，答案是 0–999 的整数。推理模型出现后成为标配。' },
+  { id: 'aime25', mod: 'llm', name: 'AIME 2025', from: '2025-02', items: 30, kind: 'pct', w: { math: 1 }, lo: 0, hi: 100, mid: 77.8, s: 6.9, suite: ['2025-02', '2026-01'],
+    desc: '2025 年的 AIME 新题，发布后立刻成为各家必测项目。' },
+  { id: 'aime26', mod: 'llm', name: 'AIME 2026', from: '2026-02', items: 30, kind: 'pct', w: { math: 1 }, lo: 0, hi: 100, mid: 79, s: 6.9, suite: ['2026-02', '2099-12'],
+    desc: '2026 年的 AIME 新题。' },
+  { id: 'hle', mod: 'llm', name: "Humanity's Last Exam", from: '2025-01', items: 2500, leak: 0.3, kind: 'pct', w: { knowledge: 0.5, math: 0.5 }, lo: 0, hi: 100, mid: 95.8, s: 4.44, suite: ['2025-02', '2099-12'],
+    desc: '数百个学科专家出的极难题目，发布时最强模型不到 10%。' },
+  { id: 'arcagi2', mod: 'llm', name: 'ARC-AGI-2', from: '2025-03', items: 120, leak: 0.2, kind: 'pct', w: { math: 0.6, agent: 0.4 }, lo: 0, hi: 100, mid: 92.2, s: 1.6,
+    desc: '抽象图形规律题，人类很容易、模型很难。评测集不公开，没法针对性刷分。' },
+  { id: 'arcagi3', mod: 'llm', name: 'ARC-AGI-3', from: '2026-03', items: 150, leak: 0.1, kind: 'pct', w: { agent: 0.6, math: 0.4 }, lo: 0, hi: 100, mid: 97.1, s: 0.9,
+    desc: '不给说明的回合制小游戏：模型要自己摸索规则和目标再通关，按通关数和操作效率计分。发布时最强模型不到 1%。' },
+  { id: 'frontiermath', mod: 'llm', name: 'FrontierMath', from: '2024-11', items: 290, leak: 0.1, kind: 'pct', w: { math: 1 }, lo: 0, hi: 100, mid: 95.1, s: 1.75,
+    desc: '数学家出的未公开研究级难题，答案可自动验证。发布时最好的模型只有 2%。' },
+  { id: 'taubench', mod: 'llm', name: 'τ-bench', from: '2024-06', items: 165, leak: 0.7, kind: 'pct', w: { agent: 0.7, knowledge: 0.3 }, lo: 0, hi: 95, mid: 70, s: 10, suite: ['2024-07', '2025-12'],
+    desc: '模拟零售和航空客服，模型要调用工具、遵守业务规则完成用户请求。' },
+  { id: 'osworld', mod: 'llm', name: 'OSWorld', from: '2024-04', items: 369, leak: 0.5, kind: 'pct', w: { agent: 1 }, lo: 0, hi: 90, mid: 74, s: 18, suite: ['2024-11', '2099-12'],
+    desc: '在真实操作系统里完成办公、浏览器、多应用任务。' },
+  { id: 'tbench', mod: 'llm', name: 'Terminal-Bench', from: '2025-05', items: 89, leak: 0.5, refresh: ['2025-11', '2026-05'], kind: 'pct', w: { agent: 0.6, code: 0.4 }, lo: 0, hi: 95, mid: 85, s: 9, suite: ['2025-06', '2026-08'],
+    desc: '在终端里完成编译、调试、部署等真实工程任务。编程 Agent 的核心指标。' },
+  { id: 'tbench4', mod: 'llm', name: 'Terminal-Bench 4.0', from: '2026-08', items: 66, leak: 0.4, kind: 'pct', w: { agent: 0.6, code: 0.4 }, lo: 0, hi: 100, mid: 95.85, s: 3.5, suite: ['2026-08', '2099-12'],
+    desc: '社区共建的新一代终端任务：多容器、GPU、非编码工作，单题最长 8 小时。旧版接近满分后的接班榜。' },
+  { id: 'swepro', mod: 'llm', name: 'SWE-bench Pro', from: '2025-09', items: 731, leak: 0.3, kind: 'pct', w: { code: 0.5, agent: 0.5 }, lo: 0, hi: 95, mid: 91.3, s: 4.6, suite: ['2025-10', '2099-12'],
+    desc: 'Scale AI 出的长链路企业级软件工程任务，一部分取自商业私有仓库，比 Verified 难得多、也更难污染。', sample: ['支付系统', '内部工具', '前端组件库'] },
+  { id: 'gdpval', mod: 'llm', name: 'GDPval', from: '2025-09', items: 220, leak: 0.2, kind: 'pct', w: { knowledge: 0.4, writing: 0.3, agent: 0.3 }, lo: 0, hi: 100, mid: 86.3, s: 4.1, suite: ['2025-10', '2099-12'],
+    desc: '44 个职业的真实工作产出（文档、表格、幻灯片），由资深从业者盲评，统计赢过或打平人类专家的比例。', sample: ['财务报表', '护理计划', '法律备忘录', '销售提案'] },
+  { id: 'browsecomp', mod: 'llm', name: 'BrowseComp', from: '2025-04', items: 1266, leak: 0.5, kind: 'pct', w: { agent: 0.6, knowledge: 0.4 }, lo: 0, hi: 95, mid: 88, s: 6,
+    desc: '需要大量搜索浏览才能找到答案的难题，考察深度研究能力。' },
+  { id: 'harmbench', mod: 'llm', name: 'HarmBench', from: '2024-02', items: 400, leak: 0.5, kind: 'lower', w: { safety: 1 }, lo: 2, hi: 80, mid: 65, s: 9, suite: ['2024-03', '2099-12'],
+    desc: '用自动越狱攻击诱导模型输出有害内容，统计攻击成功率，越低越好。' },
+  // ---------- 图像 ----------
+  { id: 'geneval', mod: 'image', name: 'GenEval', from: '2023-10', items: 553, kind: 'pct', w: { adherence: 0.8, realism: 0.2 }, lo: 20, hi: 95, mid: 60.1, s: 16.3, suite: ['2023-10', '2099-12'],
+    desc: '检查生成图里的物体、数量、颜色、位置是否符合提示词。' },
+  { id: 'dpg', mod: 'image', name: 'DPG-Bench', from: '2024-03', items: 1065, kind: 'pct', w: { adherence: 0.7, realism: 0.2, text: 0.1 }, lo: 40, hi: 92, mid: 62, s: 15, suite: ['2024-04', '2099-12'],
+    desc: '长而密集的提示词，考察复杂描述的遵循能力。' },
+  { id: 'imgarena', mod: 'image', name: '文生图竞技场', from: '2024-01', items: 3000, refresh: ['2025-01', '2026-01'], kind: 'elo', w: { aesthetics: 0.4, adherence: 0.3, realism: 0.2, text: 0.1 }, base: 700, k: 7.5, suite: ['2024-01', '2099-12'],
+    desc: '用户盲选两张图中更好的一张，按 Elo 排名。' },
+  { id: 'imgtext', mod: 'image', name: '文字渲染准确率', from: '2022-01', items: 500, kind: 'pct', w: { text: 1 }, lo: 2, hi: 98, mid: 60, s: 12, suite: ['2023-01', '2099-12'],
+    desc: '500 条含中英文文字的提示词，用 OCR 核对图中文字是否正确。' },
+  { id: 'i2p', mod: 'image', name: 'I2P 不当提示集', from: '2022-11', items: 4703, kind: 'lower', w: { safety: 1 }, lo: 3, hi: 60, mid: 62, s: 10, suite: ['2023-01', '2099-12'],
+    desc: '4703 条容易诱发不当内容的提示词，统计违规图片比例，越低越好。' },
+  // ---------- 音乐 ----------
+  { id: 'musiccaps', mod: 'music', name: 'MusicCaps 文本匹配', from: '2023-01', items: 5521, kind: 'pct', w: { composition: 0.5, fidelity: 0.5 }, lo: 10, hi: 90, mid: 52, s: 12, suite: ['2023-01', '2099-12'],
+    desc: '按专业乐手写的描述生成音乐，评估与描述的匹配度和音质。' },
+  { id: 'musicarena', mod: 'music', name: '盲听对战', from: '2023-06', items: 2000, kind: 'elo', w: { composition: 0.35, vocals: 0.3, lyrics: 0.15, fidelity: 0.2 }, base: 700, k: 7.5, suite: ['2023-06', '2099-12'],
+    desc: '听众盲听两首生成歌曲并投票，按 Elo 排名。' },
+  { id: 'lyricwer', mod: 'music', name: '歌词可懂度', from: '2023-01', items: 400, kind: 'lower', w: { lyrics: 0.6, vocals: 0.4 }, lo: 3, hi: 60, mid: 60, s: 11, suite: ['2023-06', '2099-12'],
+    desc: '把生成歌曲的人声转写成文字，统计与输入歌词的字错率，越低越好。' },
+  { id: 'mucopy', mod: 'music', name: '版权旋律命中率', from: '2023-01', items: 1000, kind: 'lower', w: { safety: 1 }, lo: 0.5, hi: 25, mid: 55, s: 10, suite: ['2024-01', '2099-12'],
+    desc: '用指纹比对生成结果与已发行作品的相似片段，越低越好。' },
+  // ---------- 语音 ----------
+  { id: 'ttsarena', mod: 'speech', name: 'TTS Arena', from: '2024-02', items: 2000, kind: 'elo', w: { naturalness: 0.5, expressive: 0.3, cloning: 0.2 }, base: 700, k: 7.5, suite: ['2024-02', '2099-12'],
+    desc: '听众盲听两段合成语音并投票，按 Elo 排名。' },
+  { id: 'seedtts', mod: 'speech', name: 'Seed-TTS-eval 相似度', from: '2024-06', items: 1088, kind: 'pct', w: { cloning: 0.8, naturalness: 0.2 }, lo: 30, hi: 85, mid: 65, s: 12, suite: ['2024-06', '2099-12'],
+    desc: '用参考音频克隆说话人，测合成语音与原声的说话人相似度（SIM×100）。' },
+  { id: 'fleurs', mod: 'speech', name: '多语言错误率（FLEURS）', from: '2022-05', items: 102, kind: 'lower', w: { multilingual: 1 }, lo: 1.5, hi: 40, mid: 60, s: 12, suite: ['2023-01', '2099-12'],
+    desc: '覆盖 102 种语言的朗读文本，把合成语音转写回文字统计字错率，越低越好。' },
+  { id: 'mos', mod: 'speech', name: '主观自然度 MOS', from: '2018-01', items: 600, kind: 'score5', w: { naturalness: 0.7, expressive: 0.3 }, lo: 2.5, hi: 4.8, mid: 60, s: 12, suite: ['2023-01', '2099-12'],
+    desc: '找听众按 1–5 分打分，真人录音一般在 4.5 左右。' },
+  { id: 'spoof', mod: 'speech', name: '冒用拦截率', from: '2023-06', items: 1000, kind: 'pct', w: { safety: 1 }, lo: 5, hi: 99, mid: 60, s: 10, suite: ['2024-01', '2099-12'],
+    desc: '用名人声音和未授权样本尝试克隆，统计被拦截的比例。' },
+];
+export const BENCH_BY_ID = Object.fromEntries(BENCHMARKS.map(b => [b.id, b]));
+// 最近一次换题（或发布）的月份：之前的“刷榜”加成在这之后作废。
+export function lastRefresh(b, date) {
+  let last = b.from;
+  for (const r of b.refresh || []) if (r <= date && r > last) last = r;
+  return last;
+}
+export const REFRESH_NOTES = {
+  arena: { '2024-08': '竞技场推出风格控制，排版和长度带来的加分被扣除。', '2025-05': '竞技场默认启用风格控制，并调整了提交规则。', '2026-02': '竞技场更新投票去重与反作弊规则。' },
+  lcb: '题库滚动更新，加入最近半年的新竞赛题。',
+  tbench: { '2025-11': 'Terminal-Bench 2.0 上线，89 道任务都经过人工复核，难度明显提高。', '2026-05': 'Terminal-Bench 2.1 修正了一批有歧义的任务，重新计分。' },
+  imgarena: '竞技场更新提示词池，重新开始计分。',
+};

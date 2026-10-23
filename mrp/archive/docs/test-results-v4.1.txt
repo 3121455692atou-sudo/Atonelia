@@ -1,0 +1,156 @@
+
+> model-raising-plan-webui@0.4.1 test
+> node --test tests/*.mjs
+
+▶ Specialist capabilities and frozen model releases
+  ✔ old six-stat models migrate deterministically without replacing zero safety (2.153958ms)
+  ✔ every specialist is a real selectable training focus with a dominant positive gain (6.861375ms)
+  ✔ mathematics, creativity, safety and tools each affect an appropriate benchmark (0.373333ms)
+  ✔ creative roleplay audiences favor expressive models with lower alignment, while enterprises prefer safety (1.227542ms)
+  ✔ specialized quality changes actual customer acquisition for the selected audience (10.211791ms)
+  ✔ coding and mathematical skills influence their own audience instead of a universal mean (0.394417ms)
+  ✔ training safety does not silently improve a low-alignment model already sold to customers (4.932166ms)
+  ✔ three-offer legacy saves upgrade once and retain the published legacy quality and all balances (10.516875ms)
+✔ Specialist capabilities and frozen model releases (38.916375ms)
+▶ Application access and unauthorized proxy traffic
+  ✔ Coding Plan can provide a public API or a smaller application-exclusive market (6.833875ms)
+  ✔ an application-only contract needs a valid nonempty allowlist and configuration changes are atomic (2.193917ms)
+  ✔ forecasts neither discover clients nor mutate safety pressure or settlement records (5.06625ms)
+  ✔ unlicensed sharing materializes only on actual delivery and is saved for later turns (5.193167ms)
+  ✔ authorized API resale does not generate an unauthorized shared pool (4.671959ms)
+  ✔ a hard cap applies separately to real users and each shared pool (3.443708ms)
+  ✔ shared-pool overage cannot borrow unused allowance from ordinary subscribers (1.975875ms)
+  ✔ partial fulfillment bills only the excess actually delivered in each cohort (1.997875ms)
+  ✔ strict protection removes most proxy load while preserving over 90 percent of genuine demand (3.830375ms)
+  ✔ manual bans free only the selected unauthorized pool and cannot be applied twice (4.607917ms)
+  ✔ a pool that obtains a resale contract becomes legitimate traffic and is no longer blocked as a proxy (3.555916ms)
+  ✔ rotation costs once, stops shared sessions and imposes a bounded reconnection period (4.879959ms)
+  ✔ gateway and moderation fees are charged once and stay out of a second quarter cash deduction (8.085833ms)
+✔ Application access and unauthorized proxy traffic (57.766375ms)
+▶ Fictional abuse incidents and liability consequences
+  ✔ low published safety and substantial delivered traffic can cause a government-site abuse case (4.488625ms)
+  ✔ no served traffic creates no abuse incident even with zero alignment (3.649708ms)
+  ✔ active safety operations materially reduce pressure without changing model creativity (6.538125ms)
+  ✔ remediation pays once, strengthens governance and keeps the incident and historical evidence (4.532625ms)
+  ✔ ignoring a liability case results in a single payable judgment on its deadline (3.152958ms)
+  ✔ high-risk cases respect a six-turn recurrence interval and never erase a prior unpaid case (3.346792ms)
+  ✔ corrupt gateway policies, clients and capability snapshots fail save validation (3.046375ms)
+✔ Fictional abuse incidents and liability consequences (29.48325ms)
+▶ Compute supply and ownership
+  ✔ reserving GPU for services reduces the real training budget and blocks overcommit (9.276542ms)
+  ✔ buying owned GPU adds capacity and memory with exactly one upfront charge (2.853583ms)
+  ✔ reserved GPU charges exactly four turns and disappears at expiry (6.554208ms)
+  ✔ opt-in renewal pays a new activation fee and creates a new four-turn commitment (3.050292ms)
+  ✔ renewal failure cannot grant free cloud capacity (2.179958ms)
+  ✔ spot quotes are deterministic, bounded, and priced with the GPU market (8.334625ms)
+  ✔ API hosting is quota-limited and cannot be rented out as raw GPU (4.264458ms)
+  ✔ GPU rental and model inference cannot consume the same CU twice (2.553042ms)
+✔ Compute supply and ownership (41.655292ms)
+▶ Token API and Token Plan billing
+  ✔ zero capacity produces zero billable tokens and zero subscription revenue (5.172083ms)
+  ✔ hard-capped plans never charge overage and refresh their per-person quota each turn (2.949792ms)
+  ✔ metered plans bill only delivered tokens beyond the included allowance (2.56225ms)
+  ✔ model publishing freezes the offered version until explicitly updated (1.107625ms)
+  ✔ a sharp price increase loses demand rather than charging the old cohort indefinitely (4.157625ms)
+  ✔ invalid pricing and fractional supply cannot partially change a configuration (2.037375ms)
+✔ Token API and Token Plan billing (18.715333ms)
+▶ Reputation, hidden routing and class action
+  ✔ smaller hidden routes improve throughput but lower actual model quality (3.677833ms)
+  ✔ disclosed smaller routes do not create misleading-claims lawsuits (10.582125ms)
+  ✔ hidden native routing and zero served requests cannot manufacture false evidence (1.783792ms)
+  ✔ exposure causes customer loss, reviews, a persistent evidence trail and a valid legal case (9.66525ms)
+  ✔ public remediation pays once, discloses routing and retains historical evidence (5.990125ms)
+  ✔ insufficient cash cannot pay or secretly resolve a case (3.366375ms)
+  ✔ ignoring a case leads to a payable judgment on its deadline (5.177917ms)
+  ✔ contesting a case charges one retainer and resolves after two complete turns (5.015209ms)
+  ✔ audits stop concealment without deleting prior evidence or farming trust in one turn (2.565125ms)
+✔ Reputation, hidden routing and class action (48.701834ms)
+▶ Accounting, migration and save round trips
+  ✔ forecasts and financial metrics are read-only, including repeated rendering (9.449959ms)
+  ✔ a repeated turn settlement cannot collect a second payment or progress reputation (2.857375ms)
+  ✔ six completed turns close a quarter with no duplicate service receipt or cost (4.21625ms)
+  ✔ legacy products migrate once without minting money or retaining generic duplicate revenue (4.05525ms)
+  ✔ saving and reloading preserves contracts, route evidence, customers and actual next cash flows (7.156125ms)
+  ✔ malformed business saves fail validation before an invalid review or route can render (1.925292ms)
+  ✔ unsupported business versions are rejected without replacing the existing economy (6.641583ms)
+  ✔ corrupt prepaid service totals cannot enter a quarterly cash bridge (2.653042ms)
+✔ Accounting, migration and save round trips (40.144459ms)
+▶ Schema & New Game Validation
+  ✔ createNewGameState passes validateGameState (13.590625ms)
+  ✔ active_model.stats has 10 capabilities each at 450 (2.024708ms)
+  ✔ company initial values (1.806208ms)
+  ✔ sectors has 20 entries and JOB_SECTORS weights sum to 1.0 (1.364291ms)
+  ✔ active_model.support_card_ids has the 4 starter cards (2.009333ms)
+✔ Schema & New Game Validation (22.459ms)
+▶ Section 6.2 Exact Initial Benchmark
+  ✔ previewTraining returns exact values for sft/lora/balanced/1 epoch/replay 0.15 (4.001917ms)
+✔ Section 6.2 Exact Initial Benchmark (4.243625ms)
+▶ Focus Stat Weighting & Blockers
+  ✔ focus_stat mixed uses recipe original weights (4.589542ms)
+  ✔ focus_stat coding applies formula (1.177792ms)
+  ✔ OOM blocker prevents applyTraining and does not advance turn or deduct cash (1.712208ms)
+  ✔ DATASET_FORMAT_MISMATCH blocker when using raw_text dataset on sft (1.50025ms)
+✔ Focus Stat Weighting & Blockers (9.506458ms)
+▶ Checkpoint Rollback Ownership Boundary
+  ✔ restores model state but not company/datasets/provenance/legal (2.925459ms)
+  ✔ optimizer health floor at 30 (2.227625ms)
+✔ Checkpoint Rollback Ownership Boundary (5.404709ms)
+▶ Mentor Inheritance Cap
+  ✔ caps total bonus at 50 proportionally (0.765625ms)
+  ✔ leaves totals <= 50 untouched (0.122875ms)
+  ✔ never truncates second mentor to 0 (0.775208ms)
+✔ Mentor Inheritance Cap (1.909834ms)
+▶ Quarter Cash Bridge No Double-Deduction
+  ✔ includes paid rnd/legal in net_income but not in cash_delta again (2.436833ms)
+✔ Quarter Cash Bridge No Double-Deduction (2.567958ms)
+▶ IPO Dilution Math
+  ✔ computes correct dilution (0.390125ms)
+✔ IPO Dilution Math (0.487959ms)
+▶ AI Bubble Lock & Non-Compounding Multipliers
+  ✔ locks crash turn in [84,108] and renaming does not change it (0.937417ms)
+  ✔ valuation multiplier does not compound on consecutive crash turns (1.523958ms)
+✔ AI Bubble Lock & Non-Compounding Multipliers (2.64275ms)
+▶ Virtual Benchmark Race & Contamination Disqualification
+  ✔ official_score is 0.60*public + 0.40*hidden (5.954459ms)
+  ✔ contamination inflates public_score but not hidden_score (3.442958ms)
+  ✔ heavy contamination >= 35 sets rank_eligible false (1.419791ms)
+  ✔ unauthorized_distillation exposure sets rank_eligible false (1.586875ms)
+✔ Virtual Benchmark Race & Contamination Disqualification (12.899584ms)
+▶ AGI / ASI / RSI Evidence Gate
+  ✔ claimed_agi flag does not set agi_achieved (2.275584ms)
+  ✔ meeting real thresholds sets agi_achieved true (1.515667ms)
+✔ AGI / ASI / RSI Evidence Gate (4.016042ms)
+▶ Presentation contracts
+  ✔ history identifiers stay unique across shared architectures (1.192916ms)
+  ✔ datasets and research nodes expose their canonical identifiers (0.302292ms)
+  ✔ a selected laboratory supplies its actual compute and funds (11.726542ms)
+  ✔ viewing financing and IPO previews cannot change the live company (9.137542ms)
+  ✔ data procurement charges once without duplicating an owned dataset (7.672708ms)
+  ✔ insufficient funds cannot acquire data or consume an action (2.656333ms)
+  ✔ the first narrative choice pays its stated reward once (2.731708ms)
+  ✔ declining the commission applies both the cash and reasoning effects (2.746583ms)
+✔ Presentation contracts (40.462958ms)
+▶ Catalog format compatibility
+  ✔ starter preference and raw-text data preserve their declared formats (2.173542ms)
+  ✔ ambiguous rights are never silently converted to a licensed dataset (1.499167ms)
+  ✔ every narrative exposed by the adapter has fully supported choices (6.406709ms)
+✔ Catalog format compatibility (10.635791ms)
+▶ Source-backed character roster and playable histories
+  ✔ keeps all tools and facilities as NPCs without cultivation routes (1.874458ms)
+  ✔ ignores old NPC avatar preferences and keeps a model on the cultivation stage (0.46225ms)
+  ✔ refuses to create a cultivation campaign for every NPC identity (3.297667ms)
+  ✔ rejects saves that try to substitute an NPC into the active model (42.059958ms)
+  ✔ includes the 25 verified model identities without merging DeepSeek Pro, Flash, Fable or JEV (1.845291ms)
+  ✔ every model has a selectable history and every new route creates a valid, balanced save (24.058458ms)
+  ✔ every selectable sprite and emotion variant exists as a real PNG tracked by a matching art hash (225.161542ms)
+  ✔ every gallery entry links to its creator source and retains explicit rights information (1.041375ms)
+  ✔ the editable library rebuild contains a distinct source-backed record for every companion (3.8835ms)
+✔ Source-backed character roster and playable histories (306.7155ms)
+ℹ tests 104
+ℹ suites 20
+ℹ pass 104
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 456.64175

@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-ascend",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/99c25a09188e27100933426d22437ffd4168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / ascend-1",
+  "kind": "image",
+  "original_sha256": "86cdc01c94b33940112dfce3f6149875458ba1f0743f37ec4e3e9b431cb43196",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.593288+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "Ascend / 昇腾娘",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "Ascend / 昇腾娘"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1254840996970102805",
+  "use": "reference-only"
+}

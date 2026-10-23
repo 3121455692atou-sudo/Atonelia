@@ -1,0 +1,61 @@
+/* 命名界面（P3.U2）：送评表单里的名字、史实型号名、顶替勾选、期待预告，发布结果卡的“市场反应”，训练页的代号输入。
+   这里的控件都在很窄的格子里（375px 的手机、训练页原位展开），所有行都能缩到一列，长名字和条件换行，不撑宽页面。 */
+
+/* ---------- 名字那一行 ---------- */
+.rel-name { display: grid; gap: 6px; min-width: 0; }
+.rel-name-field { display: grid; gap: 4px; min-width: 0; font-size: 12.5px; color: var(--ink-2); }
+.rel-name-field b { font-size: 13px; color: var(--ink); }
+.rel-name-field input { width: 100%; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; font-size: 14px; }
+.rel-name-field input[readonly] { background: #f2f4f2; color: var(--ink-2); }
+.rel-name-field input.is-bad { border-color: var(--bad); }
+.rel-name-field small { overflow-wrap: anywhere; }
+.rel-name-err { font-size: 12.5px; color: var(--bad); line-height: 1.55; overflow-wrap: anywhere; }
+.rel-name-err[hidden] { display: none; }
+
+/* ---------- 使用史实型号名 ---------- */
+.rel-grants { display: grid; gap: 6px; min-width: 0; padding: 10px 12px; border-radius: 12px; background: #fffdf6; border: 1px solid #eadfc6; }
+.rel-grants > b { font-size: 13px; }
+.rel-grants > .muted { font-size: 12px; }
+.grant-opt { display: grid; gap: 4px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+.grant-opt.is-on { border-color: var(--accent); background: var(--accent-soft); }
+.grant-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; min-width: 0; font-size: 13px; cursor: pointer; }
+.grant-head input { flex: none; }
+.grant-head b { font-size: 13px; overflow-wrap: anywhere; }
+.grant-head small { flex-basis: 100%; font-size: 11.5px; color: var(--muted); overflow-wrap: anywhere; }
+.grant-head input:disabled + b { color: var(--muted); }
+.grant-lines { list-style: none; margin: 0; padding: 0 0 0 22px; display: grid; gap: 3px; min-width: 0; font-size: 12px; color: var(--ink-2); }
+.grant-lines li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 4px; align-items: start; line-height: 1.55; }
+.grant-lines .mark { font-weight: 700; }
+.grant-lines li.ok .mark { color: var(--ok); }
+.grant-lines li.bad .mark { color: var(--bad); }
+.grant-lines small { display: block; color: var(--muted); font-size: 11.5px; overflow-wrap: anywhere; }
+
+/* ---------- 顶替在线旗舰 ---------- */
+.rel-replace { display: grid; gap: 2px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px dashed #e3d2b4; background: #fffcf6; }
+.rel-replace .toggle { margin: 0; font-weight: 600; }
+.rel-replace p { margin: 0; }
+
+/* ---------- 期待预告 ---------- */
+.expect-box { display: grid; gap: 3px; min-width: 0; padding: 9px 11px; border-radius: 11px; border-left: 3px solid var(--accent-2); background: #f4f8fb; }
+.expect-box > b { font-size: 12.5px; color: var(--accent); }
+.expect-box p { font-size: 12.5px; line-height: 1.65; color: var(--ink-2); overflow-wrap: anywhere; }
+.expect-box small { font-size: 11.5px; color: var(--muted); line-height: 1.6; overflow-wrap: anywhere; }
+
+/* ---------- 代号（训练页的底座、蒸馏表单） ---------- */
+.form input[data-draft] { width: 100%; max-width: 100%; min-width: 0; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: #fff; }
+.form input[data-draft].is-bad { border-color: var(--bad); }
+.card small[data-draft-err] { display: block; font-size: 11.5px; line-height: 1.5; overflow-wrap: anywhere; }
+.card small[data-draft-err].is-bad { color: var(--bad); }
+
+/* ---------- 发布结果卡：市场反应 ---------- */
+.market-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0; padding: 8px 12px; border-radius: 10px; background: #f6f2e8; font-size: 13px; color: var(--ink-2); }
+.market-line b { color: #8b6a2b; }
+
+/* ---------- 窄屏 ---------- */
+@media (max-width: 480px) {
+  .rel-grants { padding: 8px 9px; }
+  .grant-opt { padding: 7px 8px; }
+  .grant-lines { padding-left: 12px; }
+  .rel-name-field input { font-size: 16px; } /* 手机上不让浏览器自动放大输入框 */
+  .expect-box { padding: 8px 10px; }
+}

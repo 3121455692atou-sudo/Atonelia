@@ -1,0 +1,11 @@
+{
+  "name": "model-raising-plan",
+  "version": "1.0.0",
+  "description": "模型育成计划：AI 模型公司经营模拟（史实、单人自洽、联机）",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "test:ui": "node scripts/ui_smoke.mjs",
+    "start": "python3 serve.py"
+  }
+}

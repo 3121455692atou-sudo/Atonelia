@@ -1,0 +1,15 @@
+/* 选择面板里的内容：后训练的涨幅、数据授权、刷榜、发布选项。 */
+.gains { display: flex; flex-wrap: wrap; gap: 5px; }
+.gain { font-family: var(--font-num); font-size: 12px; padding: 2px 8px; border-radius: 7px; background: var(--accent-soft); color: var(--accent); }
+.gain.neg { background: #fdeaea; color: var(--bad); }
+.rights { padding: 0 6px; border-radius: 5px; }
+.rights--ok { background: #e6f4ec; color: var(--ok); }
+.rights--warn { background: #fff1de; color: var(--warn); }
+.rights--bad { background: #fde7e7; color: var(--bad); }
+.benchmax summary { cursor: pointer; font-weight: 600; color: var(--warn); }
+.release-opt { display: grid; gap: 6px; padding: 12px 14px; border-radius: 14px; background: #f7f9fb; border: 1px solid var(--line); }
+/* 蒸馏选项的自洽读数（M.5.2、M.5.3）：一包被查出的风险条、受限开源条款徽章。 */
+.risk-bar { display: inline-block; width: 48px; height: 6px; border-radius: 3px; background: #eef1f4; overflow: hidden; vertical-align: middle; }
+.risk-bar i { display: block; height: 100%; background: var(--warn); }
+.lic-badge { padding: 0 6px; border-radius: 5px; background: #eef1f4; color: var(--ink-2, #555); }
+.lic-badge.bad { background: #fde7e7; color: var(--bad); }

@@ -1,0 +1,101 @@
+[
+  {
+    "id": "h100",
+    "file": "assets/hardware/h100.jpg",
+    "title": "NVIDIA H100 (极客湾Geekerwan) 001.png",
+    "author": "极客湾Geekerwan",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:NVIDIA_H100_(%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_001.png",
+    "standin": false,
+    "note": "H100 PCIe 卡实物（原图标注 NVIDIA H100 PCIe 80GB）；也用于 H800 / H20。 视频截图，左上角带“极客湾”频道角标。 已缩放并转存为 JPEG，内容未裁剪。"
+  },
+  {
+    "id": "h200",
+    "file": "assets/hardware/h200.jpg",
+    "title": "NVIDIA H100 (极客湾Geekerwan) 018.png",
+    "author": "极客湾Geekerwan",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:NVIDIA_H100_(%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_018.png",
+    "standin": true,
+    "note": "未找到可用许可的 H200/GH200 实物照；用同为 Hopper 架构的 H100 PCIe 卡另一角度作替身。 视频截图，左上角带“极客湾”频道角标。 已缩放并转存为 JPEG，内容未裁剪。"
+  },
+  {
+    "id": "a100",
+    "file": "assets/hardware/a100.jpg",
+    "title": "NVIDIA H100 (极客湾Geekerwan) 011.png",
+    "author": "极客湾Geekerwan",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:NVIDIA_H100_(%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_011.png",
+    "standin": true,
+    "note": "未找到可用许可的 A100 实物照（Commons 上唯一的 A100 图是 NVIDIA 官方宣传图，按要求弃用）；用外形几乎一致的 H100 PCIe 四卡并排照作替身。也用于 A800。 视频截图，左上角带“极客湾”频道角标。 已缩放并转存为 JPEG，内容未裁剪。"
+  },
+  {
+    "id": "b200",
+    "file": "assets/hardware/b200.jpg",
+    "title": "Nvidia DGX-B200-HGX.jpg",
+    "author": "Pokiiri",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Nvidia_DGX-B200-HGX.jpg",
+    "standin": false,
+    "note": "DGX/HGX B200 八卡 GPU 基板（标牌 HGX B200 NVL8）；也用于 B300。 已缩放并转存为 JPEG，内容未裁剪。"
+  },
+  {
+    "id": "rubin",
+    "file": "assets/hardware/rubin.jpg",
+    "title": "Nvidia DGX GB200.jpg",
+    "author": "Pokiiri",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Nvidia_DGX_GB200.jpg",
+    "standin": true,
+    "note": "Vera Rubin 无可用照片；用 GB200 NVL72 液冷机柜正面照作替身（竖长图）。 已缩放并转存为 JPEG，内容未裁剪。"
+  },
+  {
+    "id": "ascend910b",
+    "file": "assets/hardware/ascend910b.jpg",
+    "title": "WAIC 2025 - Atlas SuperPoD 03.jpg",
+    "author": "Xuthoria",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:WAIC_2025_-_Atlas_SuperPoD_03.jpg",
+    "standin": true,
+    "note": "华为 Atlas 900 A3 SuperPoD（昇腾 384 超节点，基于昇腾 910C）展台照；非芯片/板卡特写，作替身。也用于 Ascend910C / Ascend950。 已缩放并转存为 JPEG，内容未裁剪。"
+  },
+  {
+    "id": "rack",
+    "file": "assets/hardware/rack.jpg",
+    "title": "CSIRO ScienceImage 11313 The CSIRO GPU cluster at the data centre.jpg",
+    "author": "CSIRO (Commonwealth Scientific and Industrial Research Organisation)",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:CSIRO_ScienceImage_11313_The_CSIRO_GPU_cluster_at_the_data_centre.jpg",
+    "standin": false,
+    "note": "数据中心 GPU 集群机柜排（2010 年前后的 NVIDIA Tesla GPU 集群，外观为通用机柜排）。 已缩放并转存为 JPEG，内容未裁剪。"
+  },
+  {
+    "id": "gb200",
+    "file": "assets/hardware/gb200.jpg",
+    "title": "Eindrücke von der COMPUTEX 2024 ( 极客湾Geekerwan) 22.png",
+    "author": "极客湾Geekerwan",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Eindr%C3%BCcke_von_der_COMPUTEX_2024_(_%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_22.png",
+    "standin": false,
+    "note": "额外：GB200 液冷计算托盘（两颗 GB200 超级芯片冷板，COMPUTEX 2024 展台）；可用作 B200/B300/Rubin 的备选图。 视频截图，左上角带“极客湾”频道角标。 已缩放并转存为 JPEG，内容未裁剪。"
+  },
+  {
+    "id": "h100_quad",
+    "file": "assets/hardware/h100_quad.jpg",
+    "title": "NVIDIA H100 (极客湾Geekerwan) 024.png",
+    "author": "极客湾Geekerwan",
+    "license": "CC BY 3.0",
+    "license_url": "https://creativecommons.org/licenses/by/3.0",
+    "source_url": "https://commons.wikimedia.org/wiki/File:NVIDIA_H100_(%E6%9E%81%E5%AE%A2%E6%B9%BEGeekerwan)_024.png",
+    "standin": false,
+    "note": "额外：四张 H100 PCIe 卡叠放，NVIDIA 标识清晰；可作 H100/H800/H20 的备选图。 视频截图，左上角带“极客湾”频道角标。 已缩放并转存为 JPEG，内容未裁剪。"
+  }
+]

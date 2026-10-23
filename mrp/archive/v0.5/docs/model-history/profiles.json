@@ -1,0 +1,246 @@
+[
+  {
+    "key": "qwen",
+    "name": "Qwen",
+    "history_ids": [
+      "qwen_ecosystem"
+    ],
+    "character_id": "qwen",
+    "subject": "Qwen 系列"
+  },
+  {
+    "key": "deepseek",
+    "name": "DeepSeek Flash",
+    "history_ids": [
+      "deepseek_reasoner"
+    ],
+    "character_id": "deepseek",
+    "subject": "DeepSeek 系列与 Flash 路线"
+  },
+  {
+    "key": "deepseek_pro",
+    "name": "DeepSeek Pro",
+    "history_ids": [
+      "deepseek_engineering"
+    ],
+    "character_id": "deepseek_pro",
+    "subject": "DeepSeek 系列与 Pro 路线"
+  },
+  {
+    "key": "gemini",
+    "name": "Gemini",
+    "history_ids": [
+      "gemini_context"
+    ],
+    "character_id": "gemini",
+    "subject": "Gemini 系列"
+  },
+  {
+    "key": "claude",
+    "name": "Claude",
+    "history_ids": [
+      "claude_constitution"
+    ],
+    "character_id": "claude",
+    "subject": "Claude 与 Anthropic 的对齐研究"
+  },
+  {
+    "key": "gpt",
+    "name": "GPT",
+    "history_ids": [
+      "gpt_instruction",
+      "gpt_reasoner"
+    ],
+    "character_id": "gpt",
+    "subject": "GPT、ChatGPT 与 OpenAI 推理模型"
+  },
+  {
+    "key": "kimi",
+    "name": "Kimi",
+    "history_ids": [
+      "roster_kimi"
+    ],
+    "character_id": "kimi",
+    "subject": "Kimi 系列"
+  },
+  {
+    "key": "glm",
+    "name": "GLM",
+    "history_ids": [
+      "roster_glm"
+    ],
+    "character_id": "glm",
+    "subject": "ChatGLM / GLM 系列"
+  },
+  {
+    "key": "grok",
+    "name": "Grok",
+    "history_ids": [
+      "roster_grok"
+    ],
+    "character_id": "grok",
+    "subject": "Grok 系列"
+  },
+  {
+    "key": "seed",
+    "name": "Seed",
+    "history_ids": [
+      "roster_seed"
+    ],
+    "character_id": "seed",
+    "subject": "ByteDance Seed 系列"
+  },
+  {
+    "key": "rwkv",
+    "name": "RWKV",
+    "history_ids": [
+      "rwkv_recurrent"
+    ],
+    "character_id": "rwkv",
+    "subject": "RWKV 架构发展"
+  },
+  {
+    "key": "ernie",
+    "name": "ERNIE",
+    "history_ids": [
+      "roster_ernie"
+    ],
+    "character_id": "ernie",
+    "subject": "百度 ERNIE 系列"
+  },
+  {
+    "key": "mistral",
+    "name": "Mistral",
+    "history_ids": [
+      "mixtral_experts"
+    ],
+    "character_id": "mistral",
+    "subject": "Mistral / Mixtral / Codestral 系列"
+  },
+  {
+    "key": "minimax",
+    "name": "MiniMax",
+    "history_ids": [
+      "roster_minimax"
+    ],
+    "character_id": "minimax",
+    "subject": "MiniMax 系列"
+  },
+  {
+    "key": "perplexity",
+    "name": "Perplexity",
+    "history_ids": [
+      "roster_perplexity"
+    ],
+    "character_id": "perplexity",
+    "subject": "Perplexity 的 Sonar 模型与研究服务"
+  },
+  {
+    "key": "image2",
+    "name": "Image 2",
+    "history_ids": [
+      "roster_image2"
+    ],
+    "character_id": "image2",
+    "subject": "OpenAI 图像生成技术史；作为角色回忆素材"
+  },
+  {
+    "key": "llama",
+    "name": "Llama",
+    "history_ids": [
+      "llama_community"
+    ],
+    "character_id": "llama",
+    "subject": "LLaMA / Llama 系列"
+  },
+  {
+    "key": "hunyuan",
+    "name": "Hunyuan",
+    "history_ids": [
+      "roster_hunyuan"
+    ],
+    "character_id": "hunyuan",
+    "subject": "腾讯混元语言与视频模型"
+  },
+  {
+    "key": "stepfun",
+    "name": "StepFun",
+    "history_ids": [
+      "roster_stepfun"
+    ],
+    "character_id": "stepfun",
+    "subject": "阶跃星辰视频与语音模型"
+  },
+  {
+    "key": "novelai",
+    "name": "NovelAI",
+    "history_ids": [
+      "roster_novelai"
+    ],
+    "character_id": "novelai",
+    "subject": "NovelAI 文本模型"
+  },
+  {
+    "key": "midjourney",
+    "name": "Midjourney",
+    "history_ids": [
+      "roster_midjourney"
+    ],
+    "character_id": "midjourney",
+    "subject": "Midjourney 图像模型"
+  },
+  {
+    "key": "suno",
+    "name": "Suno",
+    "history_ids": [
+      "roster_suno"
+    ],
+    "character_id": "suno",
+    "subject": "Suno 音乐模型"
+  },
+  {
+    "key": "elevenlabs",
+    "name": "ElevenLabs",
+    "history_ids": [
+      "roster_elevenlabs"
+    ],
+    "character_id": "elevenlabs",
+    "subject": "ElevenLabs 语音模型"
+  },
+  {
+    "key": "fable",
+    "name": "Fable 5",
+    "history_ids": [
+      "roster_fable"
+    ],
+    "character_id": "fable",
+    "subject": "Anthropic 的 Claude Fable 模型系列"
+  },
+  {
+    "key": "jev",
+    "name": "JEV",
+    "history_ids": [
+      "roster_jev"
+    ],
+    "character_id": "jev",
+    "subject": "TypeSafe AI 的 Jev 结构化决策模型"
+  },
+  {
+    "key": "phi",
+    "name": "Phi",
+    "history_ids": [
+      "phi_curriculum"
+    ],
+    "character_id": null,
+    "subject": "Phi 小模型研究"
+  },
+  {
+    "key": "llada",
+    "name": "LLaDA",
+    "history_ids": [
+      "llada_diffusion"
+    ],
+    "character_id": null,
+    "subject": "LLaDA 扩散语言模型研究"
+  }
+]

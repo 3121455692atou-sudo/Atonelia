@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-gemini",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/ac599e0be5f90f23dadbb99b5383b8164168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / artist-gemini",
+  "kind": "image",
+  "original_sha256": null,
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.327995+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "Gemini / Gemini 4 Argon",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "Gemini / Gemini 4 Argon"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1259436942689304579",
+  "use": "reference-only"
+}

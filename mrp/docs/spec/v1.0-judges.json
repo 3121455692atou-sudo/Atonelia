@@ -1,0 +1,188 @@
+[
+ {
+  "scores": [
+   {
+    "key": "hoi4",
+    "requirements": 8,
+    "coherence": 7.5,
+    "implementability": 8.5,
+    "playerClarity": 8.5,
+    "notes": "逐条核对：\n【R1 数据/SOTA】o1 与 R1 的改法我用固定权重重算过，o1 78.7、R1 76.9，LLM 整条线无违规，数字自洽。但只改了 LLM：我跑了全模态检查，图像里开源的 FLUX.1 [dev]（2024-08）比同期 SOTA（Midjourney V6.1）高 7.3，SD3 Medium、Qwen-Image、FLUX.2 [dev] 贴线（差 0.3 到 0.8），文中完全没提。D3 不变量 1 写的是'每条开源发布'，没限定模态，照字面执行会在图像数据上直接失败。另外 P1.1 写'数字全部按 D3 给定'，但 ChatGLM2/3-6B、Qwen-7B、Baichuan2-13B 的新数值 D3 里并没有给。\n【蒸馏上限】本组最严谨：逐维 cap、整体 qCap=min(最强老师 q, 世界 SOTA)−0.3、渐近（每次只走剩余距离的一半）、副维度同样受限、自有数据只给小幅余量（OWN_EDGE 1.5）、g_beyond 全靠条件（ai.never）、calibrate 指标必须为 0，7 条测试都可执行。\n【策略系统】最贴 HOI4：同时一项、换项清零且二次确认、AND/OR 前置、互斥、bypass、失效即取消、公司特质、per-scenario start、ai_will_do。树分配基本符合：16 家完整史实树，8 家'通用树+本家风味'；但 image2（OpenAI 图像）按通用树处理，不太符合'知名公司用史实树'。\n【路线】五档，小模型任何路线下自由，路线只能经 applyEffects(source:'strategy') 写入，并有静态测试。漏洞：tiered 档 flagship:'choice'，等于该档下旗舰每次发布可自由开闭，违背'旗舰开闭只由路线决定、不可自由切换'；'最强一档/主力'在只有 flagship/small 两种角色的游戏里没有对应。另有 pressure/危机系统是额外机制（仍然只能走 7 天策略节点改路线，不违规），其中'2025 年起中国公司每月 +2'是写死日期。\n【命名/授名】授名权由节点发放，发布时再校验 cond+ms+clean（底座 severe 炸炉、RL 方向连续 21 天无 spike），失败不能用名，专属事件有自己的条件（含'没有别家开源推理'）。破口：autoStartRight 兜底给没有本家文件的公司按窗口授予真名，既不经策略节点也不要求干净训练。\n【旧版/BYOK】git mv 到 archive/v0.5，旧测试断言迁到 data_integrity，图鉴三子页含署名和 BYOK（密钥默认只在内存）。聊天入口在角色卡上的位置写得不够明确。\n【样例质量】ds_r1_distill 残留 effects2、mods_note、空 spirits，现有 schema 校验会直接报错；ds_r1 的 available 要求 techs:['reasoning']，y2025 种子 cur 如果开局没有这个技术，第一天就会被'失效即取消'。\n【工作包】22 个包、先拆分再预建存根和钩子、指纹不变测试、每家公司一个内容包，是三份里最适合便宜模型并行的；但 P0.3 过重，且 24 家×4 剧本的 start 全靠手写，建议改成按 hist 日期自动播种。"
+   },
+   {
+    "key": "minimal",
+    "requirements": 7.5,
+    "coherence": 8.5,
+    "implementability": 8,
+    "playerClarity": 7.5,
+    "notes": "逐条核对：\n【R1 数据/SOTA】o1 79.1、R1 77.8，我重算无误。唯一一份主动修了图像：下调 SD3 Medium、FLUX.1 [dev]、Qwen-Image、FLUX.2 [dev]，并新增同日的 FLUX.1 [pro]；用'同日闭源计入 sotaBefore'的口径，我跑下来图像违规为 0（若不计同日的 pro，dev 仍超 SOTA 5.3，所以测试口径必须写死）。QwQ-Preview 保留为'第一个开源推理模型'，另设更严的'追近前沿'条件，保留了原语义。缺点是 ChatGLM2/3、Qwen-7B、Baichuan2 的新数值没有给。\n【蒸馏上限】σ≥0.5 时逐维上限 ≤ 老师−0.5；share≥0.2 时整体 Qmax=min(最强老师 q+1.0, SOTA−0.3)；core_breakthrough 抽签成功率 12 到 32%，失败要冷却，顾问和机器人永不选，calibrate 指标为 0。满足'只能逼近、极难反超'，但比 hoi4 粗糙（线性缩放，没有渐近逼近）。\n【策略系统】节点、前置、互斥、bypass、固定天数都有，但换项保留进度，不像 HOI4（可接受）。树分配：19 家史实树含 image2、midjourney、suno、elevenlabs（各 4 到 6 个节点），4 家通用树（rwkv、perplexity、novelai、jev），名单正文数是 20，写成了 19。\n【路线】五档，旗舰严格由路线锁定、小模型自由；setStance 只接受 source∈{strategy,start,migration}，并有 grep 测试，是三份里对'只能经策略改'防护最干净的。把 license_fork 改成不改路线的选项也很好。弱点：DeepSeek 四个剧本都设成 open，丢掉了'受限许可→MIT'这一步，R1 节点不再改路线。\n【命名/授名】授名的 cond 里有 clean（severe=0 且 spikes≤3）、nearReal、ms 条件，专属事件另带条件。问题：自家'普通真实名'在现实发布前 30 天起就能直接用，没有策略节点把关；BRAND_PREFIX 的前缀匹配会误伤 yi/phi/step 开头的合法名字。\n【旧版/BYOK】打 tag legacy-v0.5 然后从工作树删除。用户原话是'将归档'，这里只是 git 历史里留着，和另两份的 archive/v0.5 目录不同。BYOK 和署名迁进图鉴，密钥只放 sessionStorage，这点没问题。\n【界面】手机上点节点是弹窗而不是原地展开，与'结果出现在用户视线处'的偏好有出入；桌面端不画连线。\n【工作包】WP0 到 WP15 加 I1，有分档，但 WP11 把 19 棵树塞进一个包，不利于便宜模型并行；WP2 一次拆四个大文件，风险高，只靠回放指纹兜底。"
+   },
+   {
+    "key": "story",
+    "requirements": 8.5,
+    "coherence": 7.5,
+    "implementability": 7.5,
+    "playerClarity": 8.5,
+    "notes": "逐条核对：\n【R1 数据/SOTA】o1 79.1、R1 77.8，我重算无误；唯一给出 2023 小模型新数值（ChatGLM2/3-6B、Qwen-7B、Baichuan2-13B）的一份，还有逐维包络测试（跟随者逐维不超过闭源包络+2）。QwQ-Preview 保留为 ms_open_reasoning，另设 ms_open_reasoning_frontier，语义保留得最好。弱点：图像、音乐、语音'只出报告不断言'，并把 FLUX.1 [dev]、Qwen-Image、HunyuanImage 3.0 列入白名单；我跑下来 FLUX.1 [dev] 比同期 SOTA 高 7.3，这与'任何跟随者不得超过同期 SOTA'直接冲突。\n【蒸馏上限】D.4 有逐老师记录、ε(D)=0.4+2.6e^(−D/1.2)、qGuard、'谱系污染'（蒸馏占比 ≥0.25 就终身不得超过对手 SOTA−0.3，换新底座才清零）、c_breakthrough（抽签 12 到 32%，可重试）。满足需求。小问题：'Q ≤ 最强老师 − ε(D)'对任何 D>0 都生效，与'其他方法给小幅增益'和 0.25 的污染阈值不完全一致，需要澄清。\n【策略系统】节点 schema 完整，有 visible、available、bypass、grants.stance、nameStyle。树分配与审计完全一致：17 家专属树加 7 家通用树，另给 16 棵树的故事骨架，是内容简报最完整的。auto-seed 规则（real.date<开局则记完成，开局后 90 天内最早的作为 cur 并按比例预置进度）省去逐家手写 start。弱点：换项保留进度，不像 HOI4；公共主干里只有 c_open_debate 一条通用路线链，通用小团队树只能走 open/closed，delayed 和 open_restricted 对很多公司不可达。\n【路线】五档（closed、open_family、delayed、open_restricted、open），旗舰严格锁定、小模型自由，三个用户举例的中间档都有对应；stanceFx 两端数值与现行 economy 常量完全一致，校准不漂移；delayed 的 m.openAt 自动开放写得具体；只有 stance.js 能写 s.stance，并有 grep 测试。额外的 devEco 系统是增量范围。\n【命名/授名】历史名只能由节点授予，要求 model 条件、world 条件（'此前无人追平前沿的开源推理'）、cleanPretrain / cleanRL≥21 才能用；发布前校验；先发后完成节点不能改名；专属事件各带条件，并用 supersedes 吞并里程碑弹窗。通用树没有历史名，不存在兜底授名的破口。BRAND_PREFIX 同样会误伤 yi/phi/step 开头的名字。\n【旧版/BYOK】git mv 到 archive/v0.5，data/credits.js 收录 CC BY-NC-SA 4.0、ZipZipPipe、上善无形，byok.js 带 https 限制、超时、节流和输出清洗，角色卡有聊天抽屉。\n【事件】8 类事件；cond 的 era 叶子只许出现在策略 available 里，校验器强制，这点很好；世界事件'about 只静音新闻、效果照常生效'，对玩家自己这条线引发的事件仍有残留风险，要靠 rel 挂接兜底。\n【工作包】A 到Q 有文件独占和预登记，但 C（地基与接缝）一包就包含效果、条件、加成、事件内核、迁移框架、全部接缝桩，过重；K1 到 K6 按公司分组合理。"
+   }
+  ],
+  "bestIdeasToGraft": [
+   "【hoi4】策略引擎的 HOI4 机制全套：换项丢进度且二次确认、cancelIfInvalid、bypass 只给 mods 不给授名、prereq 的 AND 套 OR、互斥双向对称、危机节点插队后恢复被挂起的策略（paused）、idleSince 红点提示。建议以此为引擎主干。",
+   "【hoi4】core_llm 共用路线节点覆盖完整光谱（delayed、tiered、open_restricted、open、keep_max、close_all），用 from 和条件门槛限制，每家 LLM 公司都能走全档。story 的通用树只有 open/closed，应补上。",
+   "【hoi4】授名权带时间窗口（史实日前 270 天到后 365 天）、'名字被别家抢先则作废并弹窗说明现实叫什么'，以及 hoi4 的 by/target 世界事件拆分：by 表示这条线自己做的事，玩家扮演该线时新闻和效果都不发生，由策略和专属事件复现。",
+   "【hoi4】蒸馏的数学：每家老师只保留最强一条快照；整体 qCap=min(最强老师 q, 世界 SOTA)−0.3；每次只走剩余距离的一半（渐近逼近）；g_beyond 全靠条件（ai.never）；calibrate 指标'蒸馏口径超过 SOTA 的天数必须为 0'。",
+   "【hoi4】工程流程：先做指纹不变的纯拆分，再预建全部存根、迁移步骤和 tickDay 钩子，之后每个包独占文件；每家公司一个数据文件（树、特质、名表、专属事件、start 放一起），可拆成每家一个便宜模型包（P3.T-*）；safeLoadState 做成可测的纯函数。",
+   "【minimal】图像也修：下调 SD3 Medium、FLUX.1 [dev]、Qwen-Image、FLUX.2 [dev]，并新增同日闭源的 FLUX.1 [pro]；不变量测试的口径是'同日闭源计入 sotaBefore'。RAW 加第 8 列 reasoning 标记，替换 REASONING_NAME 正则；里程碑阈值改写成 atLeast:'GPT-4' 这种相对写法。",
+   "【minimal】setStance(s,to,src) 的 src 白名单是 strategy/start/migration，并用 grep 测试限定只有 strategy.js、createGame、save.js 能调用，比 hoi4 的'只有 effects.js 导入 applyRoute'更能覆盖开局与迁移的初始化路径；license_fork 改成不改路线的选项。",
+   "【minimal】播种规则：开局前的史实节点自动记完成（只给 mods）；开局后 120 天内最早的作为 cur，进度 = need − 距现实的天数，省去 24 家×4 剧本逐个手写 start。专属事件'条件不满足则名字照样能用、事件不弹'；supersedes 吞并同一次发布的里程碑；用 ui/state.js 打断 UI 循环导入。",
+   "【story】五档路线里旗舰严格锁定，对应用户举的三个例子：open_family（旗舰闭源+小模型开源）、delayed（延迟开放上一代，m.openAt 到期自动开放并检查里程碑）、open_restricted（限制许可）。stanceFx 的两端数值与现行 economy 常量一致，校准不漂移；开发者生态 devEco 可选，建议后置。",
+   "【story】蒸馏'谱系污染'：占比 ≥0.25 就终身不得超过对手 SOTA−0.3，换新底座才清零；2023 小模型 MMLU 偏高的新数值已给全；逐维包络测试；cond 的 era 叶子只许出现在策略 available 里，校验器强制；describeCond 生成 ✓/✗ 条件清单；ORGS 统一 isMine/sibling；NAME_STYLE 表加手写 START_VERSION；16 棵树的故事骨架可直接当内容包简报。",
+   "【story】把 ms_open_reasoning 保留为 QwQ-Preview 的'第一个开源推理模型'，另设 ms_open_reasoning_frontier，让 R1 的授名和专属事件只看后者；提交信息末尾带约定的署名行。"
+  ],
+  "mustFix": [
+   "【hoi4】STANCE.tiered 的 flagship:'choice' 让旗舰每次发布都能自由开闭，违背'旗舰开闭只由路线决定、不能自由切换'。要改成旗舰固定闭源，或者明确定义'主力'对应哪个 role；ds_closed_turn 和 g_route_keep_max 都依赖这个档，要同步改。",
+   "【hoi4】D3 不变量 1 没限定模态，而图像数据本身就违规：FLUX.1 [dev] 比同期 SOTA 高 7.3，SD3 Medium、Qwen-Image、FLUX.2 [dev] 与 SOTA 差距不到 1.0。要么补图像修订（可参考 minimal 的方案），要么把测试限定为 LLM 并写明；P1.1 还要补上 ChatGLM2/3-6B、Qwen-7B、Baichuan2-13B 的具体数值（story 已给全）。",
+   "【hoi4】autoStartRight 让没有本家文件的公司（或通用树公司）的开局在练模型无需策略节点、无需干净训练就能用真名，违背'历史名只能经策略节点、训练成功才可用'。删掉，改成开局在练的 next 一律没有名字，只给候选提示。",
+   "【hoi4】样例树 ds_r1_distill 残留 effects2、mods_note、空 spirits，现有 schema 校验器会直接报错；要整理成可通过校验的节点。再加一条校验：所有种子 cur 在开局时都满足 available，否则 y2025 的 ds_r1 第一天就会被'失效即取消'（它要求 techs:['reasoning']）。",
+   "【hoi4】applyRoute 只准 source==='strategy'，却没有给 createGame 的 START_ROUTE 和 v6 迁移留合法写入路径；要加 start/migration 的来源白名单（照 minimal 的 setStance），并补对应的 grep 测试。",
+   "【hoi4】路线呼声里'2025 年起中国公司每月 +2'是写死日期，要换成条件（比如开源对手数量或 ms 状态）；24 家×4 剧本的 start 手写量大，易错，改成按 hist 日期自动播种，只在需要时手写覆盖；image2 应有史实树而不是通用树。",
+   "【minimal】'打 tag 后从工作树删除'不等于用户说的'归档'，改为 git mv 到 archive/v0.5（旧测试也一起），tag 另打；补上 2023 小模型的具体数值；BRAND_PREFIX 要改成词边界匹配（防止 yi/phi/step 开头的合法名被拒）；DeepSeek 的路线要恢复'受限许可到 MIT'这一步；WP11 按公司拆成多个包；手机上节点详情要原地展开而不是弹窗。",
+   "【minimal】自家'普通真实名'现实发布前 30 天就能直接用，要写清楚'里程碑级名单'的覆盖范围（至少所有 grants 里的名字都必须经节点），不然会变成事实上的后门；开局路线表（mistral、qwen 等）要对着 timeline JSON 核对。",
+   "【story】图像、音乐、语音只出报告不断言、还把 FLUX.1 [dev]、Qwen-Image、HunyuanImage 3.0 列入白名单，直接违背'没有跟随者超过同期 SOTA'，要改数据（可参考 minimal），白名单必须为空。",
+   "【story】common_llm 里只有 c_open_debate 一条路线链，通用小团队树只能切 open/closed，delayed 和 open_restricted 对许多公司不可达。需要加一组通用路线节点（可参考 hoi4 的 core_llm），再配上 from 门槛；BRAND_PREFIX 同样要改成词边界匹配；'Q ≤ 最强老师 − ε(D)'要澄清是否只在占比超过阈值后才生效；devEco 标为可选、后置；包 C 要拆。",
+   "【三份共有】'开源推理'里程碑的语义要写清楚：QwQ-Preview 是否算'第一个开源推理模型'，R1 的专属事件看的是'追近前沿'（story 的 ms_open_reasoning_frontier 最清楚）；不变量测试的 sotaBefore 要写死'同日闭源计入'，并保证 timeline 日期匹配后的 R1-0528、V3.1 等仍然留有安全余量；P1.4 的里程碑重标定依赖 P1.1 的新 Q，要在依赖图里标出来。"
+  ],
+  "winner": "hoi4"
+ },
+ {
+  "scores": [
+   {
+    "key": "hoi4",
+    "requirements": 9,
+    "coherence": 7,
+    "implementability": 8,
+    "playerClarity": 7,
+    "notes": "工程上最扎实。第一，先建接缝：P0.3 在 tickDay、monthClose、doRelease 里预埋钩子，并预建 24 个公司文件桩（null 回落到通用树）和 migrations v4–v8，后面的包基本只写自己的文件。第二，先留安全网：P0.1 用当前代码导出 6 份 v3 存档，P0.2a 的指纹脚本在改动前就建好。第三，迁移按版本逐级，每步 try/catch，再加模糊测试和队列清洗。第四，有白名单测试：EFFECT_KEYS、COND_KEYS、MOD_KEYS，以及“只有 effects.js 能写路线”的静态扫描。HOI4 机制还原最完整：AND/OR 前置、互斥、bypass、失效即取消、特质、换项清零。我用同样的 Q 权重复算了 LLM 部分：o1 78.7、R1 76.9，按最保守的同月口径检查违规为 0，与它的说法一致。扣分点：路线呼声数值上到不了自己的阈值（我模拟的上界约 +49 / −33，危机要 ±80）；SOTA 调用点替换没有包认领；测试通配和 CSS 并行冲突没人负责；UI 因 app.js 循环导入而无法在 Node 里测；开局状态按 24×4 手写，量大且易错；有占位符残留（effects2、mods_note）；“健康度为 0 时必炸”的验收测试在当前 dailyFocus 下并不成立（21 天无 spike 的概率约 53%）。"
+   },
+   {
+    "key": "minimal",
+    "requirements": 7,
+    "coherence": 7,
+    "implementability": 6,
+    "playerClarity": 8,
+    "notes": "设计最简洁，玩家文案最清楚：开头的一分钟说明只要求多懂四件事，决定 (a)–(d) 也列得明白。开局策略按 hist 日期自动播种，比手写开局状态省事；五档路线的数值表清楚，也有开局一致性测试；还补了图像模型的数据修正（SD3、FLUX、Qwen-Image，我复算确实需要）；新建 ui/state.js 打破循环导入，并带 UI 渲染冒烟测试。但并行施工不扎实：没有接缝包，阶段 2 的包互相抢文件——WP6 删除 COMPANIES.open，而 model.js:345、release.js、events.js 的读取点分属 WP5、WP8、WP9；stanceTick 和 onFlagshipLive 挂进 tickDay 没人管；发布面板的只读路线行没人认领；WP11 要改 WP7 拥有的 strategies/index.js。迁移全压在最后的 WP14，一次性读懂六个包改出来的状态形状，风险偏高。验证脚本：`node --test tests/` 会静默跳过 test_*.mjs（我在 Node 26 上实测），而它新增的 test_replay、test_data_integrity、test_migrate、test_byok 都是这种文件名。WP2 一个“便宜”包同时拆 core.js、CSS、删 engine.js，再改全部测试和 UI 导入，只靠手动浏览器验证。HOI4 还原度偏低：无连线、取消不丢进度、无特质概念。eraCaps 没有向前看一段时间，自家下一代真实型号会一开局就高于上限。"
+   },
+   {
+    "key": "story",
+    "requirements": 8,
+    "coherence": 6,
+    "implementability": 7,
+    "playerClarity": 8,
+    "notes": "接缝思路对：WP-C 预建 stance、naming、sota、strategy 的桩和全部登记文件，各包之后只填自己的文件。迁移是“结构迁移 + 幂等的特性迁移（s.mig）”，先深拷贝并备份原档（mrp.sim.v2.bak）——这点比其他两份稳。STANCES 两端数值与 economy.js 现有常量一致，不会让校准漂移。UI 文件按子面板拆开（release_open 和 release_name、project_form 和 distill_form 和 route_card），并行时不撞车。用 registerKind 注册事件类，用 describeCond 输出 ✓/✗。谱系污染一旦发生终身有效，还覆盖了预训练合成数据，堵住了“蒸馏模型 → 自有合成教材 → 新底座”这条洗白路径。扣分点：(1) frontier() 排除自家 org 的真实发布，自研上限和 qGuard 都只对着对手，所以 GPT、Claude、Gemini、DeepSeek 在自家线就是现实前沿的年代，复现不出自己的历史型号。(2) qGuard 的 `Q ≤ max_t q_t − ε(D)` 没有占比或污染门槛，一份弱老师的小数据集会卡死强自研模型，把审计 3.4 的老 bug 又带回来。(3) 包 B 把 game、model、office、app、CSS、测试一次拆完，却只用 8 组 × 120 天的指纹，这个时长连大部分月结和终局路径都碰不到。(4) 命名要的炸炉和 spike 计数，写在 G 拥有的文件里，却没人负责记录。(5) devEco 是新增的一整套经济系统。"
+   }
+  ],
+  "bestIdeasToGraft": [
+   "[story→hoi4] 迁移采用“版本步骤 + 幂等特性迁移（s.mig 标记）”，并且先深拷贝；第一次迁移前把原始存档备份到 mrp.sim.v2.bak，失败时让标题页提供“导出 / 丢弃”。hoi4 现在只有按版本逐级的步骤，没有备份。",
+   "[story+minimal→hoi4] 在 P0.2b 新建 ui/state.js（getState、save、render、openLayer、toast），打破 app.js 的循环导入（app.js 在 import 时就执行 document.getElementById 和 boot）。这样后台页面才能在 Node 里渲染，可以做“24 家公司的每个节点都能渲染、不抛错”的冒烟测试。同时预建 ui/css/strategy.css、archive.css、history.css、naming.css，并把 model 页拆成 project_form、distill_form、route_card，把发布面板拆成 release_open 和 release_name 两个子面板，让 U1–U4 并行时互不覆盖。",
+   "[story+minimal→hoi4] 策略的开局状态用算法播种：hist 早于开局的节点记为完成（只给 mods）；hist 落在开局后 90–120 天内、最早的那个节点设为 cur，进度按距离现实日期的天数折算。再加一条一致性测试：播种后的路线必须等于开局路线表，并且能解释继承来的 rel / next 模型的开闭状态。hoi4 的 start[scenario] 只保留例外覆盖（如 working.cleanStreak）。",
+   "[story→hoi4] 路线数值采用两端与现有常量一致的写法：closed 对应出海 0.15，open 对应出海 0.35、API 品牌 ×0.8、API 收入 ×0.75、OpenRouter ×2.2，这些就是 economy.js:47/51/114/204 的现值，校准不漂移。hoi4 加的 valuation、brandDrift 改成可选，单独进校准包。",
+   "[story→hoi4] 蒸馏谱系污染：占比曾经 ≥ 阈值就终身污染，新底座的预训练池里合成数据占比 ≥ 0.25 时同样算污染。hoi4 现在“换新底座清零”，会被 ds_synth_self 洗白。",
+   "[story→hoi4] 保留 ms_open_reasoning 的原义（第一个开源推理模型，QwQ 拿），另设 ms_open_reasoning_frontier（追近前沿）供 R1 授名和专属事件使用。这样旧的 milestones_gen 文案不用重写，也不会出现标题和判定条件对不上。cond 里的 {era} 只允许出现在策略节点的 available 里，由校验器强制。",
+   "[story→hoi4] 事件类用 registerKind(kind, {view, resolve, bg, record}) 注册，描述条件用 describeCond 返回 [{text, ok}]。加 strategy / exclusive 两个新类时，不必再改 currentEvent、resolveEvent、bgFor 里的 switch；节点卡和发布面板的 ✓/✗ 清单也直接用同一个输出。",
+   "[minimal→hoi4] 里程碑和授名的门槛改成参照真实型号：atLeast: '<现实型号名>' 和 nearReal: n，不再写绝对 minQ，也不怕 Q 权重变动。补上它的图像数据修正（SD3 Medium、FLUX.1 [dev]、Qwen-Image、FLUX.2 [dev]，加 FLUX.1 [pro]）。采用它的 suggestName 递增算法、别家品牌前缀校验，以及“开局的 next 模型能力 = 现实值 − clamp(0.5 + 1.5 × 距现实发布的月数, 0.5, 4)”。",
+   "[minimal→hoi4] 指纹覆盖面从 hoi4 的 6 组 × 18 个月，扩大到 24 家 × 4 个剧本的整局，机器人和大按钮各跑一遍，作为拆 game.js 和 model.js 时的安全网。另外，每个并行阶段结束后加一个集成冒烟关口（24 × 4 局，0 次异常、0 局卡死），不要等到 P4.1 才发现接缝问题。",
+   "[hoi4 自己的亮点，别丢] 预埋钩子（tickDay、monthClose、doRelease 前后）、公司文件桩和通用树桩、frontierRef（自研上限同时看自家线下一款真实发布）、EFFECT_KEYS / COND_KEYS / MOD_KEYS 白名单测试，以及“除 effects.js 外不得导入 applyRoute”的静态扫描。其他两份都没有这几样，或者没写得这么具体。",
+   "[story→hoi4] BYOK 对话的安全规格：只允许 https 或 localhost、超时 45 秒、节流 3 秒、输出清洗成 {text≤400, emotion 枚举}、密钥只放 sessionStorage 且绝不进存档和导出、只在点击发送时才发请求；导入存档统一走 safeLoad。"
+  ],
+  "mustFix": [
+   "[hoi4] 路线呼声数值上到不了自己设的阈值。规则是每月衰减 10%，来源是事件 +10/+15/+5、中国公司 2025 年起每月 +2、前沿公司每月 −2。我用偏乐观的事件时序模拟，中国公司上界约 +49，美国前沿公司下界约 −33。危机要 |p|≥80 持续 60 天，所以永远触发不了；g_route_open_restricted 要 ≥40、g_route_open 要 ≥50、g_route_close_all 要 ≤−40，这几个节点对没有本家路线节点的通用树公司基本不可达，闭源到开源这条链会卡在 open_restricted。要么去掉数值门槛，改用状态或事件条件；要么重新标定来源和阈值。再加一条测试：对每个路线档，其余各档都能经某个节点到达。",
+   "[hoi4] SOTA 调用点替换没有任何包认领：economy.js:258-260、发布时品牌加成、口碑和服务动态、distilled_by_others、超事件等，分散在 P1.2、P1.3、P1.4 各自的文件里。要么由 P0.3 先做一次“指纹不变”的口径切换，要么逐文件指给 P1.2。名字去后缀正则（fill、app.js:446、advisor.js:342/345）的删除同样没人管。",
+   "[hoi4+minimal] 测试发现机制会静默丢测试。package.json 里的 `node --test tests/*.mjs` 不会进子目录，tests/career/*.test.mjs 拆出去就跑不到；而 `node --test tests/` 虽然递归，却会忽略 test_*.mjs 这类下划线文件名（我在 Node 26 上都实测过）。要让拆分包拥有 package.json，改成能覆盖 `tests/**/*.test.mjs` 的写法，新增测试一律用 .test.mjs 命名，再加一道“测试总数不得下降”的检查。minimal 的 test_replay、test_data_integrity、test_migrate、test_byok、test_ui_render 都踩这条。",
+   "[hoi4] career.css 在 P3.U1、U3、U4 并行时会被同时编辑。审计已经说明它是补丁叠补丁的单文件。请在 P0.2b 预建按功能分的 css（strategy、archive、history、naming）并在 index.html 登记好链接，各包只写自己那份。",
+   "[hoi4] UI 无法在 Node 里测：所有后台页和面板都从 app.js 导入 getState、render，而 app.js 在 import 时就跑 document.getElementById 和 boot。P0.2b 要新建 ui/state.js 来承接这些，页面渲染函数才能做冒烟测试；否则 P3.U1 之后只能靠手动看。",
+   "[hoi4] 路线和授名只允许 ctx.source==='strategy' 写入，但 createGame（START_ROUTE）和迁移 v6 也必须写 s.route。要明确允许 source 为 'start' 和 'migration'，静态扫描只放行这三类写入点。",
+   "[hoi4] 验收测试“健康度强制为 0 时 spike 不断，拿不到 R1 授名”和现状不符：dailyFocus 里 fail 的上限是 90，按天概率 90×(1/30)=3%，连续 21 天干净的概率约 53%，不是“不断”。要么用注入随机数或直接设置 cleanStreak 做确定性测试，要么调整 spike 模型。",
+   "[hoi4] 不变量 1/2（开源 ≤ 之前 SOTA−1.5，跟随者 ≤ SOTA−1.0）没写适用范围。直接套到图像数据上，SD3 Medium、FLUX.1 [dev]、Qwen-Image 都会违规（我复算过）。要限定在 LLM，或补上 minimal 的图像修正。同月发布的先后顺序要考虑：约 23% 的发布日期会落到 dayInMonth 哈希兜底，测试要对同月先后不敏感。",
+   "[hoi4] 去掉 DeepSeek 样板里的占位符（ds_r1_distill 的 effects2、mods_note、空 spirits），并补全 cond 叶子的语义：live.sotaGap 是“落后不超过 n”还是“差距的绝对值”，world 有哪些子键（openRelease 等）。P3.D 是其他 15 棵树的样板，样板里不能留歧义。",
+   "[hoi4] P0.3 把“指纹不变的接缝”和“改变行为的重构”塞进同一个设计包：计时器改到期日、品牌夹逼统一、s.done 拆分、goal 改 board、techMult 换成 modifier、删 history 死路径。应拆成两步：先做指纹不变的口径切换，再做逐条登记差异的行为改动，否则回归时无法二分定位。",
+   "[hoi4] tiered 档把旗舰设为 'choice'，等于该档下旗舰开闭可以随便勾，和“路线只能靠策略改”冲突。把 tiered 定义成“旗舰闭源 + 旧一代自动开放 + 小模型自由”，或者让旗舰选择在每次发布时单向锁定。另外，授名窗口 to = 史实日 + 365 天，节点完成得晚时可能一生效就已过期，建议取 max(史实日 + 365, 完成日 + 180)。",
+   "[hoi4] 命名重载：`exclusive` 同时指节点互斥、grants.exclusive（专属事件）、kind 'exclusive'、s.exclusive。落到代码里很容易写混，建议互斥字段改名（比如 rivals / excludes）。",
+   "[minimal] 阶段 2 的文件所有权冲突。WP6 删掉 COMPANIES.open，但 model.js:345（WP5）、release.js（WP8）、events.js 1153/1212/1360（WP9）、发布面板的路线只读行都不归它；stanceTick 和 onFlagshipLive 挂进 tickDay 也没人负责。要加一个接缝包（桩 + 钩子 + 登记文件）放在阶段 2 之前；WP11 要改 WP7 拥有的 strategies/index.js，也应预登记。",
+   "[minimal] 迁移全压在最后的 WP14，一次读懂六个包改出的状态形状，6 份 v3 夹具到最后才被验证。应改成每个特性包提交自己的迁移步骤，并在包内跑夹具。WP2 里“便宜”包同时拆 core.js、拆 CSS、删 engine.js（所有测试和 UI 的 import 都要改），只靠手动浏览器验证，风险太集中，需要拆开。eraCaps 要加一个“自家线下一款真实发布”的向前窗口（hoi4 的 frontierRef 就是这个），否则开局继承的 next 模型一上来就高于上限。",
+   "[story] 自研上限和 qGuard 只对着对手包络，frontier() 排除了自家 org 的真实发布。GPT、Claude、Gemini、DeepSeek 在自家线就是现实前沿的年代，上限被压在对手之上 1.5 左右，复现不出自己的历史型号。上限计算要加“时代包络”（含自家线现实发布，带向前窗口），只用于上限，不用于玩家可见的 SOTA。",
+   "[story] qGuard 的 `Q(m) ≤ max_t q_t − ε(D)` 没有占比或污染门槛，一份弱老师的小数据集就会卡住强自研模型，把审计 3.4 的“弱老师卡死”老 bug 带回来。要给它加 σ≥0.2 或 tainted 的前提。",
+   "[story] 包 B（便宜模型）一口气拆 game.js、model.js、office.js、app.js、CSS 和测试，却只有 8 组 × 120 天的指纹，覆盖不到大部分月结和终局路径。改成 24×4 整局指纹，并像 hoi4 那样把 sim 与 ui 拆成两个包。命名要用的炸炉和 spike 计数（pj.blowups、w.spikes）写在 G 拥有的 ops/projects.js 和 loop/tick.js，要明确由 G 负责记录、F 只读取。",
+   "[三份共同] 第 0 阶段的地基包（P0.3 / WP-C / WP4+WP2）都是单个“强模型”包，卡住后面所有并行。建议按“新模块 → 接缝桩 → 调用点切换 → 行为改动”四步拆成几个提交，每步都先过指纹和 v3 夹具，再进入并行阶段。"
+  ],
+  "winner": "hoi4"
+ },
+ {
+  "scores": [
+   {
+    "key": "hoi4",
+    "requirements": 9,
+    "coherence": 8,
+    "implementability": 7,
+    "playerClarity": 7,
+    "notes": "玩家体验视角。最像 HOI4 国策：单槽、前置 AND/OR、互斥、bypass、cancelIfInvalid、公司特质、桌面网格加 SVG 连线、手机纵向原地展开、开局各剧本预完成状态、顶栏策略芯片加董事会警告 n/3，并写明 y2023 约 25–30 项、y2026 约 300 天的节奏预算。路线有五档光谱条加一句白话（旗舰/小模型各自规则），还有路线呼声和危机这个“政变”，选择最有重量。缺点是新概念最多（特质、呼声、危机、授名窗口、干净连胜、解锁），一分钟说不清；R1 一条线就有策略弹窗、里程碑弹窗、4 个专属事件，容易刷屏。node.available 里放了会随世界波动的 sotaGap 和 ms，再叠“失效即清零”，玩家会看到节点忽亮忽灭、进度被无声清空。tiered 档的 flagship:'choice' 等于允许发布时自由开闭旗舰，和“旗舰只能走策略改”冲突。ds_r1_distill 里留着 effects2、mods_note 等没收拾的字段。P0.3 预埋桩和钩子加指纹测试，是三案里并行施工设计最扎实的。"
+   },
+   {
+    "key": "minimal",
+    "requirements": 6.5,
+    "coherence": 8,
+    "implementability": 8,
+    "playerClarity": 8,
+    "notes": "玩家体验视角。“一分钟说明”只列四件事（策略、路线、起名、天花板），“删得比加的多”，是唯一把一分钟清晰当目标写出来的案子。弹窗最克制：只有带 scene 的节点才弹，R1 只有一个专属事件，并用 supersedes 吞掉里程碑弹窗。起名只在发布面板一处。换项保留进度，对实时可暂停游戏友好。但 HOI4 手感最弱：桌面不画连线、前置只用文字列出；没有公司特质卡，也没有 grants.unlock 之类的解锁；节点详情用弹窗，手机上违背“结果就在原地”；路线五个节点任何时候都能互相切换，只靠 120 天冷却和品牌/估值小惩罚，意识形态分量不够。BRAND_PREFIX 前缀规则（step、yi、phi、abab）会误伤正常名字。旧版是“打 tag 后从工作树删除”，不是用户说的归档。公司树只有约 12 个自有节点，通用树 9 个，内容厚度和选择丰富度偏薄。"
+   },
+   {
+    "key": "story",
+    "requirements": 8,
+    "coherence": 8,
+    "implementability": 7,
+    "playerClarity": 8,
+    "notes": "玩家体验视角。最均衡：单槽加固定天数；节点卡有“历史/架空/可争取历史名”标签；顶栏日期块直接写“公司·路线”；失效时暂停而不是清零，进度保留；用 c_open_debate 三选一节点取代按日期弹的 open_question，是条件触发且带情境的好设计；supersedes 吞并里程碑弹窗；术语统一为董事会目标、行业第一次、公司历程；发布面板把路线显示成只读一行并说明原因。R1 做成要靠本事拿到（预置约 55/70 天进度，数学差几分，还要连续 21 天无 spike），比 hoi4 案的“开局已干净 30 天”更有玩头。不足：新增 devEco 第二个要看的数值；TIER_PACE 暗改天数；visible 把架空分支藏起来，可发现性差；无 scene 的节点只发 toast，连改路线这种大事也如此；没有特质卡，也没有呼声这类随世界变化的路线可选性，HOI4 味道次于 hoi4 案；A.9 的 16 棵树只有骨架，便宜模型难以直接填；C 包把效果、条件、加成、事件、迁移、桩全塞在一个包里，太大。"
+   }
+  ],
+  "bestIdeasToGraft": [
+   "【hoi4】桌面端用网格加 SVG 连线、互斥画红色虚线，手机端整页纵向、按分支分段、点一下原地展开（带 condWhy 的 ✓/✗ 和“开始这项策略”按钮），已完成分支默认折叠；不要用弹窗看详情。",
+   "【hoi4】公司特质（spirits）做成横向卡片，点开用 describeMods 给白话；这是“策略完成后我变成了什么样”最直观的反馈，也是 HOI4 国家精神的味道来源。前台只展示最重要的 5–6 张，其余折叠。",
+   "【hoi4】路线光谱条：五档高亮当前档，下面一行白话“旗舰：必须开放权重 · 小模型：发布时自己选”，旁边列出“能改路线的策略”链接；并把顶栏“董事会目标警告 n/3”和策略芯片放在同一次改动里。",
+   "【hoi4】开局按公司×剧本预置 done 和一个已进行一半的 cur；节点 popup 默认 false，只有大事件才弹窗；y2023 约 25–30 项、y2026 约 300 天的节奏预算要保留，用来给树的大小定尺度。",
+   "【hoi4】路线呼声加危机（HOI4 政变）可作为可选的第二期功能：世界大事推动呼声，决定哪些路线节点可选；危机只靠 7 天危机节点改路线，是少见且有戏剧性的选择。",
+   "【hoi4】P0.3 预埋所有桩、钩子和迁移步骤，加 6 局×18 月的指纹基线，让后面的包能真正并行；这套施工骨架应作为总方案的施工底稿。",
+   "【story】失效时暂停而不是清零：节点 available 不成立时暂停并保留进度，同时写明原因；取消和换项也保留进度；只有开始时检查波动型条件。",
+   "【story】节点卡的“历史/架空”标签、“可争取历史名：X”标签，以及可展开的“现实：2025 年 1 月”；这让玩家一眼看出自己是在复现现实还是走架空分支。",
+   "【story】顶栏日期块把路线写在公司名旁（“深度求索 · 宽松开源”），玩家随时知道自己站在哪一档；发布面板里旗舰开闭显示成只读一行并说明“要改路线请走公司策略”。",
+   "【story】c_open_debate 这类“情境触发的三选一节点”：别家拿到商用开源里程碑后，闭源路线下才出现，取代按日期弹的 open_question；reasoning_race 同理改成 bet_reasoning 节点。",
+   "【story】supersedes：专属事件吞并同一次发布的里程碑弹窗（账本照记，只发一条快讯），直接削减刷屏；同理 ms_open_reasoning_frontier 单独成一个里程碑，避免 QwQ-Preview 的歧义。",
+   "【story】bypass 只给 mods 和路线，不给一次性效果、授名和专属事件；开局预完成的节点也这样处理，防止白拿。",
+   "【story】术语统一为“董事会目标 / 行业第一次 / 公司历程”，界面里不再出现“里程碑”；新增“公司历程”页汇总路线变迁、完成的策略、授名。",
+   "【story】R1 要靠本事拿到：开局节点预置约 55/70 天进度，数学和 gap 还差一点，要连续 21 天无 loss spike；比直接预填干净连胜更有玩头。",
+   "【minimal】“一分钟说明”四条（策略、路线、起名、天花板）和“删得比加的多”的原则，应该直接作为新手引导文案和总方案的验收口径。",
+   "【minimal】起名只在发布面板一处；训练中的模型显示“第 N 代底座（训练中）”，“（训练中）”不写进存档；nameGrantsFor 提前预告“完成「R1」后可用 DeepSeek-R1（还要 12 天）”。",
+   "【minimal】节点天数固定、不随团队规模变；pickStrategy 按 |hist−今天| 排序且结果确定；只有带 scene 的节点才弹窗，其余发新闻和 toast。",
+   "【minimal】BYOK 的防护：只允许 https（localhost 除外）、45 秒超时、3 秒节流、输出清洗成 {text≤400, emotion} 再转义、密钥只放 sessionStorage；同时给旧版打 tag legacy-v0.5 并保留 archive/v0.5。",
+   "【minimal】“下一步”大按钮每次渲染重算，不再拼缓存键；quickNav 里禁用按钮真正不可点；结算页后台只读。"
+  ],
+  "mustFix": [
+   "【三案共通】弹窗没有总预算。需要定一条规则：同一次“发布加连锁事件”最多弹 1 张阻塞卡片，其余合并成一次多段短剧，或降为新闻条和收件箱；世界大事（无选项）也要做成新闻条，不要都弹窗。hoi4 案的 R1 线（策略弹窗加里程碑弹窗加 appstore、nvda、distill_accuse、gov_ban 共 4 个专属事件）和 story 案的 R1 线都超标。",
+   "【三案共通】R1 这类历史名有三层条件（节点可开始、授名时型号条件加干净训练、专属事件条件），玩家很容易摸不着头脑。节点卡里要放一份合并的“R1 之路”清单，一次列出三层条件和各自的 ✓/✗ 与当前值。",
+   "【三案共通】“干净训练”必须在训练界面实时可见（如“干净训练 12/21 天”，spike 后清零并提示原因），否则授名失败对玩家像随机惩罚。三案都只写了发布面板里的失败原因。",
+   "【三案共通】没有新手引导。需要首次进入时的三步提示（策略、路线、起名），并且开局就有一个已在进行的策略，策略页要有“推荐”高亮；空闲策略的提醒不要变成一直红的唠叨。",
+   "【hoi4】node.available 里不要放会随世界波动的条件（sotaGap、ms 的 notOther）并配“失效即清零”。改为：开始时检查波动条件，进行中失效则暂停、保留进度，并写明原因（story 案做法）。至少给玩家一个明确的“你的 R1 窗口刚被 X 抢先”提示，而不是静默清零。",
+   "【hoi4】换项丢进度需要玩家层面的取舍：保留 HOI4 式二次确认，但建议不把进度清零，改为保留一部分，或在 30 天内换回仍保留；否则对“实时、可暂停、速度 1–5”的游戏过于惩罚，尤其是 429 之类突发事件逼玩家改计划时。",
+   "【hoi4】tiered 档的 flagship:'choice' 等于旗舰发布时可自由开闭，违反“旗舰开闭只能走策略改”。改成：旗舰锁定闭源、上一代或中档可自选；或把 tiered 改成 story/minimal 的“旗舰闭源，小模型开源”语义；并让 B5 开局表、releaseOpenRule 与之一致。",
+   "【hoi4】路线呼声对玩家不透明。要有明确的“呼声来源”流水账（如 +10 Llama 2 发布，−6 被蒸馏），路线节点卡显示“当前 12 / 需要 30”，并说明每月衰减；否则“为什么我不能开源”没有答案。呼声加危机建议降为第二期，先做核心策略系统。",
+   "【hoi4】R1 开局 cur=25/35 且 cleanStreak 预填 30，几乎白送。把预填降到十几天，让玩家还要真的跑几周数学 RL，才有“自己做出来”的感觉。",
+   "【hoi4】DeepSeek 一家就有 11 张特质卡，加通用特质会塞满。需要上限和分组（显示最重要的 5–6 张，其余折叠），并且每张都有 describeMods 白话；info:true 的硬规则说明不要和 buff 混排。",
+   "【hoi4】ds_r1_distill 等节点里还留着 effects2、mods_note 等未整理字段，交给便宜模型前要先改成最终 schema 写法，否则会被照抄成脏数据。",
+   "【minimal】BRAND_PREFIX 前缀拦截会误伤正常名字（step、yi、phi 会拦住 Stepwise、Yield、Phoenix）。改为整词或精确型号名匹配，并说明原因。",
+   "【minimal】节点详情用弹窗，手机上违背“结果就在玩家当前位置”。改为手机原位展开；桌面也要补前置连线，不要只用文字列前置。",
+   "【minimal】五个路线节点任何时候都能互相切换，只靠 120 天冷却，路线失去意识形态的重量。向极端移动应有条件，或有可见的大代价，并在界面上写清。",
+   "【story】无 scene 的节点只发 toast，路线改变这种大事也一样。凡是改路线的节点完成时必须有一张明确的确认卡片，写清旗舰和小模型规则变了什么。",
+   "【story】devEco 是第二个要盯的数值，TIER_PACE 暗改天数，visible 隐藏架空分支。建议：devEco 并入品牌或只在路线页显示；节点上显示实际天数；架空分支以灰卡显示而不是隐藏。",
+   "【story】C“地基与接缝”包过大（effects、cond、mods、events/kinds、迁移、桩、简单事件改写）；A.9 的 16 棵树只有骨架，便宜模型无法直接填，需要至少再给一棵完整的 LLM 大厂树作样板。应拆分 C，并像 hoi4 案那样有一个 P3.D 样板。"
+  ],
+  "winner": "hoi4"
+ }
+]

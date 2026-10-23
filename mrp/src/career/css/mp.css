@@ -1,0 +1,141 @@
+/* 自洽和联机的界面（规格 M.7）：交易所页。只加新类名，不改已有样式；窄屏断点写在本文件末尾。 */
+
+/* 顶部一行：两只指数、我的持仓、现金，有空单时再加一条保证金条。 */
+.ex-top { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 12px; }
+.ex-top .meter-chip { flex: 1 1 110px; }
+.ex-top .meter-chip b { font-family: var(--font-num); font-size: 15px; }
+.ex-top .meter-chip small { font-family: var(--font-num); font-size: 11px; }
+.ex-margin { flex: 2 1 260px; display: grid; gap: 4px; padding: 6px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--white); }
+.ex-margin span { font-size: 12px; color: var(--ink-2); }
+.ex-margin small { font-size: 11px; color: var(--muted); }
+.ex-margin__bar { position: relative; height: 10px; border-radius: 5px; background: #ecebe3; overflow: hidden; }
+.ex-margin__bar i { display: block; height: 100%; background: linear-gradient(90deg, #7cc9a0, #4fb184); }
+.ex-margin__bar em { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink-2); opacity: .55; }
+.ex-margin.is-warn .ex-margin__bar i { background: linear-gradient(90deg, #f3cd73, #e7a94a); }
+.ex-margin.is-call { border-color: #f2c2b0; background: #fff6f2; }
+.ex-margin.is-call .ex-margin__bar i { background: linear-gradient(90deg, #ef9a8a, #d9665a); }
+
+/* 每家一行，点开在原地展开。 */
+.ex-list { padding-bottom: 6px; }
+.ex-row { border-top: 1px solid var(--line); }
+.ex-row:first-of-type { border-top: 0; }
+.ex-row.is-open { background: #fbfaf5; border-radius: 12px; }
+.ex-head { width: 100%; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) 96px minmax(0, 1fr); align-items: center; gap: 10px; padding: 10px 8px; text-align: left; }
+.ex-head:hover { background: var(--accent-soft); border-radius: 10px; }
+.ex-name, .ex-px { display: grid; min-width: 0; }
+.ex-name b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ex-name small { color: var(--muted); font-family: var(--font-num); font-size: 11px; }
+.ex-px b { font-family: var(--font-num); }
+.ex-px small { font-family: var(--font-num); font-size: 11px; }
+.ex-mine { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.ex-body { display: grid; gap: 10px; padding: 4px 8px 12px; }
+.ex-body svg { max-width: 100%; height: auto; }
+.ex-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; }
+.ex-pos { padding: 8px 10px; border-radius: 10px; background: var(--accent-soft); }
+.ex-stakes { font-size: 12px; }
+
+/* 交易：方向、金额、实时报价。 */
+.ex-trade { display: grid; gap: 8px; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--white); }
+.ex-trade .chips { margin: 0; }
+.ex-amt { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.ex-amt__input { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); }
+.ex-amt__input input { width: 120px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--white); font-family: var(--font-num); }
+.ex-quote { display: grid; gap: 8px; padding: 10px; border-radius: 10px; background: #f6f5ef; }
+.ex-quote .btn { justify-self: start; }
+
+/* 自家股票：回购、增发。 */
+.ex-own__row { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 4px 10px; align-items: center; margin-top: 8px; }
+.ex-own__row .chips { grid-column: 2; margin: 0; }
+.ex-own__row .muted { font-size: 12.5px; }
+.ex-own .ex-quote { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+
+@media (max-width: 860px) {
+  .ex-head { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; }
+  .ex-spark { display: none; }
+  .ex-mine { grid-column: 1 / -1; justify-content: flex-start; }
+  .ex-mine:empty { display: none; }
+  .ex-kv { grid-template-columns: minmax(0, 1fr); }
+  .ex-kv li, .ex-pos li { flex-wrap: wrap; }
+  .ex-amt__input input { width: 100px; }
+}
+
+/* ---------- 联机（M4）：大厅、座位、聊天、收件箱、顶栏、复盘 ---------- */
+.mp-body { display: grid; gap: 14px; max-width: 760px; margin: 0 auto; padding: 16px 16px 40px; }
+.mp-code { font-family: var(--font-num); letter-spacing: .18em; }
+.mp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px 14px; }
+.mp-field { display: grid; gap: 4px; font-size: 12.5px; color: var(--ink-2); min-width: 0; }
+.mp-field span { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.mp-field small { color: var(--muted); font-size: 11px; }
+.mp-field input, .mp-field select { width: 100%; padding: 7px 9px; border-radius: 9px; border: 1px solid var(--line); background: var(--white); color: var(--ink); font-size: 14px; }
+.mp-field select:disabled, .mp-check input:disabled { opacity: .7; }
+.mp-checks { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; }
+.mp-check { display: inline-flex; align-items: center; gap: 6px; }
+.mp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.mp-note { font-size: 12.5px; }
+.mp-seats { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.mp-seat { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fbfaf5; }
+.mp-seat b { font-size: 14px; }
+.mp-seat small { color: var(--muted); font-size: 12px; }
+.mp-seat .chip, .mp-seat .chip-btn { margin-left: auto; }
+.mp-seat .chip + .chip-btn { margin-left: 0; }
+.mp-seat.is-me { border-color: #9cc3dc; background: var(--accent-soft); }
+.mp-seat.is-empty { border-style: dashed; background: transparent; }
+.mp-seat.is-pending { border-color: #f2c2b0; background: #fff6f2; }
+.mp-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #c9c8bf; flex: none; }
+.mp-dot.is-on { background: #4fb184; }
+.mp-dot.is-bot { background: #9aa8b5; }
+.mp-dot.is-hosted { background: #e7a94a; }
+
+.mp-chat { display: grid; gap: 8px; }
+.mp-chat-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 260px; overflow-y: auto; font-size: 13px; }
+.mp-chat.is-compact .mp-chat-list { max-height: 180px; }
+.mp-chat-list li { display: flex; gap: 8px; overflow-wrap: anywhere; }
+.mp-chat-list li b { flex: none; color: var(--ink-2); }
+.mp-chat-list li.is-me b { color: var(--accent); }
+.mp-chat-input { display: flex; gap: 6px; }
+.mp-chat-input input { flex: 1; min-width: 0; padding: 7px 9px; border-radius: 9px; border: 1px solid var(--line); background: var(--white); }
+
+/* 收件箱：主界面最上面。 */
+.app--home > .mp-inbox { margin: 10px 16px 0; }
+.mp-inbox { border: 1px solid #f2c2b0; background: #fff8f4; border-radius: 14px; padding: 10px 12px; display: grid; gap: 8px; }
+.mp-inbox header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.mp-inbox header small { color: var(--muted); font-size: 12px; }
+.mp-inbox ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.mp-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--white); border: 1px solid var(--line); }
+.mp-card > div { display: grid; gap: 2px; min-width: 0; }
+.mp-card small { color: var(--ink-2); font-size: 12px; }
+.mp-card.is-major { border-color: #e7a94a; }
+.mp-card.is-urgent { border-color: var(--bad); box-shadow: 0 0 0 2px rgba(196, 85, 90, .15); }
+
+/* 顶栏的联机速度块。 */
+.mp-speed { flex-wrap: wrap; row-gap: 4px; }
+.mp-speed .pip.is-vote { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mp-speed .pip.is-capped { opacity: .35; }
+.mp-dots { display: inline-flex; gap: 3px; align-items: center; }
+.mp-why { color: var(--warn); font-size: 11.5px; }
+.mp-badge { display: inline-flex; align-items: center; gap: 3px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--white); font-size: 12px; }
+.mp-badge .ico { width: 15px; height: 15px; }
+.mp-badge.is-on { border-color: #f2c2b0; background: #fff1ec; color: #b4552f; }
+
+/* 聊天坞：平时收起，展开在底部。 */
+.mp-dock { position: fixed; right: 16px; bottom: 16px; width: min(360px, calc(100vw - 32px)); z-index: 40; background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 10px 12px; display: grid; gap: 6px; }
+.mp-dock header { display: flex; align-items: center; justify-content: space-between; }
+
+/* 复盘。 */
+.mp-replay .mp-body { max-width: 980px; }
+.mp-rank td small { font-size: 11px; }
+.mp-timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 360px; overflow-y: auto; font-size: 13px; }
+.mp-timeline li { display: flex; gap: 10px; }
+.mp-timeline time { flex: none; font-family: var(--font-num); color: var(--muted); font-size: 12px; }
+.mp-lineage summary { cursor: pointer; padding: 4px 0; font-weight: 600; }
+.mp-lineage ul { margin: 4px 0 8px 16px; padding: 0; display: grid; gap: 3px; font-size: 13px; }
+
+@media (max-width: 860px) {
+  /* 手机：顶栏只留日期、速度和收件箱（M.7）；在线点、原因、聊天按钮收起。 */
+  .mp-speed .mp-dots, .mp-speed .mp-why, .mp-speed [data-act="mp-chat-toggle"]:not(.is-on) { display: none; }   /* 有新消息时聊天按钮冒出来 */
+  .mp-speed .speed-play span { display: none; }
+  .mp-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .mp-card { flex-wrap: wrap; }
+  .mp-rank { font-size: 12px; }
+  .mp-dock { right: 8px; bottom: 8px; width: calc(100vw - 16px); }
+}

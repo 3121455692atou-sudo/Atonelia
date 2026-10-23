@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-kimi",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/1f099083c8f81427754a9306733239164168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / batch1-2",
+  "kind": "image",
+  "original_sha256": "f6718d162fce6aa5f67bdd6059ee06e9b45f5b29e26828f1f317c516694a74c0",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.343658+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "Kimi / 所有的AI们，和OpenCode",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "Kimi / 所有的AI们，和OpenCode"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1233069202138464289",
+  "use": "reference-only"
+}

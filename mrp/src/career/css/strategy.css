@@ -1,0 +1,201 @@
+/* 公司策略界面（P3.U1，规格 A11）：顶栏策略芯片、主界面策略行、后台导航分组、策略页的当前策略 / 路线 / 特质 /
+   桌面网格和连线 / 手机纵向分支与原位展开。页面在 375px 宽下不横向溢出（桌面网格只在 ≥860px 显示）。 */
+
+/* ---------- 顶栏策略芯片 ---------- */
+.strategy-chip { display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 210px; padding: 4px 10px; border-radius: 12px; border: 1px solid #c5def0; background: #eef6fb; color: var(--ink); text-align: left; }
+.strategy-chip:hover { border-color: var(--accent); }
+.strategy-chip-tag { display: inline-flex; align-items: center; gap: 4px; flex: none; color: var(--accent); font-size: 11px; font-weight: 700; }
+.strategy-chip-tag .ico { width: 16px; height: 16px; }
+.strategy-chip b { min-width: 0; max-width: 108px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+.strategy-chip small { flex: none; color: var(--accent); font-size: 11px; white-space: nowrap; }
+.strategy-chip.is-idle { background: #fff5e2; border-color: #e7c98e; }
+.strategy-chip.is-idle .strategy-chip-tag, .strategy-chip.is-idle small { color: var(--warn); }
+.strategy-chip.is-paused { background: #fff1ec; border-color: #f0c2b0; }
+.strategy-chip.is-paused small, .strategy-chip.is-paused .strategy-chip-tag { color: var(--bad); }
+
+/* ---------- 主界面“进行中”卡的策略行（只加一行，不放新按钮） ---------- */
+.now-row.now-strategy { width: 100%; text-align: left; border-radius: 8px; }
+.now-row.now-strategy:hover { background: #f6f9fb; }
+.now-tag--strategy { background: #e8f0fa; color: #356a9d; }
+.now-strategy small .strategy-mini { display: inline-block; vertical-align: middle; width: 34px; height: 5px; margin-right: 6px; border-radius: 3px; background: #e6e5dd; overflow: hidden; }
+.strategy-mini i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+.now-strategy.is-paused .now-tag--strategy { background: #fff0e4; color: var(--warn); }
+
+/* ---------- 后台导航分组（A11 四组） ---------- */
+.office-nav nav { gap: 10px; }
+.office-nav-group { display: grid; gap: 2px; }
+.office-nav-group > b { padding: 0 12px 2px; color: var(--muted); font-size: 11px; letter-spacing: 1px; font-weight: 600; }
+.office-nav-group + .office-nav-group { padding-top: 8px; border-top: 1px dashed var(--line); }
+
+/* ---------- 策略页骨架 ---------- */
+.strategy-page { grid-column: 1 / -1; display: grid; gap: 12px; min-width: 0; max-width: 100%; }
+.strategy-page > * { min-width: 0; }
+.strategy-head { display: grid; gap: 2px; min-width: 0; }
+.strategy-head h2 { font-family: var(--font-display); font-size: 26px; }
+.strategy-page .card { min-width: 0; }
+.strategy-current-main { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 15px; }
+.strategy-current-main b { min-width: 0; overflow-wrap: anywhere; }
+.strategy-current-main span { flex: none; color: var(--muted); font-size: 12.5px; }
+.strategy-current .progress { margin: 6px 0; }
+.strategy-current-fx { color: var(--ink-2); font-size: 12.5px; line-height: 1.6; }
+.strategy-confirm { margin-top: 6px; background: #fff4e3; color: #7c571b; border-radius: 10px; padding: 7px 10px; font-size: 12.5px; line-height: 1.55; }
+
+/* 路线条：五档横排，当前那档高亮；窄屏自动换行。 */
+.strategy-route-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 4px 0 6px; font-size: 12.5px; }
+.strategy-route-line i { color: var(--muted); font-style: normal; }
+.strategy-route-step { padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); background: #fafaf6; color: var(--ink-2); }
+.strategy-route-step.is-on { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 700; }
+.strategy-route-nodes { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 5px 0; font-size: 12.5px; }
+.strategy-route-nodes > b { flex: none; }
+.strategy-route-node { color: var(--ink-2); }
+.strategy-route-nodes + .muted { margin-top: 2px; }
+.strategy-spirit-row { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.strategy-spirit { white-space: nowrap; }
+
+/* ---------- 桌面策略树（钢铁雄心国策树式）：深色底图 + 紧凑节点 + 右侧固定详情栏 ---------- */
+.strategy-tree-card { overflow: visible; }
+.strategy-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 2px 0 8px; font-size: 11.5px; color: var(--ink-2); }
+.strategy-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.strategy-legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+.strategy-tree-body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; align-items: start; min-width: 0; }
+.strategy-map-wrap { min-width: 0; overflow-x: auto; padding: 18px 16px 20px; border-radius: 14px;
+  background: radial-gradient(120% 90% at 50% 0%, #2c3a46 0%, #1c252e 70%, #161d24 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05), inset 0 10px 30px rgba(0, 0, 0, .25); }
+.strategy-grid { --col: 112px; position: relative; display: grid; grid-template-columns: repeat(var(--cols), var(--col)); grid-auto-rows: auto;
+  column-gap: 22px; row-gap: 26px; justify-content: start; align-items: start; width: max-content; }
+.strategy-links { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.strategy-link { fill: none; stroke: #b99a5b; stroke-width: 2; stroke-opacity: .75; vector-effect: non-scaling-stroke; }
+.strategy-link--excl { stroke: #d46a6a; stroke-opacity: .9; stroke-dasharray: 6 5; }
+/* 节点：图标在上，标题在下，不写条件和按钮（都在详情栏）。高度由内容定，没有内部滚动。 */
+.strategy-node { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; width: var(--col); min-width: 0;
+  padding: 4px 2px 6px; border: 0; border-radius: 12px; background: transparent; color: #e9edf0; text-align: center; cursor: pointer; }
+.strategy-node:hover { background: rgba(255, 255, 255, .06); }
+.strategy-node.is-sel { background: rgba(255, 214, 120, .13); box-shadow: 0 0 0 1px rgba(255, 214, 120, .45); }
+.strategy-node:focus-visible { outline: 2px solid #ffd678; outline-offset: 2px; }
+.strategy-node .strategy-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.7em; max-width: 100%;
+  padding: 2px 6px; border-radius: 6px; background: rgba(10, 14, 18, .55); border-bottom: 2px solid var(--branch, #8aa);
+  font-size: 12px; line-height: 1.35; font-weight: 700; color: #f2f4f5; overflow-wrap: anywhere; }
+.strategy-node-sub { font-size: 10.5px; color: #b9c3cb; font-family: var(--font-num); white-space: nowrap; }
+.strategy-node.locked .strategy-title { color: #b7c0c6; background: rgba(10, 14, 18, .35); }
+.strategy-node.bad .strategy-title { color: #e7b5b5; text-decoration: line-through; text-decoration-color: rgba(231, 120, 120, .7); }
+
+/* 圆形图标：状态都画在图标上（完成金边、可开始发亮、锁定变灰、互斥打叉、进行中外圈是进度）。 */
+.sg-icon { --size: 64px; position: relative; z-index: 0; flex: none; display: grid; place-items: center; width: var(--size); height: var(--size); border-radius: 50%;
+  background: #263039; box-shadow: 0 0 0 2px #59646d, 0 3px 10px rgba(0, 0, 0, .45); }
+.sg-icon img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+.sg-icon-letter { font-family: var(--font-display); font-size: calc(var(--size) * .42); font-weight: 700; color: #f3e2b3; }
+.sg-badge { position: absolute; right: -3px; bottom: -3px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+  font-style: normal; font-size: 12px; font-weight: 800; color: #fff; background: #6b7780; box-shadow: 0 0 0 2px #1c252e; }
+.sg-badge--done { background: #4f8f4a; }
+.sg-badge--active { background: #2f78aa; font-size: 10px; }
+.sg-badge--warn { background: #c08a2e; }
+.sg-badge--bad { background: #b9474b; }
+.strategy-node.done .sg-icon { box-shadow: 0 0 0 2px #d6b25e, 0 3px 10px rgba(0, 0, 0, .45); }
+.strategy-node.ok .sg-icon { box-shadow: 0 0 0 2px #ffd678, 0 0 16px 3px rgba(255, 214, 120, .45); }
+.strategy-node.locked .sg-icon img, .strategy-node.bad .sg-icon img { filter: grayscale(1) brightness(.6); }
+.strategy-node.locked .sg-icon, .strategy-node.bad .sg-icon { box-shadow: 0 0 0 2px #3c464e, 0 3px 10px rgba(0, 0, 0, .45); }
+.strategy-node.warn .sg-icon img { filter: saturate(.6); }
+/* 进行中：外圈按进度画一段亮弧。 */
+.sg-icon[style*="--pct"]::before { content: ""; position: absolute; inset: -5px; border-radius: 50%; z-index: -1;
+  background: conic-gradient(#58b4f0 calc(var(--pct) * 1%), rgba(88, 180, 240, .18) 0); }
+
+/* 右侧详情栏：跟着页面滚动停在视口里（sticky），白底；内容多时整页往下滚，不做内部滚动条。 */
+.strategy-detail { position: sticky; top: 10px; display: grid; gap: 7px; min-width: 0; padding: 12px 13px; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--white); font-size: 12.5px; line-height: 1.55; box-shadow: 0 4px 16px rgba(31, 52, 72, .06); }
+.strategy-detail-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 11px; align-items: center; padding-bottom: 8px; border-bottom: 3px solid var(--branch, var(--accent)); }
+.sg-icon--big { --size: 76px; }
+.strategy-branch-tag { display: inline-block; margin-bottom: 2px; padding: 1px 6px; border-radius: 999px; background: #f1f0e8; color: var(--ink-2); font-size: 10.5px; }
+.strategy-detail-title { display: block; font-size: 15px; line-height: 1.35; overflow-wrap: anywhere; }
+.strategy-detail .strategy-days { color: var(--muted); font-size: 11px; }
+.strategy-detail .strategy-desc { font-size: 12.5px; }
+.strategy-detail .strategy-cond { font-size: 12px; }
+.strategy-detail .strategy-effects, .strategy-detail .strategy-upfront { font-size: 12px; }
+.strategy-detail .strategy-acts .btn { min-height: 32px; font-size: 12.5px; padding: 0 12px; }
+.strategy-days { flex: none; font-family: var(--font-num); }
+.strategy-state-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; min-width: 0; }
+.strategy-state-line small { color: var(--muted); font-size: 10.5px; line-height: 1.4; overflow-wrap: anywhere; }
+.strategy-state { flex: none; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 700; background: #f1efe6; color: var(--ink-2); }
+.strategy-state--ok { background: #e6f4ec; color: var(--ok); }
+.strategy-state--active { background: var(--accent-soft); color: var(--accent); }
+.strategy-state--done { background: #edf3e8; color: #4f7a46; }
+.strategy-state--warn { background: #fff1de; color: var(--warn); }
+.strategy-state--bad { background: #fdecec; color: var(--bad); }
+.strategy-state--locked { background: #f1f1ee; color: var(--muted); }
+.strategy-desc { color: var(--ink-2); font-size: 11.5px; }
+.strategy-sub { min-width: 0; }
+.strategy-sub > b, .strategy-effects > b, .strategy-upfront > b { color: var(--ink); font-size: 11.5px; }
+.strategy-conds { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 2px; min-width: 0; }
+.strategy-cond { display: grid; grid-template-columns: 13px minmax(0, 1fr); gap: 3px; align-items: start; font-size: 11px; line-height: 1.45; }
+.strategy-cond i { font-style: normal; font-weight: 700; }
+.strategy-cond.ok i { color: var(--ok); }
+.strategy-cond.no i { color: var(--bad); }
+.strategy-cond span { min-width: 0; overflow-wrap: anywhere; }
+.strategy-effects, .strategy-upfront { font-size: 11px; color: var(--ink-2); overflow-wrap: anywhere; }
+.strategy-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 6px; }
+.strategy-acts .btn { min-height: 28px; padding: 0 9px; font-size: 11.5px; }
+.strategy-auto { margin-top: auto; padding-top: 6px; color: var(--muted); font-size: 11px; }
+
+/* ---------- 手机：纵向分支、点一行原位展开 ---------- */
+.strategy-mobile { display: none; min-width: 0; }
+.strategy-branch { border: 1px solid var(--line); border-radius: 12px; background: var(--white); overflow: hidden; }
+.strategy-branch + .strategy-branch { margin-top: 8px; }
+.strategy-branch > summary { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 9px 12px; cursor: pointer; list-style: none; }
+.strategy-branch > summary::-webkit-details-marker { display: none; }
+.strategy-branch > summary b { font-size: 14px; }
+.strategy-branch > summary small { flex: none; color: var(--muted); font-size: 11.5px; }
+.strategy-m-list { display: grid; gap: 1px; border-top: 1px solid var(--line); }
+.strategy-m-item { background: #fdfcf8; }
+.strategy-m-item.is-open { background: #fff; }
+.strategy-m-node { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; padding: 8px 12px; text-align: left; }
+.sg-icon--row { --size: 38px; }
+.sg-icon--row .sg-badge { width: 16px; height: 16px; font-size: 9px; right: -4px; bottom: -4px; box-shadow: 0 0 0 2px #fdfcf8; }
+.strategy-m-item.locked .sg-icon--row img, .strategy-m-item.bad .sg-icon--row img { filter: grayscale(1) brightness(.75); }
+.strategy-m-node:hover { background: #f7f9fa; }
+.strategy-m-main { display: grid; gap: 1px; min-width: 0; }
+.strategy-m-main b { font-size: 13.5px; overflow-wrap: anywhere; }
+.strategy-m-main small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 11px; }
+.strategy-m-state { flex: none; font-size: 11px; color: var(--ink-2); white-space: nowrap; }
+.strategy-m-state--ok { color: var(--ok); }
+.strategy-m-state--active { color: var(--accent); }
+.strategy-m-state--warn { color: var(--warn); }
+.strategy-m-state--bad { color: var(--bad); }
+.strategy-m-detail { display: grid; gap: 6px; padding: 0 12px 12px 62px; min-width: 0; border-top: 1px dashed var(--line); padding-top: 9px; }
+.strategy-m-detail .strategy-acts { margin-top: 2px; }
+.strategy-state-note { color: var(--warn); font-size: 11.5px; }
+.strategy-m-detail .strategy-confirm { margin-top: 2px; }
+
+/* ---------- 完成卡（views/strategy.js） ---------- */
+.ev--strategy .ev-strategy-line { margin-top: 6px; }
+.ev--strategy .ev-strategy-line:first-of-type { margin-top: 0; }
+
+@media (min-width: 860px) {
+  .strategy-mobile { display: none; }
+}
+@media (max-width: 859px) {
+  .strategy-tree-card { display: none; }
+  .strategy-mobile { display: block; }
+  .strategy-spirit-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .strategy-m-detail { padding-left: 12px; }
+  .strategy-current-main { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .strategy-route-line { font-size: 11.5px; }
+  .strategy-route-step { padding: 2px 7px; }
+}
+@media (max-width: 860px) {
+  .strategy-chip { max-width: 96px; padding: 3px 7px; gap: 3px; }
+  .strategy-chip-tag span { display: none; }
+  .strategy-chip b { display: none; }
+  .strategy-chip small { font-size: 10.5px; }
+  .strategy-chip.is-idle b { display: inline; max-width: 56px; font-size: 11px; }
+  .strategy-chip.is-idle small { display: none; }
+  /* 顶栏挤不下时让资源块换行，不要横向溢出。 */
+  .topbar .res-block { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; min-width: 0; }
+  /* 手机上的后台导航是横向滚动的一排：组名当行内小标题，组和组之间用虚线隔开。 */
+  .office-nav nav { gap: 8px; align-items: flex-start; }
+  .office-nav-group { display: flex; align-items: center; gap: 2px; }
+  .office-nav-group > b { padding: 0 4px; white-space: nowrap; }
+  .office-nav-group + .office-nav-group { padding-top: 0; padding-left: 8px; border-top: 0; border-left: 1px dashed var(--line); }
+}
+@media (max-width: 375px) {
+  .strategy-m-node { grid-template-columns: 40px minmax(0, 1fr); }
+  .strategy-m-state { grid-column: 2; justify-self: start; }
+}

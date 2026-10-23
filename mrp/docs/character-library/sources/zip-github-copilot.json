@@ -1,0 +1,27 @@
+{
+  "author": "ZipZipPipe",
+  "continuity": "zipzippipe-personifications",
+  "edition": "2026-10-19 公开图像核验",
+  "id": "zip-github-copilot",
+  "image_url": "https://i1.hdslb.com/bfs/new_dyn/c791c9a063b0c2e4fbbf58b7a20b2d064168597.png",
+  "inspection": "viewed",
+  "inspection_ref": "2026-10-19 / view_image / github-copilot-1",
+  "kind": "image",
+  "original_sha256": "4978e1ee21470cd1a1dd550a83b259e7e55f78204a3166f3f4f47fc9e34c364a",
+  "phase": null,
+  "provenance": "用户指定作者主页。通过真实浏览器阅读动态、核对原帖说明，并以 view_image 查看公开原图；取用或改编由本次用户请求授权。",
+  "realm": "reference",
+  "registered_at": "2026-10-19T02:06:40.557365+00:00",
+  "retrieved_at": "2026-10-19",
+  "rights": "未检得统一再授权声明；本机个人体验",
+  "title": "GitHub Copilot / GitHub Copilot",
+  "units": [
+    {
+      "entry": 1,
+      "id": "u000001",
+      "title": "GitHub Copilot / GitHub Copilot"
+    }
+  ],
+  "url": "https://www.bilibili.com/opus/1258988140077514757",
+  "use": "reference-only"
+}

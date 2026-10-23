@@ -1,0 +1,77 @@
+{"company":"kimi","sc":"y2023","seeds":8,"id":"hn_kimi_k2","name":"Kimi K2","real":"2025-07-11","used":0,"ok":0,"voided":8,"early":0}
+{"company":"kimi","sc":"y2024","seeds":8,"id":"hn_kimi_k2","name":"Kimi K2","real":"2025-07-11","used":0,"ok":0,"voided":8,"early":0}
+{"company":"kimi","sc":"y2025","seeds":8,"id":"hn_kimi_k2","name":"Kimi K2","real":"2025-07-11","used":0,"ok":0,"voided":8,"early":0}
+{"company":"glm","sc":"y2023","seeds":8,"id":"hn_glm45","name":"GLM-4.5","real":"2025-07-28","used":0,"ok":0,"voided":0,"early":8}
+{"company":"glm","sc":"y2024","seeds":8,"id":"hn_glm45","name":"GLM-4.5","real":"2025-07-28","used":0,"ok":0,"voided":8,"early":0}
+{"company":"glm","sc":"y2025","seeds":8,"id":"hn_glm45","name":"GLM-4.5","real":"2025-07-28","used":0,"ok":0,"voided":8,"early":0}
+{"company":"minimax","sc":"y2023","seeds":8,"id":"hn_minimax01","name":"MiniMax-01","real":"2025-01-15","used":0,"ok":0,"voided":8,"early":0}
+{"company":"minimax","sc":"y2024","seeds":8,"id":"hn_minimax01","name":"MiniMax-01","real":"2025-01-15","used":0,"ok":0,"voided":8,"early":0}
+{"company":"minimax","sc":"y2025","seeds":8,"id":"hn_minimax01","name":"MiniMax-01","real":"2025-01-15","used":0,"ok":0,"voided":8,"early":0}
+{"company":"deepseek","sc":"y2023","seeds":8,"id":"hn_ds_v2","name":"DeepSeek-V2","real":"2024-05-06","used":0,"ok":0,"voided":8,"early":0}
+{"company":"deepseek","sc":"y2023","seeds":8,"id":"hn_ds_v3","name":"DeepSeek-V3","real":"2024-12-26","used":0,"ok":0,"voided":8,"early":0}
+{"company":"deepseek","sc":"y2023","seeds":8,"id":"hn_ds_r1","name":"DeepSeek-R1","real":"2025-01-20","used":0,"ok":0,"voided":8,"early":0}
+{"company":"deepseek","sc":"y2023","seeds":8,"id":"hn_ds_r1_distill","name":"DeepSeek-R1-Distill-Qwen-32B","real":"2025-01-20","used":0,"ok":0,"voided":8,"early":0}
+{"company":"deepseek","sc":"y2023","seeds":8,"id":"hn_ds_v31","name":"DeepSeek-V3.1","real":"2025-08-21","used":8,"ok":6,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2023","seeds":8,"id":"hn_ds_v4_pro","name":"DeepSeek-V4-Pro","real":"2026-04-24","used":0,"ok":0,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2023","seeds":8,"id":"hn_ds_v4_flash","name":"DeepSeek-V4-Flash","real":"2026-04-24","used":0,"ok":0,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2024","seeds":8,"id":"hn_ds_v2","name":"DeepSeek-V2","real":"2024-05-06","used":0,"ok":0,"voided":8,"early":2}
+{"company":"deepseek","sc":"y2024","seeds":8,"id":"hn_ds_v3","name":"DeepSeek-V3","real":"2024-12-26","used":0,"ok":0,"voided":6,"early":2}
+{"company":"deepseek","sc":"y2024","seeds":8,"id":"hn_ds_r1","name":"DeepSeek-R1","real":"2025-01-20","used":0,"ok":0,"voided":8,"early":2}
+{"company":"deepseek","sc":"y2024","seeds":8,"id":"hn_ds_r1_distill","name":"DeepSeek-R1-Distill-Qwen-32B","real":"2025-01-20","used":0,"ok":0,"voided":6,"early":2}
+{"company":"deepseek","sc":"y2024","seeds":8,"id":"hn_ds_v31","name":"DeepSeek-V3.1","real":"2025-08-21","used":6,"ok":0,"voided":0,"early":2}
+{"company":"deepseek","sc":"y2024","seeds":8,"id":"hn_ds_v4_pro","name":"DeepSeek-V4-Pro","real":"2026-04-24","used":0,"ok":0,"voided":0,"early":2}
+{"company":"deepseek","sc":"y2024","seeds":8,"id":"hn_ds_v4_flash","name":"DeepSeek-V4-Flash","real":"2026-04-24","used":0,"ok":0,"voided":0,"early":2}
+{"company":"deepseek","sc":"y2025","seeds":8,"id":"hn_ds_r1","name":"DeepSeek-R1","real":"2025-01-20","used":8,"ok":8,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2025","seeds":8,"id":"hn_ds_r1_distill","name":"DeepSeek-R1-Distill-Qwen-32B","real":"2025-01-20","used":8,"ok":8,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2025","seeds":8,"id":"hn_ds_v31","name":"DeepSeek-V3.1","real":"2025-08-21","used":8,"ok":0,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2025","seeds":8,"id":"hn_ds_v4_pro","name":"DeepSeek-V4-Pro","real":"2026-04-24","used":0,"ok":0,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2025","seeds":8,"id":"hn_ds_v4_flash","name":"DeepSeek-V4-Flash","real":"2026-04-24","used":0,"ok":0,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2026","seeds":8,"id":"hn_ds_v4_pro","name":"DeepSeek-V4-Pro","real":"2026-04-24","used":1,"ok":1,"voided":0,"early":0}
+{"company":"deepseek","sc":"y2026","seeds":8,"id":"hn_ds_v4_flash","name":"DeepSeek-V4-Flash","real":"2026-04-24","used":0,"ok":0,"voided":0,"early":0}
+{"company":"seed","sc":"y2023","seeds":8,"id":"hn_doubao_15","name":"Doubao-1.5-pro","real":"2025-01-22","used":8,"ok":8,"voided":0,"early":0}
+{"company":"seed","sc":"y2024","seeds":8,"id":"hn_doubao_15","name":"Doubao-1.5-pro","real":"2025-01-22","used":8,"ok":8,"voided":0,"early":0}
+{"company":"seed","sc":"y2025","seeds":8,"id":"hn_doubao_15","name":"Doubao-1.5-pro","real":"2025-01-22","used":8,"ok":8,"voided":0,"early":0}
+{"company":"ernie","sc":"y2023","seeds":8,"id":"hn_ernie_x1","name":"ERNIE X1","real":"2025-03-16","used":8,"ok":8,"voided":0,"early":0}
+{"company":"ernie","sc":"y2024","seeds":8,"id":"hn_ernie_x1","name":"ERNIE X1","real":"2025-03-16","used":8,"ok":8,"voided":0,"early":0}
+{"company":"ernie","sc":"y2025","seeds":8,"id":"hn_ernie_x1","name":"ERNIE X1","real":"2025-03-16","used":8,"ok":8,"voided":0,"early":0}
+{"company":"hunyuan","sc":"y2023","seeds":8,"id":"hn_hunyuan_large","name":"Hunyuan-Large","real":"2024-11-05","used":8,"ok":8,"voided":0,"early":0}
+{"company":"hunyuan","sc":"y2024","seeds":8,"id":"hn_hunyuan_large","name":"Hunyuan-Large","real":"2024-11-05","used":8,"ok":8,"voided":0,"early":0}
+{"company":"stepfun","sc":"y2023","seeds":8,"id":"hn_step3","name":"Step 3","real":"2025-07-25","used":8,"ok":8,"voided":0,"early":0}
+{"company":"stepfun","sc":"y2024","seeds":8,"id":"hn_step3","name":"Step 3","real":"2025-07-25","used":8,"ok":8,"voided":0,"early":0}
+{"company":"stepfun","sc":"y2025","seeds":8,"id":"hn_step3","name":"Step 3","real":"2025-07-25","used":8,"ok":8,"voided":0,"early":0}
+{"company":"rwkv","sc":"y2023","seeds":8,"id":"hn_rwkv4_raven","name":"RWKV-4 Raven 14B","real":"2023-04-01","used":8,"ok":8,"voided":0,"early":0}
+{"company":"rwkv","sc":"y2023","seeds":8,"id":"hn_rwkv5_eagle","name":"RWKV-5 Eagle 7B","real":"2024-01-29","used":7,"ok":7,"voided":1,"early":1}
+{"company":"rwkv","sc":"y2023","seeds":8,"id":"hn_rwkv7_goose","name":"RWKV-7 Goose","real":"2025-03-18","used":7,"ok":7,"voided":0,"early":1}
+{"company":"rwkv","sc":"y2024","seeds":8,"id":"hn_rwkv5_eagle","name":"RWKV-5 Eagle 7B","real":"2024-01-29","used":8,"ok":8,"voided":0,"early":0}
+{"company":"rwkv","sc":"y2024","seeds":8,"id":"hn_rwkv7_goose","name":"RWKV-7 Goose","real":"2025-03-18","used":8,"ok":8,"voided":0,"early":0}
+{"company":"rwkv","sc":"y2025","seeds":8,"id":"hn_rwkv7_goose","name":"RWKV-7 Goose","real":"2025-03-18","used":8,"ok":8,"voided":0,"early":0}
+{"company":"perplexity","sc":"y2023","seeds":8,"id":"hn_pplx_online","name":"pplx-70b-online","real":"2023-11-29","used":8,"ok":8,"voided":0,"early":0}
+{"company":"perplexity","sc":"y2023","seeds":8,"id":"hn_pplx_sonar","name":"Sonar","real":"2025-02-11","used":8,"ok":8,"voided":0,"early":0}
+{"company":"perplexity","sc":"y2024","seeds":8,"id":"hn_pplx_sonar","name":"Sonar","real":"2025-02-11","used":8,"ok":8,"voided":0,"early":0}
+{"company":"perplexity","sc":"y2025","seeds":8,"id":"hn_pplx_sonar","name":"Sonar","real":"2025-02-11","used":8,"ok":8,"voided":0,"early":0}
+{"company":"novelai","sc":"y2023","seeds":8,"id":"hn_nai_clio","name":"Clio","real":"2023-05-23","used":8,"ok":8,"voided":0,"early":0}
+{"company":"novelai","sc":"y2023","seeds":8,"id":"hn_nai_kayra","name":"Kayra","real":"2023-07-28","used":8,"ok":8,"voided":0,"early":0}
+{"company":"novelai","sc":"y2023","seeds":8,"id":"hn_nai_erato","name":"Erato","real":"2024-09-23","used":8,"ok":8,"voided":0,"early":0}
+{"company":"novelai","sc":"y2023","seeds":8,"id":"hn_nai_xialong","name":"Xialong","real":"2026-03-31","used":7,"ok":7,"voided":0,"early":1}
+{"company":"novelai","sc":"y2024","seeds":8,"id":"hn_nai_erato","name":"Erato","real":"2024-09-23","used":8,"ok":8,"voided":0,"early":0}
+{"company":"novelai","sc":"y2024","seeds":8,"id":"hn_nai_xialong","name":"Xialong","real":"2026-03-31","used":8,"ok":8,"voided":0,"early":0}
+{"company":"novelai","sc":"y2025","seeds":8,"id":"hn_nai_xialong","name":"Xialong","real":"2026-03-31","used":8,"ok":8,"voided":0,"early":0}
+{"company":"novelai","sc":"y2026","seeds":8,"id":"hn_nai_xialong","name":"Xialong","real":"2026-03-31","used":8,"ok":8,"voided":0,"early":0}
+{"company":"jev","sc":"y2023","seeds":8,"id":"hn_jev","name":"Jev","real":"2026-09-15","used":4,"ok":4,"voided":0,"early":0}
+{"company":"jev","sc":"y2023","seeds":8,"id":"hn_jev_novel_2","name":"JEVnovel 2","real":"2026-09-30","used":2,"ok":2,"voided":0,"early":0}
+{"company":"jev","sc":"y2024","seeds":8,"id":"hn_jev","name":"Jev","real":"2026-09-15","used":8,"ok":8,"voided":0,"early":0}
+{"company":"jev","sc":"y2024","seeds":8,"id":"hn_jev_novel_2","name":"JEVnovel 2","real":"2026-09-30","used":8,"ok":8,"voided":0,"early":0}
+{"company":"jev","sc":"y2025","seeds":8,"id":"hn_jev","name":"Jev","real":"2026-09-15","used":8,"ok":8,"voided":0,"early":0}
+{"company":"jev","sc":"y2025","seeds":8,"id":"hn_jev_novel_2","name":"JEVnovel 2","real":"2026-09-30","used":8,"ok":8,"voided":0,"early":0}
+{"company":"jev","sc":"y2026","seeds":8,"id":"hn_jev","name":"Jev","real":"2026-09-15","used":8,"ok":8,"voided":0,"early":0}
+{"company":"jev","sc":"y2026","seeds":8,"id":"hn_jev_novel_2","name":"JEVnovel 2","real":"2026-09-30","used":8,"ok":8,"voided":0,"early":0}
+{"company":"image2","sc":"y2023","seeds":8,"id":"hn_dalle3","name":"DALL·E 3","real":"2023-09-20","used":8,"ok":8,"voided":0,"early":0}
+{"company":"image2","sc":"y2023","seeds":8,"id":"hn_4o_image","name":"GPT-4o 图像生成","real":"2025-03-25","used":8,"ok":8,"voided":0,"early":0}
+{"company":"image2","sc":"y2024","seeds":8,"id":"hn_4o_image","name":"GPT-4o 图像生成","real":"2025-03-25","used":8,"ok":8,"voided":0,"early":0}
+{"company":"image2","sc":"y2025","seeds":8,"id":"hn_4o_image","name":"GPT-4o 图像生成","real":"2025-03-25","used":8,"ok":8,"voided":0,"early":0}
+{"company":"midjourney","sc":"y2023","seeds":8,"id":"hn_mj_v6","name":"Midjourney V6","real":"2023-12-21","used":2,"ok":0,"voided":6,"early":0}
+{"company":"suno","sc":"y2023","seeds":8,"id":"hn_suno_v3","name":"Suno v3","real":"2024-03-21","used":0,"ok":0,"voided":8,"early":0}
+{"company":"suno","sc":"y2024","seeds":8,"id":"hn_suno_v3","name":"Suno v3","real":"2024-03-21","used":8,"ok":8,"voided":0,"early":0}
+{"company":"elevenlabs","sc":"y2023","seeds":8,"id":"hn_eleven_v3","name":"Eleven v3","real":"2025-06-05","used":8,"ok":8,"voided":0,"early":0}
+{"company":"elevenlabs","sc":"y2024","seeds":8,"id":"hn_eleven_v3","name":"Eleven v3","real":"2025-06-05","used":6,"ok":6,"voided":2,"early":0}
+{"company":"elevenlabs","sc":"y2025","seeds":8,"id":"hn_eleven_v3","name":"Eleven v3","real":"2025-06-05","used":0,"ok":0,"voided":8,"early":0}
