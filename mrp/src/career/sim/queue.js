@@ -186,9 +186,11 @@ export function knownQueueItem(s, q) {
 }
 
 // 引擎提示（预训练完成、小模型蒸馏完成）：文案取 data/events.js 里同名的那条，排成一张 notice（规格 E4：提示不记账）。
+// 共享教程可按模态选正文；缺失/未知模态仍用中性默认文案，不修改事件定义或状态。
+const eventText = (def, s) => typeof def.textByMod?.[s.mod] === 'string' ? def.textByMod[s.mod] : def.text;
 export function noticeOf(s, id, params = {}) {
   const def = EVENTS[id];
-  return { kind: 'notice', title: fill(def.title, s, params), text: fill(def.text, s, params) };
+  return { kind: 'notice', title: fill(def.title, s, params), text: fill(eventText(def, s), s, params) };
 }
 export function fill(text, s, params = {}) {
   const m = liveModel(s) || workingModel(s);
@@ -249,7 +251,7 @@ export function currentEvent(s, at = 0) {
   const def = EVENTS[q.id];
   const params = eventParams(s, q);
   return {
-    kind: 'event', id: q.id, tag: def.tag, title: fill(def.title, s, params), text: fill(def.text, s, params),
+    kind: 'event', id: q.id, tag: def.tag, title: fill(def.title, s, params), text: fill(eventText(def, s), s, params),
     lines: def.lines.map(([who, text]) => ({ ...speaker(s, who, params), text: fill(text, s, params) })),
     choices: def.choices.map(c => ({ id: c.id, label: fill(c.label, s, params), hint: fill(c.hint, s, params), ...(c.distill ? { distill: true } : {}), disabled: choiceBlocked(s, q, c.id) })),
   };

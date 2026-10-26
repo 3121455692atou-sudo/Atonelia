@@ -70,6 +70,7 @@ export function replaceRow(S, m, line) {
 // 不能送评时（还没练够、这一条线已经有候选在评测）写原因，按钮置灰。opts.choose：小模型有好几个时给“发哪一个”下拉（训练页在某个小模型那一行原位展开时不给）。
 export function form(S, m, line, opts = {}) {
   if (!m) return '';
+  if(S.automation?.modules?.evaluation?.mode==='auto')return `<div class="release-opt" data-line="${line}"><b>${esc(E.modelLabel(m))}：评测与发布正在托管</b><p>评测与发布已开启自动托管。如需自定义模型名称、开源许可或评测档位，${E.isPostOnly(S)?'请先在「后台 → 托管」切回完整玩法，再先在「后台 → 托管 → 评测与发布」切为手动；只后训练玩法不能单独关闭经营托管。':'请先在「后台 → 托管 → 评测与发布」切为手动接管；联机等服务器确认后即可编辑。'}已有评测仍按原日期发布，如需停止请手动撤回。</p>${preview(S,m)}</div>`;
   wire();
   const role = line === 'small' ? 'small' : 'flagship';
   const plan = E.releaseNamePlan(S, m, role === 'small' ? { role: 'small' } : {});

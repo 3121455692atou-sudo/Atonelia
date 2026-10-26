@@ -55,7 +55,9 @@ export function setFocus(s, f) {
   const sameKind = cur.kind === f.kind && (f.kind !== 'train' || !f.dir || cur.dir === f.dir) && (f.kind !== 'benchmax' || cur.bench === f.bench);
   let note;
   if (typeof f.ownOnly === 'boolean' && f.ownOnly !== !!jobsOf(s).ownOnly) note = E.setOwnOnly(s, f.ownOnly).note;
-  if (sameKind && (f.kind === 'research' || f.kind === 'idle' || f.kind === 'maintain' || typeof f.ownOnly === 'boolean')) return { kind: 'focus', focus: legacyFocus(s), ...(note ? { note } : {}) };
+  // 显示为研究不等于玩家明确选择专心研究；首次选择仍须记录 focusPause。
+  const explicitResearch = (f.kind === 'research' || f.kind === 'idle') && !Array.isArray(jobsOf(s).focusPause);
+  if (sameKind && !explicitResearch && (f.kind === 'research' || f.kind === 'idle' || f.kind === 'maintain' || typeof f.ownOnly === 'boolean')) return { kind: 'focus', focus: legacyFocus(s), ...(note ? { note } : {}) };
   if (f.kind === 'train' || f.kind === 'benchmax') {
     const w = E.workingModel(s);
     if (!w || w.stage !== 'post') throw new Error('现在没有可以后训练的模型');

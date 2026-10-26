@@ -32,3 +32,43 @@ export function fmtCount(v) {
   if (v >= 1e4) return `${(v / 1e4).toFixed(v >= 1e6 ? 0 : 1)} 万`;
   return String(Math.round(v));
 }
+
+// Persistent command/spec inputs only. Do not call on state or calculation views.
+// Inspect data descriptors so validation never evaluates accessors or toJSON.
+// Undefined optional fields and shared acyclic references retain existing semantics.
+export function persistentInputError(input, numberMessages = null) {
+  const active = new WeakSet(), seen = new WeakSet(), stack = [{ value: input, depth: 0, path: [] }];
+  let nodes = 0;
+  try {
+    while (stack.length) {
+      const { value, depth, exit, path } = stack.pop();
+      if (exit) { active.delete(value); seen.add(value); continue; }
+      if (++nodes > 65536 || depth > 256) return '参数嵌套过深或过大';
+      if (typeof value === 'number') {
+        if (!Number.isFinite(value)) {
+          const key = JSON.stringify(path);
+          const message = numberMessages && Object.getOwnPropertyDescriptor(numberMessages, key)?.value;
+          const location = '$' + path.map(part => `[${JSON.stringify(part)}]`).join('');
+          return `参数 ${location}：${typeof message === 'string' ? message : '不能包含非有限数'}`;
+        }
+        continue;
+      }
+      if (value === null || value === undefined || typeof value === 'string' || typeof value === 'boolean') continue;
+      if (typeof value !== 'object') return '参数必须是可保存的数据';
+      if (active.has(value)) return '参数不能包含循环引用';
+      if (seen.has(value)) continue;
+      const proto = Object.getPrototypeOf(value);
+      if (proto !== null && proto !== Object.prototype && !(Array.isArray(value) && proto === Array.prototype)) return '参数必须是普通对象或数组';
+      const descriptors = Object.getOwnPropertyDescriptors(value);
+      active.add(value); stack.push({ value, exit: true });
+      for (const key of Reflect.ownKeys(descriptors)) {
+        const d = descriptors[key];
+        // Non-enumerable array indices and toJSON still affect serialization.
+        if (typeof key !== 'string' || !Object.hasOwn(d, 'value')) return '参数不能包含访问器或符号键';
+        const part = Array.isArray(value) && /^(0|[1-9]\d*)$/.test(key) && Number(key) < 4294967295 ? Number(key) : key;
+        stack.push({ value: d.value, depth: depth + 1, path: [...path, part] });
+      }
+    }
+  } catch { return '参数无法检查'; }
+  return null;
+}

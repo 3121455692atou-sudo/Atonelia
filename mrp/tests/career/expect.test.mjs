@@ -1,5 +1,5 @@
 // 市场期待（P3.E，规格 D11）：期待档、徽章、发布判定、预告、冷却、加评、推迟判定。
-// 史实夹具用真引擎（createGame + rebuildSota + labelOnRelease + judgeRelease），数值夹具用同一条判定路径。
+// 史实夹具用真引擎（createGame + 正常发布回放夹具 + labelOnRelease + judgeRelease），数值夹具用同一条判定路径。
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import * as E from '../../src/career/engine.js';
@@ -8,7 +8,7 @@ import { dimKeys, COMPANIES, SCENARIOS } from '../../src/career/data/core.js';
 import { EXPECT } from '../../src/career/data/balance.js';
 import { EXPECT_FX } from '../../src/career/data/expect.js';
 import { initExpect, ensureExpect, badgesFor, judgeRelease, judgeDeferred, expectPreview } from '../../src/career/sim/expect.js';
-import { rebuildSota, labelOnRelease, qOf, worldSota, sotaWouldTake, relDims } from '../../src/career/sim/sota.js';
+import { initSota, labelOnRival, labelOnRelease, kinTick, isMine, qOf, worldSota, sotaWouldTake, relDims } from '../../src/career/sim/sota.js';
 import { releaseLine } from '../../src/career/sim/release.js';
 import { releaseOpen } from '../../src/career/sim/route.js';
 import { addDays, daysBetween } from '../../src/career/sim/clock.js';
@@ -23,6 +23,27 @@ const worldQ = s => worldSota(s)?.q ?? null;
 const rec = name => RELEASES.find(r => r.name === name);
 const licenseOfTag = r => ((r.tags || []).includes('LP') ? 'permissive' : (r.tags || []).includes('LR') ? 'restrictive' : null);
 let seq = 0;
+
+// 测试需要跳到指定史实日期：只对当前 createGame 状态调用正常发布 API，不提供生产旧档修补入口。
+function replayFixture(s) {
+  const target = s.day, start = `${s.start}-01`, news = [...s.news];
+  for (const m of s.models) delete m.sota;
+  s.world.adj = {};
+  initSota(s);
+  const events = RELEASES.map((r, i) => ({day:r.day, type:0, i, r}))
+    .filter(e => e.r.mod === s.mod && !isMine(s,e.r.family) && e.day >= start && e.day <= target);
+  events.sort((a,b) => a.day.localeCompare(b.day) || qOf(s.mod,b.r.dims)-qOf(s.mod,a.r.dims) || a.i-b.i);
+  events.forEach((e,i) => e.i=i);
+  s.models.forEach((m,i) => { if (m.stage === 'released' && m.releasedDay > start && m.releasedDay <= target) events.push({day:m.releasedDay,type:1,i,m}); });
+  events.sort((a,b) => a.day.localeCompare(b.day) || a.type-b.type || a.i-b.i);
+  let n=0;
+  for (let day=start; day<=target; day=addDays(day,1)) {
+    setDay(s,day);
+    while (events[n]?.day === day) { const e=events[n++]; if (e.type) labelOnRelease(s,e.m); else labelOnRival(s,e.r); }
+    kinTick(s);
+  }
+  setDay(s,target); s.news=news;
+}
 
 // 由真实发布记录造一个玩家快照（只用于史实夹具）。
 function snapFrom(s, r, { line = 'main', dims = null, gen = null } = {}) {
@@ -40,7 +61,7 @@ function histRelease(s, name, opts = {}) {
   const r = rec(name);
   assert.ok(r, `没有这条史实发布：${name}`);
   setDay(s, r.day);
-  rebuildSota(s);
+  replayFixture(s);
   if (opts.before) s.sota.before = true;
   if (opts.last) s.expect.lastJudged.flagship = { ...opts.last };
   const snap = snapFrom(s, r, opts);
@@ -70,7 +91,7 @@ function judgeOnly(s, q, { lab = { got: false, prev: { by: 'other', q: -Infinity
 function base(company = 'deepseek', scenario = 'y2025', day = '2025-07-01') {
   const s = E.createGame(company, scenario, 1);
   setDay(s, day);
-  rebuildSota(s);
+  replayFixture(s);
   s.queue = [];
   for (const id of Object.keys(s.products || {})) s.products[id].on = false;
   return s;
@@ -78,16 +99,11 @@ function base(company = 'deepseek', scenario = 'y2025', day = '2025-07-01') {
 function noBadges(s) { for (const id of Object.keys(s.products || {})) s.products[id].on = false; }
 
 describe('D11.1 期待档与 D11.10 状态', () => {
-  it('initExpect / ensureExpect：D11.10 的形状；已有字段不覆盖，缺的补齐', () => {
+  it('initExpect 建完整当前形状；ensureExpect 只验证不修补', () => {
     assert.deepEqual(initExpect(), { lastJudged: { flagship: null, small: null }, cool: {}, hot: null, worksDay: null, pending: null, ask: null, log: [] });
-    const s = { expect: { hot: '2025-01-01' } };
-    ensureExpect(s);
-    assert.equal(s.expect.hot, '2025-01-01');
-    assert.deepEqual(s.expect.lastJudged, { flagship: null, small: null });
-    assert.equal(s.expect.ask, null);
-    const t = {};
-    assert.equal(ensureExpect(t), t.expect);
-    assert.deepEqual(t.expect, initExpect());
+    const current = { expect: initExpect() }; current.expect.hot = '2025-01-01'; const good = JSON.stringify(current);
+    assert.equal(ensureExpect(current), current.expect); assert.equal(JSON.stringify(current), good);
+    for (const s of [{}, { expect: {hot:'2025-01-01'} }]) { const before = JSON.stringify(s); assert.throws(() => ensureExpect(s), /不支持|旧存档/); assert.equal(JSON.stringify(s), before); }
   });
   it('冠军（炼出过 SOTA，永不过期）→ 小团队（small；specialist 没炼出过）→ 挑战者', () => {
     const ds = base('deepseek', 'y2025');
@@ -123,7 +139,7 @@ describe('D11.11 史实夹具（真实标签 + 真实判定）', () => {
   });
   it('DeepSeek-R1 y2024：R1-Lite 不及；V3 试算符合 → 加评；R1 试算超出 → 再加评，超出', () => {
     const s = E.createGame('deepseek', 'y2024', 1);
-    setDay(s, '2024-11-20'); rebuildSota(s);
+    setDay(s, '2024-11-20'); replayFixture(s);
     // 史实里在这之前已有被评的旗舰（DeepSeek LLM 67B）；构造一条上次记录，避免“第一款”规则把 R1-Lite 判成平淡。
     s.expect.lastJudged.flagship = { modelId: 'old', day: '2024-08-01', q: 60, x: -5, gen: s.gen ?? 2, result: 'under' };
     const a = histRelease(s, 'DeepSeek-R1-Lite-Preview');
@@ -196,7 +212,7 @@ describe('D11.11 史实夹具（真实标签 + 真实判定）', () => {
       const a = histRelease(s, name);
       assert.equal(a.ex.result, null, `${name} 先推迟`);
       assert.equal(s.expect.pending?.modelId, a.snap.id);
-      setDay(s, fill); rebuildSota(s);
+      setDay(s, fill); replayFixture(s);
       const ex = judgeDeferred(s);
       assert.equal(ex.result, 'over', name);
       assert.equal(s.expect.pending, null);
@@ -481,7 +497,7 @@ describe('D11.3/D11.6/D11.12 预告、候选和联机', () => {
       const day = addDays(s.day, Math.floor(rnd() * 1000));
       if (day > '2026-09-30') { i -= 1; continue; }
       setDay(s, day);
-      rebuildSota(s);
+      replayFixture(s);
       const baseM = E.workingModel(s) || E.liveModel(s) || s.models[0] || { id: 'b', mod: s.mod, dims: {} };
       const w = worldQ(s);
       const target = clamp((w ?? 70) + rnd() * 14 - 7, 0, 99);
@@ -505,12 +521,12 @@ describe('D11.3/D11.6/D11.12 预告、候选和联机', () => {
   });
   it('D11.12 候选：预告按今天算；评测期间对手变强，发布当天按发布当天的对手判', () => {
     const s = E.createGame('gpt', 'y2025', 1);
-    setDay(s, '2025-03-01'); rebuildSota(s);
+    setDay(s, '2025-03-01'); replayFixture(s);
     const before = worldQ(s);
     const m = synthSnap(s, before + 1.5);
     const p1 = expectPreview(s, m);
     assert.equal(p1.result, 'over');
-    setDay(s, '2025-04-20'); rebuildSota(s);
+    setDay(s, '2025-04-20'); replayFixture(s);
     const after = worldQ(s);
     assert.ok(after > before, '评测期间对手变强了');
     const p2 = expectPreview(s, m);
@@ -572,7 +588,7 @@ describe('D11.3/D11.6/D11.12 预告、候选和联机', () => {
   });
   it('shouldHold（顾问和机器人共用）：真实的冠军预告为“不及/略低”、还在涨 → 再练一阵；预告变好就不等', () => {
     const s = E.createGame('gpt', 'y2025', 1);
-    setDay(s, '2025-07-01'); rebuildSota(s);
+    setDay(s, '2025-07-01'); replayFixture(s);
     s.goals = []; s.queue = [];
     const w = E.workingModel(s);
     w.postDays = 60; w.relDays = 0;

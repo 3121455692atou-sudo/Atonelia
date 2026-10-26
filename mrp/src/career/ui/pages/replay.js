@@ -7,7 +7,7 @@ const BIG = new Set(['shock', 'price', 'regulation', 'antitrust', 'lawsuit', 'co
 const kindLabel = c => (c.kind === 'human' ? (c.hosted ? '真人 · 托管' : '真人') : c.frozen ? '电脑 · 已退场' : '电脑');
 
 // 身家（M.5.10）：持股比例 × 估值；没上市的按八折。
-const wealthOf = s => (s ? (s.equity || 0) * (s.valuation || 0) * (s.capital?.listed ? 1 : 0.8) : 0);
+const wealthOf = s => s?.result?.kind === 'world' ? s.result.wealth : (s ? (s.equity || 0) * (s.valuation || 0) * (s.capital?.listed ? 1 : 0.8) : 0);
 
 export function renderReplay(m) {
   const end = m?.end;
@@ -15,7 +15,9 @@ export function renderReplay(m) {
   if (!end) return '<section class="solo-screen mp-screen"><div class="mp-body"><div class="solo-card"><b>这一局还没有结束。</b></div></div></section>';
   const meta = Object.fromEntries((pub.companies || []).map(c => [c.id, c]));
   const rows = (end.companies || []).map(v => ({ id: v.id, name: v.company?.name || meta[v.id]?.name || v.id, c: { ...(v.company || {}), ...(meta[v.id] || {}) }, s: v.s })).filter(x => x.s);
-  rows.sort((a, b) => wealthOf(b.s) - wealthOf(a.s));
+  const settled = new Map((pub.result?.standings || []).map(row => [row.id, row]));
+  const wealth = row => settled.get(row.id)?.wealth ?? wealthOf(row.s);
+  rows.sort((a, b) => (settled.get(a.id)?.place ?? Infinity) - (settled.get(b.id)?.place ?? Infinity) || wealth(b) - wealth(a) || a.id.localeCompare(b.id));
   // q 曲线：各家每个月当时发布过的最强一款。
   const months = [...new Set((pub.rels || []).map(r => r.date))].sort();
   const qSeries = rows.slice(0, 8).map(x => {
@@ -43,7 +45,7 @@ export function renderReplay(m) {
     <div class="mp-body">
       <div class="solo-card"><div class="solo-card-head"><b>终局</b><small>按身家排（持股 × 估值，没上市的打八折）</small></div>
         <table class="tbl mp-rank"><thead><tr><th>#</th><th>公司</th><th>身家</th><th>估值</th><th>现金</th><th>持股</th></tr></thead><tbody>
-        ${rows.map((x, i) => `<tr class="${x.id === m.company ? 'is-on' : ''}"><td>${i + 1}</td><td>${esc(x.name)} <small class="muted">${esc(kindLabel(x.c))}</small></td><td>${usd(wealthOf(x.s))}</td><td>${usd(x.s.valuation || 0)}</td><td>${usd(x.s.cash || 0)}</td><td>${pct(x.s.equity || 0, 1)}</td></tr>`).join('')}
+        ${rows.map((x, i) => `<tr class="${x.id === m.company ? 'is-on' : ''}"><td>${i + 1}</td><td>${esc(x.name)} <small class="muted">${esc(kindLabel(x.c))}</small></td><td>${usd(wealth(x))}</td><td>${usd(x.s.valuation || 0)}</td><td>${usd(x.s.cash || 0)}</td><td>${pct(x.s.equity || 0, 1)}</td></tr>`).join('')}
         </tbody></table></div>
       <div class="solo-card"><div class="solo-card-head"><b>旗舰能力 q</b></div>${lineChart(qSeries, { yFmt: v => v.toFixed(0) })}</div>
       <div class="solo-card"><div class="solo-card-head"><b>估值</b></div>${lineChart(money('valuation'), { yFmt: v => usd(v) })}</div>

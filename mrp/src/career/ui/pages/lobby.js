@@ -1,3 +1,5 @@
+import {defaultPlaySetup,renderPlaySetup,playSetupAction} from '../panels/play_setup.js';
+import {defaultAutomationModes} from '../../data/automation_controls.js';
 // 联机大厅（规格 M.6.9、M.7）：单列，整页滚动。没进房间时是“建房 / 加入”；进了房间从上往下是
 // 房间码、座位表（真人、电脑、空位、待批准、是否就绪；同一 IP 多座位的提示只给房主看）、设置卡（只有房主能改）、我的公司卡、聊天。
 // 开局以后（收到 init）换成主界面；中途申请接管电脑公司的人在这里等房主批准。名字和聊天一律当纯文本显示（esc）。
@@ -9,13 +11,12 @@ import { createRoom, joinRoom, rejoin, lastRoom, roomCmd, isHost, myMember } fro
 const COUNTRIES = [['CN', '中国'], ['US', '美国'], ['EU', '欧洲']];
 const TIERS = [['small', '小作坊'], ['specialist', '初创'], ['major', '大厂']];
 const BOTS = [['easy', '简单'], ['normal', '普通'], ['hard', '困难']];
-const SPEEDS = ['3 秒一天', '2 秒一天', '1 秒一天', '半秒一天'];
 const FORK_PICKS = COMPANIES.filter(c => c.modality === 'llm').map(c => [c.id, c.company]);
 const FORK_MONTHS = ['2023-06', '2024-01', '2024-06', '2025-01', '2025-06'];
 
 export const defaultDraft = () => ({
   mode: 'zero', start: '2024', forkStart: '2024-06', years: 2, humans: 2, bots: 4, keep: 12, tier: 'specialist', bot: 'normal',
-  short: true, distill: true, poach: false, protectionDays: 120, speedMax: 3, pauses: 3, password: '', code: '', joinPassword: '',
+  short: true, distill: true, poach: false, protectionDays: 120, speedMax: 1, pauses: 3, password: '', code: '', joinPassword: '',
 });
 // 草稿 → 服务器的房间设置（M.6.9）。
 export function draftSettings(d) {
@@ -30,7 +31,7 @@ const fromSettings = s => ({
   ...defaultDraft(), mode: s.mode || 'zero', start: String(s.start || '2024').slice(0, 4), forkStart: String(s.start || '2024-06').slice(0, 7),
   years: s.years ?? 2, humans: s.humans ?? 2, bots: s.bots ?? 4, keep: s.keep ?? 12, tier: s.tier || 'specialist', bot: s.bot || 'normal',
   short: s.rules?.short !== false, distill: s.rules?.distill !== false, poach: !!s.rules?.poach, protectionDays: s.rules?.protectionDays ?? 120,
-  speedMax: s.speedMax ?? 3, pauses: s.pauses ?? 3,
+  speedMax: s.speedMax ?? 1, pauses: s.pauses ?? 3,
 });
 
 const opt = (list, cur) => list.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === String(cur) ? 'selected' : ''}>${esc(l)}</option>`).join('');
@@ -51,8 +52,6 @@ function settingsForm(d, dis = false) {
     ${zero ? field('电脑公司', sel('bots', range(Math.max(0, 3 - d.humans), 12 - d.humans), d.bots, dis), `一共 ${total} 家`) : field('在场家数', sel('keep', range(Math.max(6, Number(d.humans)), 12), d.keep, dis))}
     ${field('电脑难度', sel('bot', BOTS, d.bot, dis))}
     ${zero ? field('开局档', sel('tier', TIERS, d.tier, dis), '人人同档') : ''}
-    ${field('速度上限', sel('speedMax', SPEEDS.map((l, i) => [i, l]), d.speedMax, dis))}
-    ${field('每人每年暂停', sel('pauses', range(0, 6), d.pauses, dis))}
     ${field('新手保护', sel('protectionDays', [[0, '不保护'], [60, '60 天'], [120, '120 天'], [180, '180 天']], d.protectionDays, dis), '进场后多少天内不能被做空、被挖人')}
   </div>
   <div class="mp-checks">${check('short', '允许做空', d.short, dis)}${check('distill', '允许闭源 API 蒸馏', d.distill, dis)}${check('poach', '允许挖人', d.poach, dis)}</div>`;
@@ -64,13 +63,13 @@ function entryHtml() {
   const last = lastRoom();
   return `<section class="solo-screen mp-screen">
     <header class="solo-head"><button class="icon-btn" data-act="mp-back" aria-label="返回">${icon('back')}</button>
-      <div><span class="eyebrow">MULTIPLAYER</span><h2>联机</h2><p class="muted">2–8 个人同场经营，电脑公司补位。房主建房拿到 6 位房间码，别人凭码申请入座，房主批准。</p></div></header>
+      <div><span class="eyebrow">MULTIPLAYER</span><h2>联机</h2><p class="muted">2–8 个人同场经营，电脑公司补位。房主建房拿到 6 位房间码，别人凭码申请入座，房主批准。中途也能申请接管经营中的电脑公司，保留原资产、模型与项目；世界不会为申请暂停。</p></div></header>
     <div class="mp-body">
       ${last ? `<div class="solo-card"><div class="solo-card-head"><b>回到房间 ${esc(last)}</b><small>这个浏览器上次在这间房里</small></div><button class="btn btn--primary" data-mp="rejoin" data-room="${esc(last)}">回到房间</button></div>` : ''}
       <div class="solo-card"><div class="solo-card-head"><b>加入房间</b><small>输入房主给的房间码</small></div>
         <div class="mp-grid">${field('房间码', `<input type="text" maxlength="6" data-mp-set="code" value="${esc(d.code)}" placeholder="例如 a1b2c3" autocomplete="off" />`)}
           ${field('密码', `<input type="password" data-mp-set="joinPassword" value="${esc(d.joinPassword)}" placeholder="没有就空着" />`)}</div>
-        <button class="btn btn--primary" data-mp="join">申请入座</button></div>
+        <button class="btn btn--primary" data-mp="join">申请加入 / 接管电脑公司</button></div>
       <div class="solo-card"><div class="solo-card-head"><b>建一间房</b><small>开局前还能在大厅里改</small></div>
         ${settingsForm(d)}
         ${field('房间密码', `<input type="password" data-mp-set="password" value="${esc(d.password)}" placeholder="不设就空着" />`)}
@@ -105,9 +104,9 @@ function seatRows(m, host) {
     }
   }
   const pending = members.filter(x => !x.approved);
-  const bots = (L.seats || []).filter(c => c.kind === 'bot');
+  const bots = (L.seats || []).filter(c => c.kind === 'bot' && c.status === 'playing');
   const pend = pending.map(x => `<li class="mp-seat is-pending"><span class="mp-dot${x.online ? ' is-on' : ''}"></span><b>${esc(x.company?.name || '有人')}${x.member === m.member ? '（你）' : ''}</b><small>等房主批准</small>
-    ${host ? (started ? bots.map(b => `<button class="chip-btn" data-mp="approve" data-member="${esc(x.member)}" data-company="${esc(b.id)}">接管 ${esc(b.name)}</button>`).join('') : `<button class="chip-btn" data-mp="approve" data-member="${esc(x.member)}">批准入座</button>`)
+    ${host ? (started ? bots.map(b => `<button class="chip-btn" data-mp="approve" data-member="${esc(x.member)}" data-company="${esc(b.id)}">批准接管 ${esc(b.name)}</button>`).join('') : `<button class="chip-btn" data-mp="approve" data-member="${esc(x.member)}">批准入座</button>`)
       + `<button class="chip-btn" data-mp="kick" data-member="${esc(x.member)}">拒绝</button>` : ''}</li>`).join('');
   const same = host && (L.sameIp || []).length ? `<p class="warn mp-note">有 ${L.sameIp.length} 组座位来自同一个网络（可能是一家人共用一个网，也可能是一人多号）。只提示，不拦。</p>` : '';
   return `<ul class="mp-seats">${rows.join('')}${pend}</ul>${same}`;
@@ -117,6 +116,7 @@ function companyCard(m) {
   if (!me?.approved) return '';
   const fork = m.lobby.settings?.mode === 'fork';
   const c = ui.mpCompany || (ui.mpCompany = { name: me.company?.name || '', brand: me.company?.brand || '', country: me.company?.country || 'CN', pick: me.company?.pick || '' });
+  const auto=ui.mpAutomation || (ui.mpAutomation={...defaultPlaySetup(),mode:'full',modes:{...(me.automationModes||defaultAutomationModes())}});
   return `<div class="solo-card"><div class="solo-card-head"><b>我的公司</b><small>${fork ? '分岔局：挑一家真实公司接手' : '名字和品牌词别和别人重复'}</small></div>
     <div class="mp-grid">
       ${field('公司名', `<input type="text" maxlength="16" data-mp-co="name" value="${esc(c.name)}" />`)}
@@ -124,6 +124,7 @@ function companyCard(m) {
       ${field('国家', `<select data-mp-co="country">${opt(COUNTRIES, c.country)}</select>`)}
       ${fork ? field('接手哪一家', `<select data-mp-co="pick"><option value="">选一家</option>${opt(FORK_PICKS, c.pick)}</select>`) : ''}
     </div>
+    ${renderPlaySetup(auto,{prefix:'mp-play-setup',multiplayer:true,disabled:!!me.ready})}
     ${dupNote(m, c)}
     <div class="mp-row"><button class="btn ${me.ready ? 'btn--ghost' : 'btn--primary'}" data-mp="ready" data-on="${me.ready ? '0' : '1'}">${me.ready ? '取消准备' : '准备好了'}</button>
       ${me.ready ? '<small class="muted">改资料会取消准备</small>' : ''}</div></div>`;
@@ -146,7 +147,7 @@ export function chatHtml(m, { compact = false } = {}) {
 function roomHtml(m) {
   const L = m.lobby;
   if (!L) {
-    return `<section class="solo-screen mp-screen"><div class="mp-body"><div class="solo-card"><b>正在连接房间 ${esc(m.room)}…</b><p class="muted">${m.online ? '已连上，等大厅消息' : '连接中；如果一直连不上，可能是房间不存在或已经过期'}</p>
+    return `<section class="solo-screen mp-screen"><div class="mp-body"><div class="solo-card"><b>正在连接房间 ${esc(m.room)}…</b><p class="muted">${m.syncError ? esc(m.syncError) : m.online ? '已连上，等大厅消息' : '连接中；如果一直连不上，可能是房间不存在、已经过期或联机版本不匹配，请刷新客户端'}</p>
     <button class="btn btn--ghost" data-mp="leave">离开</button></div></div></section>`;
   }
   const host = isHost(m);
@@ -159,10 +160,11 @@ function roomHtml(m) {
   return `<section class="solo-screen mp-screen">
     <header class="solo-head"><button class="icon-btn" data-mp="leave" aria-label="离开房间">${icon('back')}</button>
       <div><span class="eyebrow">ROOM</span><h2 class="mp-code">${esc(m.room)}</h2>
-      <p class="muted">${started ? (L.phase === 'ended' ? '这一局已经结束了' : '这一局已经开始了') : '把房间码发给朋友；人齐、都准备好以后房主开局'}${L.password ? ' · 有密码' : ''}${m.online ? '' : ' · 连接断了，正在重连'}</p></div></header>
+      <p class="muted">${started ? (L.phase === 'ended' ? '这一局已经结束了' : '这一局已经开始了') : '把房间码发给朋友；人齐、都准备好以后房主开局'}${L.password ? ' · 有密码' : ''}${m.syncError ? ' · '+esc(m.syncError) : m.online ? '' : ' · 连接断了，正在重连'}</p></div></header>
     <div class="mp-body">
-      ${me && !me.approved ? `<div class="solo-card"><b>${started ? '已申请接管一家电脑公司' : '已申请入座'}</b><p class="muted">等房主批准。</p></div>` : ''}
-      <div class="solo-card"><div class="solo-card-head"><b>座位</b><small>${people.length}/${s.humans ?? '?'} 个真人</small></div>${seatRows(m, host)}</div>
+      ${me && !me.approved ? `<div class="solo-card"><b>${started ? '已申请接管经营中的电脑公司' : '已申请入座'}</b><p class="muted">${started ? '等房主指定公司并批准；不会重建公司或重置经营进度。' : '等房主批准。'}</p></div>` : ''}
+      ${started && me?.approved && m.S ? '<button class="btn btn--primary" data-act="mp-home">回到公司</button><p class="muted">查看大厅和审批不会暂停世界；只有房主可控制时间。</p>' : ''}
+      <div class="solo-card"><div class="solo-card-head"><b>座位</b><small>${started ? `${people.length} 个真人 · ${(L.seats || []).length} 家公司` : `${people.length}/${s.humans ?? '?'} 个真人`}</small></div>${seatRows(m, host)}</div>
       ${!started ? `<div class="solo-card"><div class="solo-card-head"><b>设置</b><small>${host ? '只有房主能改；改了以后大家要重新准备' : '房主定的'}</small></div>
         ${settingsForm(d, !host)}
         ${host ? '<div class="mp-row"><button class="btn btn--ghost" data-mp="settings">保存设置</button></div>' : ''}</div>` : ''}
@@ -192,6 +194,10 @@ export function lobbyClick(el, root) {
   if (op === 'rejoin') return run(() => rejoin(el.dataset.room));
   if (op === 'leave') { ui.screen = 'title'; if (!m) render(); return; }
   if (!m) return;
+  if(el.dataset.act==='mp-play-setup') {
+    const me=myMember(m);if(!me?.approved||me.ready||m.lobby?.phase!=='lobby')return;
+    if(ui.mpAutomation)playSetupAction(ui.mpAutomation,el.dataset.setupAction,el.dataset.setupValue);render();return;
+  }
   if (op === 'approve') return run(() => roomCmd('approveSeat', { member: el.dataset.member, ...(el.dataset.company ? { companyId: el.dataset.company } : {}) }));
   if (op === 'kick') return run(() => roomCmd('kick', { member: el.dataset.member }));
   if (op === 'settings') return run(async () => { await roomCmd('settings', { settings: draftSettings(ui.mpSettings) }); ui.mpSettings = null; toast('设置改好了，大家要重新点“准备好了”'); });
@@ -200,7 +206,7 @@ export function lobbyClick(el, root) {
     const on = el.dataset.on === '1';
     // 空着的名字、品牌词不发（服务器沿用原来的）；分岔局带上要接手的公司。
     const pickIf = (k, v) => (String(v || '').trim() ? { [k]: String(v).trim() } : {});
-    return run(() => roomCmd('ready', { ...pickIf('name', c.name), ...pickIf('brand', c.brand), country: c.country || 'CN', ...pickIf('pick', c.pick), ready: on }));
+    return run(() => roomCmd('ready', { ...pickIf('name', c.name), ...pickIf('brand', c.brand), country: c.country || 'CN', ...pickIf('pick', c.pick), automationModes:ui.mpAutomation?.modes||myMember(m)?.automationModes||defaultAutomationModes(), ready: on }));
   }
   if (op === 'start') return run(() => roomCmd('start'));
   if (op === 'chat') {

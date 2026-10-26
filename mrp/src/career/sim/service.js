@@ -19,7 +19,7 @@ export function setProduct(s, id, patch) {
   if (!patch || typeof patch !== 'object') throw new Error('产品配置无效');
   if (Object.keys(patch).some(k => !PRODUCT_KEYS.includes(k))) throw new Error('未知的产品配置');
   if (patch.on !== undefined && typeof patch.on !== 'boolean') throw new Error('产品开关只能是开或关');
-  for (const k of ['tier', 'smallTier']) if (patch[k] !== undefined && !Object.hasOwn(PRICE_TIERS, patch[k])) throw new Error('未知的价格档位');
+  for (const k of ['tier', 'smallTier']) if (patch[k] !== undefined && (typeof patch[k] !== 'string' || !Object.hasOwn(PRICE_TIERS, patch[k]))) throw new Error('未知的价格档位');
   if (patch.gpus !== undefined && (id !== 'gpu_lease' || !Number.isSafeInteger(patch.gpus) || patch.gpus < 0 || patch.gpus > gpuCount(s))) throw new Error('出租显卡数量无效');
   if (patch.on && !liveModel(s) && id !== 'gpu_lease') throw new Error('还没有发布的模型');
   if (patch.on && def.from > s.date) throw new Error(`${fmtDate(def.from)} 之后才有这类产品`);
@@ -52,7 +52,7 @@ export function setTier(s, id, tier, key = 'tier') {
   const p = s.products[id];
   if (!p || !PRODUCTS[s.mod].some(x => x.id === id)) throw new Error('没有这个产品');
   if (key !== 'tier' && !(key === 'smallTier' && id === 'api')) throw new Error('未知的价格设置');
-  if (!Object.hasOwn(PRICE_TIERS, tier)) throw new Error('未知的价格档位');
+  if (typeof tier !== 'string' || !Object.hasOwn(PRICE_TIERS, tier)) throw new Error('未知的价格档位');
   p[key] = tier;
   return { tier };
 }

@@ -8,7 +8,6 @@ import { COMPANY_FILES, GENERIC_FILES, companyFile } from '../data/companies/ind
 import { condWhy, condPermanent } from './cond.js';
 import { workingModel, smallWorking } from './model.js';
 import { releaseLine } from './release.js';
-import { run as migrateNaming } from './migrations/naming.js';
 import { fmtDay } from './clock.js';
 import { P } from './provider.js';
 
@@ -179,12 +178,14 @@ export function draftNameError(raw) {
 export const draftNameOf = raw => (draftNameError(raw) ? null : String(raw ?? '').trim() || null);
 
 // ---------- 建议名（C1） ----------
-// 品牌名：角色名去掉末尾的版本号（Fable 5 → Fable，Image 2 → Image）。
-const brandOf = s => String(s.persona?.name || s.company?.company || '模型').replace(/\s*\d+(?:\.\d+)?$/, '').trim() || '模型';
+// 自定义公司的品牌词来自公司配置；头像/角色只是美术，不授予其品牌。
+// 史实角色保留原来的去版本号规则（Fable 5 → Fable，Image 2 → Image）。
+const brandOf = s => s.company?.custom
+  ? String(s.company.name || '模型').trim() || '模型'
+  : String(s.persona?.name || s.company?.company || '模型').replace(/\s*\d+(?:\.\d+)?$/, '').trim() || '模型';
 // 名字里最后一个版本号：数字后面紧跟字母的不算（70B、A22B、8x7B、4o），末尾的日期代号（-0324、-2507）和括号里的说明先去掉。
-// 旧命名去重时会在日期代号后面再接一个字母（读旧档留下的 GPT-5-2309b），连字母一起去掉，建议名不再带着这条尾巴。
 function versionSpot(name) {
-  const core = String(name).replace(/（.*?）|\(.*?\)/g, '').trim().replace(/[-\s]\d{4}[a-h]?$/, '');
+  const core = String(name).replace(/（.*?）|\(.*?\)/g, '').trim().replace(/[-\s]\d{4}$/, '');
   let hit = null;
   for (const mt of core.matchAll(/(\d+)(?:\.(\d+))?/g)) {
     const end = mt.index + mt[0].length;
@@ -299,7 +300,9 @@ export function releaseNamePlan(s, m, opts = {}) {
       if (v.ok) return { ok: true, name: v.name, grant: hn.id, reason: '' };
     }
   }
-  return { ok: true, name: suggestName(s, role, m), grant: null, reason: '' };
+  // suggestName 的耗尽兜底也只是候选，必须与手填名字走同一合法性检查。
+  const v = validateModelName(s, suggestName(s, role, m), { role, modelId: m.id });
+  return v.ok ? { ok: true, name: v.name, grant: null, reason: '' } : { ok: false, name: null, grant: null, reason: v.reason };
 }
 // doRelease 建好快照以后记账：snap.grant、rights[id].used = snap.id（C2 时机第 3 步）。
 // 送评时预留授名（C7、T6.2）：rights[hn].used 记成候选 id，评测期间授名到期也照常使用（voidRights 跳过已用的）；撤回送评时清掉预留。
@@ -333,9 +336,7 @@ export function nextHintText(charId, realName) {
 }
 
 // ---------- 每天（release.js 的 dailyDeploy 调用） ----------
-// 1. 开发期存档兜底：G1 以后、P2.1 以前新开的存档 mig.naming 已经记成执行过，可那时还是旧命名（在练模型名字带“（训练中）”、
-//    s.verNext、m.minor、m.realName……），读档不会再跑特性步骤。还带着旧字段的，按读旧档的办法补跑一次（migrations/naming.js，幂等）。
-// 2. 授权作废（C2）：world 条件永久失效、或者过了期限的授权写上 void 原因，入队一条提示。
+// 授权作废（C2）：world 条件永久失效、或者过了期限的授权写上 void 原因，入队一条提示。
 export function namingTick(s, out) {
   ensureNaming(s);
   voidRights(s);
@@ -343,7 +344,7 @@ export function namingTick(s, out) {
 const oldNaming = s => s.verNext !== undefined
   || (s.models || []).some(m => isObj(m) && ('minor' in m || 'ver' in m || 'realName' in m || typeof m.lineage === 'string' || (typeof m.name === 'string' && m.name.includes('（训练中）'))));
 export function ensureNaming(s) {
-  if (s?.mig?.naming && Array.isArray(s.models) && oldNaming(s)) migrateNaming(s);
+  if (s && oldNaming(s)) throw Error('不支持旧版命名存档，请新开一局');
 }
 // world 条件里让授权永久失效的那条里程碑是谁做到的（文案用）。
 function takenBy(s, c) {

@@ -1,6 +1,11 @@
+import {postOnlyEvents} from '../sim/post_only.js';
+import { automationVersion, initializeAutomationWorld, assertAutomationWorld, managedAutomationHuman, automationStateError, enableAutomation } from '../sim/automation.js';
+import { assertRuleSettings } from './rules.js';
 // 自洽世界的总入口（规格 M.1–M.4）：从零开局、两段式日结、世界账本的镜像。
 // world.tick 的顺序照 M.4：命令 → 开盘 → 各家推进（顺序每天轮换）→ 收盘（1–11）。
 // 月末的共用月结、季末的算力结算和档位重排在 M1b-1 接上；触发器、名字账本和打榜在 M1b-2 接上；交易所还留空（M2）。
+import { finishWorld } from './finish.js';
+export { finishWorld } from './finish.js';
 import { createGameFor, createGame } from '../sim/game.js';
 import { applyCommand } from '../sim/commands.js';
 import { tickDay, releaseEntry } from '../sim/loop.js';
@@ -23,7 +28,7 @@ import { noteRelease, scoreRelease, objectionTick } from './names.js';
 import { blankLabel, offerLabel, steadyCheck, projectSota, projectFirsts, registerFirsts, companyBest, kinOf } from './label.js';
 import { acadStart, acadFollow } from './academia.js';
 import { settleMarket, apiShareOf } from './market.js';
-import { trackOrders, settleSupply, quarterCapView, rentPool } from './supply.js';
+import { trackOrders, settleSupply, quarterCap, quarterCapView, rentPool } from './supply.js';
 import { settleTiers, updateChipIndex, valuationView } from './valuation.js';
 import { exchangeOpen as exOpen, exchangeClose as exClose } from './exchange.js';
 import { NEWBIE } from '../data/exchange.js';
@@ -89,13 +94,15 @@ function routeFor(i, seed) { return ROUTE_MIX[(i + (seed % 3)) % ROUTE_MIX.lengt
 // 从零开局。settings：{ seed, start, days, companies: [{ id?, name, brand?, country, tier, kind, bot? }] }
 // 分岔开局：createWorld({ mode: 'fork', start, keep, seats, seed, days, bot })，实现见下面的 createForkWorld。
 export function createWorld(settings = {}) {
+  automationVersion(settings);
+  assertRuleSettings(settings);
   if (settings.mode === 'fork') return createForkWorld(settings);
   const seed = Number(settings.seed ?? 11) >>> 0;
   const start = normStart(settings.start ?? '2024-01');
   const startDay = `${start}-01`;
   const days = Math.max(1, Math.floor(Number(settings.days ?? SELF.LENGTH.std)));
   const end0 = addDays(startDay, days - 1);
-  // 结束日一律不晚于 END（M.2.2）；M1a 的 tick 不自动截断，脚本自己决定跑多少天。
+  // 结束日一律不晚于 END（M.2.2），包含结束日当天的日结。
   const endCap = `${END}-31`;
   const end = end0 > endCap ? endCap : end0;
   const year = Number(start.slice(0, 4));
@@ -103,7 +110,9 @@ export function createWorld(settings = {}) {
   const specs = (Array.isArray(settings.companies) && settings.companies.length ? settings.companies : DEFAULT_COMPANIES);
 
   const world = {
-    v: 1, mode: 'zero', seed, rng: seed, day: startDay, start, startDay, end, mod: 'llm', seq: 0, relSeq: 0, tickNo: 0, ver: 0,
+    endVersion: 1,
+    autoPostVersion: 1,
+    v: 2, mode: 'zero', seed, rng: seed, day: startDay, start, startDay, end, mod: 'llm', seq: 0, relSeq: 0, tickNo: 0, ver: 0,
     settings: { seed, start, days, companies: [], ...(settings.mp ? { mp: true } : {}), ...(settings.poach ? { poach: true } : {}), ...roomRules(settings) },   // mp：联机（卡片不挡时间，M.6.4）；poach：开挖人（M.5.6，默认关）
     companies: {},
     rels: [], relMeta: {}, relIds: {}, names: {}, series: {}, brands: {}, brandWords: [],
@@ -172,11 +181,13 @@ export function createWorld(settings = {}) {
   }
 
   world.ver = world.rels.length;
+  quarterCap(world, startDay, true);
   updateEffortRef(world, startDay);
   mirrorAll(world);
   world.log.push(`${startDay} 从零开局：${Object.keys(world.companies).length} 家，种子 ${seed}，学界起点 q=${r1(world.acad.start)}`);
   // 方法和状态分开：hash() 只哈希状态（不含函数、不含缓存）。
   attachWorld(world);
+  initializeAutomationWorld(world);
   return world;
 }
 
@@ -184,6 +195,7 @@ export function createWorld(settings = {}) {
 // 联机房间的规则开关（M.6.9）：关做空、关闭源 API 蒸馏、改新手保护天数。只记和默认不同的，默认房间和单人局的世界一字不变。
 function roomRules(settings) {
   const out = {};
+  if(automationVersion(settings))out.automationVersion=automationVersion(settings);
   if (settings.short === false) out.short = false;
   if (settings.distill === false) out.distill = false;
   const d = Number(settings.protect);
@@ -233,7 +245,9 @@ function createForkWorld(settings = {}) {
   const frozen = ranked.map(c => c.id).filter(id => !selected.includes(id));
 
   const world = {
-    v: 1, mode: 'fork', seed, rng: seed, day: startDay, start, startDay, end, mod: 'llm', seq: 0, relSeq: 0, tickNo: 0, ver: 0,
+    endVersion: 1,
+    autoPostVersion: 1,
+    v: 2, mode: 'fork', seed, rng: seed, day: startDay, start, startDay, end, mod: 'llm', seq: 0, relSeq: 0, tickNo: 0, ver: 0,
     settings: { mode: 'fork', seed, start, days, keep, bot, seats: seatList.map(x => x.id), companies: [], ...(settings.mp ? { mp: true } : {}), ...(settings.poach ? { poach: true } : {}), ...roomRules(settings) },
     companies: {},
     rels: [], relMeta: {}, relIds: {}, names: {}, series: {}, brands: {}, brandWords: [],
@@ -349,10 +363,12 @@ function createForkWorld(settings = {}) {
 
   world.ver = world.rels.length;
   world.legacyCount = legacyMeta.length;
+  quarterCap(world, startDay, true);
   updateEffortRef(world, startDay);
   mirrorAll(world);
   world.log.push(`${startDay} 分岔开局：在场 ${selected.length} 家（真人 ${seatIds.size}），冻结 ${frozen.length} 家，种子 ${seed}，学界起点 q=${r1(world.acad.start)}`);
   attachWorld(world);
+  initializeAutomationWorld(world);
   return world;
 }
 
@@ -369,17 +385,19 @@ export function attachWorld(world) {
 // ---------- 命令段 ----------
 // 真人命令：world.command(id, { name, args }) 排进今天；电脑公司的决定在这一步调用 botStep。
 export function command(world, id, cmd) {
+  if (world.endVersion === 1 && (world.result || world.day > world.end)) return 0;
   world.commands.push({ at: world.day, id, cmd });
   return world.commands.length;
 }
 // 立即执行一条命令（联机服务器用，M.6.5）：和命令段同一套做法（分配序号、写世界日志、登记送评的名字），
 // 只是不等到下一次日结，好当场回 {ok, err}。两次日结之间按到达顺序执行，重放时按日志同样的顺序执行，结果逐位一致。
 export function applyNow(world, id, cmd) {
+  if (world.endVersion === 1 && (world.result || world.day > world.end)) return { ok: false, err: '这一局已经结束了' };
   const c = world.companies[id];
   if (!c || !c.s) return { ok: false, err: '没有这家公司' };
   if (c.s.status !== 'playing') return { ok: false, err: '这家公司已经不在场了' };
   // 被拒的命令一点都不改世界（不占序号、不写世界日志）：服务器日志只记成功的，重放时才不会走岔。
-  const r = applyCommand(c.s, cmd);
+  const r = applyCommand(c.s, cmd, { world, companyId: id, multiplayer: !!world.settings?.mp });
   if (!r.ok) return r;
   const seq = ++world.seq;
   c.lastSeq = seq;
@@ -388,14 +406,14 @@ export function applyNow(world, id, cmd) {
   return { ...r, seq };
 }
 
-function resolveAll(s, errors) {
+function resolveAll(s, errors, human = false) {
   let guard = 0;
   while (s.queue.length && s.status === 'playing' && guard++ < 50) {
     let ev;
     try { ev = currentEvent(s); } catch (e) { errors.push(`${s.day} 事件视图: ${e.message}`); return; }
     if (!ev) return;
     const opts = (ev.choices || []).filter(c => !c.disabled);
-    const pick = opts.find(o => !AVOID.has(o.id)) || opts[0];
+    const pick = human && ev.id === 'ipo_window' ? opts.find(o => o.id === 'later') : opts.find(o => !AVOID.has(o.id)) || opts[0];
     if (!pick) return;
     try { resolveEvent(s, pick.id); } catch (e) { errors.push(`${s.day} 处理事件: ${e.message}`); return; }
   }
@@ -421,7 +439,7 @@ function runCommands(world) {
     const c = world.companies[q.id];
     if (!c || c.s.status !== 'playing') continue;
     c.lastSeq = ++world.seq;
-    const r = applyCommand(c.s, q.cmd);
+    const r = applyCommand(c.s, q.cmd, { world, companyId: c.id, multiplayer: !!world.settings?.mp });
     world.log.push({ day: D, org: c.id, seq: c.lastSeq, cmd: q.cmd?.name ?? null, ok: !!r.ok, err: r.err ?? null });
     if (r.ok) trackEvals(world, c, q.cmd?.name);
     else c.errors.push(`${D} 命令 ${q.cmd?.name}: ${r.err}`);
@@ -429,17 +447,17 @@ function runCommands(world) {
   for (const c of Object.values(world.companies).sort((a, b) => (a.id < b.id ? -1 : 1))) {
     const s = c.s;
     // 托管中的真人公司（联机掉线，M.6.3）按被动档跑。
-    if ((c.kind !== 'bot' && !c.hosted) || !s || s.status !== 'playing' || s.day < c.decideAt) continue;
+    if (managedAutomationHuman(world,c) || (c.kind !== 'bot' && !c.hosted) || !s || s.status !== 'playing' || s.day < c.decideAt) continue;
     try {
       // 难度：多久想一次读 P().botParams 的 EVERY_DAYS（easy 14 / normal 7 / hard 3 / passive 1）。
       const bp = c.hosted ? { EVERY_DAYS: BOT_EVERY.passive } : P().botParams(s);
-      resolveAll(s, c.errors);
+      resolveAll(s, c.errors, c.kind === 'human');
       c.lastSeq = ++world.seq;
       c.thinks = (c.thinks || 0) + 1;
       (c.thinkDays ??= []).push(s.day);
       botThink(world, c);
       trackEvals(world, c);
-      resolveAll(s, c.errors);
+      resolveAll(s, c.errors, c.kind === 'human');
       c.decideAt = addDays(s.day, bp.EVERY_DAYS ?? BOT_EVERY[c.bot] ?? 7);
     } catch (e) {
       c.errors.push(`${s.day} 命令抛错: ${e.message}`);
@@ -540,10 +558,10 @@ function advance(world, { reverse = false } = {}) {
     if (!s || s.status !== 'playing') continue;
     try {
       // 联机里真人的卡留在收件箱，公司照常推进（到期由服务器发 sys.autoResolve 处理，M.6.4）；单人、电脑和托管中的公司照旧先处理完再走。
-      const inbox = !!world.settings?.mp && c.kind === 'human' && !c.hosted;
-      if (!inbox && s.queue.length) resolveAll(s, c.errors);
+      const inbox = !!world.settings?.mp && c.kind === 'human' && (!c.hosted || managedAutomationHuman(world,c));
+      if (!inbox && s.queue.length) resolveAll(s, c.errors, c.kind === 'human');
       if (!inbox && s.queue.length) continue;      // 卡片没处理完就不走时间（queueBlocks）
-      tickDay(s);
+      tickDay(s, {world,id:c.id,execute:cmd=>applyNow(world,c.id,cmd)});
       // 收件箱里的卡记下进来的那一天（期限按 10 个游戏日算）。
       if (inbox) for (const q of s.queue) if (q && q.since === undefined) q.since = world.day;
     } catch (e) {
@@ -656,19 +674,26 @@ function closeDay(world, day) {
 
 // 一天怎么结：两段式日结（M.4）。
 export function tick(world, opts = {}) {
+  assertAutomationWorld(world);
   const D = world.day;
+  if (finishWorld(world)) return { day: D, ended: true };
   // 单人自洽：真人的卡片照旧暂停游戏（M.4 第 5 条）。联机（settings.mp）里卡片不挡时间，进收件箱（M.6.4）。
   if (!world.settings?.mp) for (const c of Object.values(world.companies)) {
+    if (!world.settings?.mp && c.kind === 'human') postOnlyEvents(c.s);
     if (c.kind === 'human' && c.s && c.s.status === 'playing' && c.s.queue.length) return { day: D, paused: true };
   }
+  quarterCap(world, D);
   runCommands(world);
   openDay(world, D);
   advance(world, opts);
   const out = closeDay(world, D);
   world.ver = world.rels.length;
   world.day = addDays(D, 1);
+  // 在暴露新日期给客户端/立即命令之前建立当季基数与当天GPU日程。
+  quarterCap(world, world.day);
   world.tickNo += 1;
-  return { day: D, ...out };
+  const result = finishWorld(world);
+  return { day: D, ...out, ...(result ? { ended: true } : {}) };
 }
 
 // ---------- 联机的系统命令（M.6.3、M.6.4、M.6.9）：服务器先把系统命令写进日志，再调这些函数，重放时按同样顺序执行 ----------
@@ -685,7 +710,9 @@ export function autoResolve(world, id, at = 0) {
   const ev = currentEvent(s, at);
   if (!ev) return null;
   const opts = (ev.choices || []).filter(c => !c.disabled);
-  const pick = opts.find(o => !AVOID.has(o.id)) || opts[0];
+  // 到期不是上市授权：真人（含掉线托管）默认暂缓；NPC 的既有策略不变。
+  const pick = world.companies[id]?.kind === 'human' && ev.id === 'ipo_window'
+    ? opts.find(o => o.id === 'later') : opts.find(o => !AVOID.has(o.id)) || opts[0];
   if (!pick) return null;
   const r = resolveEvent(s, pick.id, at);
   return { title: r.title, choice: pick.id };
@@ -700,11 +727,14 @@ export function setHosted(world, id, on) {
 // 中途加入只能接管电脑公司（M.6.8）：变成真人，排到最后一个座位。
 export function takeover(world, id) {
   const c = world.companies[id];
-  if (!c || c.kind !== 'bot' || !c.s || c.s.status !== 'playing') throw new Error('只能接管还在场的电脑公司');
+  if (!c || c.frozen === true || c.kind !== 'bot' || !c.s || c.s.status !== 'playing') throw new Error('只能接管还在场的电脑公司');
+  const automationError=automationStateError(c.s);
+  if(automationError)throw new Error(automationError);
   const seats = Object.values(world.companies).filter(x => x.kind === 'human').map(x => x.seat ?? 0);
   c.kind = 'human';
   c.seat = seats.length ? Math.max(...seats) + 1 : 0;
   c.decideAt = c.s.day;
+  if(automationVersion(world.settings))enableAutomation(c.s);
   return c.seat;
 }
 
@@ -751,10 +781,12 @@ export function publicView(world, seat = null) {
   return {
     v: world.v, mode: world.mode, day: world.day, start: world.start, end: world.end, mod: world.mod,
     seq: world.seq, tickNo: world.tickNo, ver: world.rels.length, you,
+    ...(world.result ? { result: clone(world.result) } : {}),
     settings: {
       mode: world.settings?.mode ?? world.mode, start: world.settings?.start ?? world.start,
       days: world.settings?.days ?? null, keep: world.settings?.keep ?? null, bot: world.settings?.bot ?? null,
       seats: clone(world.settings?.seats || []),
+      ...(automationVersion(world.settings)?{automationVersion:automationVersion(world.settings)}:{}),
       companies: (world.settings?.companies || []).map(x => ({ ...x })),
     },
     companies: Object.values(world.companies).map(publicCompany),
@@ -828,6 +860,8 @@ export function hash(world) {
   const view = {
     v: world.v, mode: world.mode, seed: world.seed, rng: world.rng, day: world.day, start: world.start, end: world.end,
     mod: world.mod, seq: world.seq, relSeq: world.relSeq, tickNo: world.tickNo, ver: world.ver, settings: world.settings,
+    endVersion: world.endVersion, autoPostVersion: world.autoPostVersion,
+    ...(world.result ? { result: world.result } : {}),
     legacy: world.legacy, legacyIds: world.legacyIds, legacyCount: world.legacyCount,
     companies: world.companies, rels: world.rels, relMeta: world.relMeta, relIds: world.relIds, names: world.names, series: world.series,
     brands: world.brands, brandWords: world.brandWords, events: world.events, label: world.label, tech: world.tech, techSrc: world.techSrc,

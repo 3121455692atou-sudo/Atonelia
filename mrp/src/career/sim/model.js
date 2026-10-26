@@ -1,3 +1,4 @@
+import { riskPost, initializeExposure } from './post_exposure.js';
 // 模型能力：结构、预训练底座、蒸馏、后训练、跑分与排行榜。数值“像模像样”即可，不追求严格。
 import { knowFx, techStatus } from './research.js';
 import { MODALITIES, DIRECTIONS, SCALES, GPUS, RENT_FACTOR, ARCHS, TECH_BY_ID, weightClass, dimKeys, yearOf, addMonths, monthsBetween } from '../data/core.js';
@@ -5,7 +6,7 @@ import { BENCHMARKS, BENCH_BY_ID, lastRefresh } from '../data/benchmarks.js';
 import { RELEASES, FAMILIES } from '../data/rivals.js';
 import { structureForRelease } from '../data/model_structure.js';
 import { clamp, sigmoid, round1, rand, hash01 } from './util.js';
-import { KNOW_PRETRAIN, REPEAT_RSTAR, MAX_EPOCHS, DISTILL_MIN_DAYS, BOARD_WINDOW_DAYS, kcapOffset, DIM_MAX, CURVE, EFFORT, SOTA_EASE, SOTA, DISTILL_MIX, APPROACH, OWN_EDGE, DISTILL_HEAVY, TAINT_MIN_DIST, DISTILL_GAP, EXPECT, GEN } from '../data/balance.js';
+import { KNOW_PRETRAIN, REPEAT_RSTAR, MAX_EPOCHS, DISTILL_MIN_DAYS, BOARD_WINDOW_DAYS, kcapOffset, DIM_MAX, CURVE, EFFORT, SOTA, DISTILL_MIX, APPROACH, OWN_EDGE, DISTILL_HEAVY, TAINT_MIN_DIST, DISTILL_GAP, EXPECT, GEN } from '../data/balance.js';
 import { modifier, capMods } from './modifiers.js';
 import { daysBetween, addDays } from './clock.js';
 import { qOf, isMine, orgOf, familyBest, orgBest, benchBest, orgsOf, relDims, Q_W, anchor, anchorEnv, worldSota, histOther, ownHist, sotaMade, sotaWouldTake } from './sota.js';
@@ -358,7 +359,7 @@ export function distillTeachers(s) {
   // 自家旗舰当老师：快照里带上它干不干净、蒸过谁、是不是续训来的，学生照样继承（D7 的自蒸馏）。
   const lin = finetuneLineage(own);
   const out = own ? [{ id: 'self', name: own.name, modelId: own.id, dims: { ...own.dims }, total: own.total, active: own.active, arch: own.arch, open: true, own: true,
-    tainted: isTainted(own), teachers: isTainted(own) ? { ...(own.post?.teachers || {}) } : {}, lineage: lin ? { ...lin } : null }] : [];
+    tainted: isTainted(own), teachers: isTainted(own) ? { ...(riskPost(own)?.teachers || {}) } : {}, lineage: lin ? { ...lin } : null }] : [];
   for (const f of Object.keys(FAMILIES)) {
     if (FAMILIES[f].mod !== 'llm' || isMine(s, f)) continue;
     // 开源老师 = familyBest(open:true)（规格 D1）：先筛开源再取最强，家族里更强的一款是闭源的，已经放出来的开源权重照样能用。
@@ -370,12 +371,6 @@ export function distillTeachers(s) {
   // 自家旗舰总在名单里，不会被六家更强的开源模型挤掉。
   if (own && !top.some(t => t.own)) top.push(out.find(t => t.own));
   return top;
-}
-// 按老师家族从历史目录取截至某个月底综合最强的开源一款，不受名单前六名的限制。旧档补老师快照用（G1-4）。
-export function historyTeacher(fam, date) {
-  if (FAMILIES[fam]?.mod !== 'llm') return null;
-  const r = familyBest(null, fam, `${date}-31`, { open: true });
-  return r ? rivalTeacher(fam, r) : null;
 }
 // 学生差距（D7，2026-10-21 决定第 6 项）：N_eff = min(总参^0.7 × 激活^0.3, 10 × 激活)；gapQ = max(2.5, 25 · N_eff^−0.55 · (D / 36T)^−0.2)。
 export function studentGap(total, active, tokensT) {
@@ -405,9 +400,9 @@ function teachersCapQ(s, fams) {
   return v === Infinity ? Infinity : v - APPROACH;
 }
 // 第三个参数 { quality, teacher }：quality 不传时取 max(数据池质量, 1.6)；teacher 不传时从当天的名单里按 cfg.teacher 找。
-// 旧写法第三个参数直接传老师快照（旧档迁移补快照）也认。
 export function previewDistill(s, cfg, opts = null) {
-  const o = opts && opts.dims ? { teacher: opts } : (opts || {});
+  if (opts?.dims) throw Error('不支持旧版蒸馏快照参数，请使用当前 teacher 选项');
+  const o = opts || {};
   const t = o.teacher || distillTeachers(s).find(x => x.id === cfg?.teacher);
   if (!t || !cfg) return null;
   const tokens = cfg.tokens ?? 1.5;
@@ -477,28 +472,24 @@ export function distillBaseline(s, snap) {
 
 // ---------- 蒸馏数据与老师（D7 的状态读法） ----------
 // s.data.teachers[fam]：每个家族只留最强的一条老师快照 { relId, name, day, dims, q, kind, license }。
-// s.data.distill[cat]：{ [fam]: 等级 }，各位老师合计不超过 2.5。读的时候一律容错：旧档的平铺数字当作老师 legacy，坏值当作没有。
+// s.data.distill[cat]：{ [fam]: 等级 }，各位老师合计不超过 2.5；旧版平铺等级和合成 legacy 老师不受支持。
 export function teacherRec(s, fam) {
-  const t = s.data?.teachers?.[fam];
-  if (t) return t;
-  // 迁移之前（开发期存档）：旧 teacherCap 当作老师 legacy。
-  if (fam === 'legacy' && s.data?.teacherCap && Object.keys(s.data.teacherCap).length) return { name: '早先蒸馏的数据', dims: { ...s.data.teacherCap }, q: qOf(s.mod, s.data.teacherCap), kind: 'api', license: null };
-  return null;
+  if (fam === 'legacy' || Object.hasOwn(s.data || {}, 'teacherCap')) throw Error('不支持旧版蒸馏数据，请新开一局');
+  return s.data?.teachers?.[fam] || null;
 }
 export function distillLevels(s, cat) {
   const v = s.data?.distill?.[cat];
-  if (v && typeof v === 'object') {
-    const out = {};
-    for (const [f, x] of Object.entries(v)) if (Number.isFinite(x) && x > 0) out[f] = x;
-    return out;
-  }
-  return Number.isFinite(v) && v > 0 ? { legacy: v } : {};
+  if (v === undefined) return {};
+  if (!v || typeof v !== 'object' || Array.isArray(v) || Object.hasOwn(v,'legacy')) throw Error('不支持旧版蒸馏等级，请新开一局');
+  const out = {};
+  for (const [f, x] of Object.entries(v)) if (Number.isFinite(x) && x > 0) out[f] = x;
+  return out;
 }
 // 弱老师（D7“第一次使用某位老师的数据前，如果这位老师弱于当前模型，弹出确认”）：老师的综合分低于这一代现在的综合分，
 // 这一代又没用过它（m.post.teachers 里没有）、也没确认过（m.weakOk）。确认之前它的数据不计入 σ，等于对这位老师自动只用自有数据。
-// 查不到快照的老师（旧档没有 teacherCap 的平铺等级）无从比较，照常用。
+// 没有可比较的老师快照时不把它误判为弱老师；历史继承的污染记录也可能没有本局入库快照。
 export function weakTeacher(s, m, fam) {
-  if (!m || m.weakOk?.[fam] || (m.post?.teachers?.[fam] ?? 0) > 0) return false;
+  if (!m || m.weakOk?.[fam] || (riskPost(m)?.teachers?.[fam] ?? 0) > 0) return false;
   const t = teacherRec(s, fam);
   return !!t && Number.isFinite(t.q) && t.q < qOf(m.mod ?? s.mod, m.dims || {});
 }
@@ -513,7 +504,7 @@ export function usableLevels(s, m, cat) {
 // 安全维不跟老师比（老师的安全分和能力上限无关），照自研上限。
 export function taintCaps(s, m, selfCaps = computeCaps(s, m)) {
   if (!isTainted(m)) return null;
-  const fams = Object.keys(m.post?.teachers || {});
+  const fams = Object.keys(riskPost(m)?.teachers || {});
   const T = {};
   for (const f of fams) { const t = teacherRec(s, f); if (t) for (const [k, v] of Object.entries(t.dims || {})) if (Number.isFinite(v)) T[k] = Math.max(T[k] ?? -Infinity, v); }
   const caps = { ...selfCaps };
@@ -579,11 +570,10 @@ export function effortOf(s, leads = leadTechs(s)) {
   const fLead = 1 + EFFORT.LEAD_STEP * Math.min(EFFORT.LEAD_MAX, leads.length);
   return { A: Math.min(CURVE.A_MAX, fComp * fData * fKnow * fLead), fComp, fData, fKnow, fLead, leads };
 }
-// 技术储备 ρ = clamp(1 + ease)：策略上线后读特质（modifier 'sotaEase'）；还没有策略状态（P2.2 合入前、旧档迁移前）时按炼没炼出过回退：
-// 炼出过 maker（1.6），开局 ○ 或局内“集团出过”kin（0.7），其余 rookie（0.45）。
+// 技术储备 ρ = clamp(1 + ease)：当前新开局必有策略树，只读取特质，不从旧存档身份重造。
 export function easeOf(s) {
-  if (s.strategy?.tree) return modifier(s, 'sotaEase');
-  return sotaMade(s) ? SOTA_EASE.maker : s.sota?.seed === '○' || s.sota?.kin ? SOTA_EASE.kin : SOTA_EASE.rookie;
+  if (!s.strategy?.tree) throw Error('不支持缺少策略树的旧存档，请新开一局');
+  return modifier(s, 'sotaEase');
 }
 export const rhoOf = s => clamp(1 + easeOf(s), CURVE.RHO_MIN, CURVE.RHO_MAX);
 // 贴线速度 F、越线衰减宽度 b、落后区宽度 W。
@@ -617,7 +607,7 @@ function leadingNow(s) {
   const w = (s.models || []).find(m => m.id === s.working);
   return !!w && sotaWouldTake(s, qOf(s.mod, w.dims)) === true;
 }
-const ANCHOR_CACHE = new WeakMap(), LEAD_CACHE = new WeakMap();
+const ANCHOR_CACHE = new WeakMap();
 function anchorPart(s) {
   const ix = dayIndex();
   const made = sotaMade(s);
@@ -636,17 +626,31 @@ function anchorPart(s) {
   return val;
 }
 function leadsCached(s) {
-  const key = `${s.date}|${(s.techs || []).join(',')}|${Object.keys(s.techRead || {}).join(',')}`;
-  const hit = LEAD_CACHE.get(s);
-  if (hit && hit.key === key) return hit.val;
-  const val = leadTechs(s);
-  LEAD_CACHE.set(s, { key, val });
-  return val;
+  // Ownership/publication can change within a month without changing the player's
+  // local tech arrays. Recompute against the authoritative world on every use.
+  return leadTechs(s);
+}
+
+// Only read-only advisor/direction-enumeration code may establish this scope. Never retain
+// a curve across calls: same-day commands/world publications can change it.
+let curveReadScope = null;
+export function withModelReadSnapshot(s, read) {
+  const previous = curveReadScope;
+  curveReadScope = { s, value: null };
+  try { return read(); } finally {
+    // A nested scope may belong to another provider or may have performed a
+    // command before returning. Do not revive its caller's pre-nesting value.
+    if (previous) previous.value = null;
+    curveReadScope = previous;
+  }
 }
 function curveBase(s) {
+  if (curveReadScope?.s === s && curveReadScope.value) return curveReadScope.value;
   const eff = effortOf(s, leadsCached(s));
   const rho = rhoOf(s);
-  return { ...anchorPart(s), ...eff, rho, ease: rho - 1, ...curveParams(eff.A, rho) };
+  const value = { ...anchorPart(s), ...eff, rho, ease: rho - 1, ...curveParams(eff.A, rho) };
+  if (curveReadScope?.s === s) curveReadScope.value = value;
+  return value;
 }
 // hardness(s, m)：难度曲线的全部读数 → { R, E, src, ws, A, fComp, fData, fKnow, fLead, leads, rho, F, b, W, q, delta, deltaK, H: {维: H_k}, Hq }。
 // δ_k = max(δ, DIM_STEEP·(dims_k − E_k − DIM_SLACK))：一科比世界包络高出 DIM_SLACK 以后按 DIM_STEEP 倍折算（单维护栏）。A、F、H、δ 永远是有限数。
@@ -673,8 +677,11 @@ export function hardness(s, m = workingModel(s)) {
 //   越线以后（fade = 0）蒸馏那一份一分没贡献，就一分不记，所以模型被污染的那一刻一定在 qCapD 以下（qCapD ≤ 当前最强 − APPROACH）。
 //   没传 dshare 时按 sigma 记（别的来源都是 σ = 0）。
 // 污染在这一步生效时，这一步的涨幅按污染上限重钳一遍：被污染的模型从第一天起就满足 q < qCap。
-export function applyGains(s, m, gains, { preMixed = false, sigma = 0, dshare = null, levels = null } = {}) {
+export function applyGains(s, m, gains, { preMixed = false, sigma = 0, dshare = null, levels = null, postCardEfficiency = null } = {}) {
   if (!m || !gains) return { G: 0, applied: {} };
+  if ((s.postCards?.version === 1 || s.postRandom?.version === 1) && !POST_SHADOWS.has(s)) {
+    return boundedPostGains(s, m, gains, { preMixed, sigma, dshare, levels }, postCardEfficiency ?? 1);
+  }
   const mod = m.mod ?? s.mod, QK = Q_W[mod];
   const before = { ...m.dims };
   const q0 = qOf(mod, m.dims);
@@ -938,7 +945,7 @@ function rivalRows(b, day, cls) {
   });
 }
 const runDay = run => run.day ?? `${run.date}-01`;
-// 玩家一行：已发布的各款模型（m.benchmarks，按 modelId 找模型）和旧档的 s.published 里，换题以后、不晚于榜单日期的最好成绩。
+// 玩家一行：已发布的各款模型（m.benchmarks，按 modelId 找模型）和当前局最近提交的 s.published 里，换题以后、不晚于榜单日期的最好成绩。
 // 量级榜只收这个量级、BOARD_WINDOW_DAYS 天内发布的模型的成绩。playerModel（modelId）给出时只看这一款自己的成绩（发布回执、官方评测报的是它的名次）。
 function playerRows(s, b, day, opts) {
   const lower = lowerIsBetter(b);
@@ -953,7 +960,7 @@ function playerRows(s, b, day, opts) {
     if (opts.playerModel && run.modelId !== opts.playerModel) continue;
     if (opts.cls) {
       if (run.cls !== opts.cls) continue;
-      const rd = m?.releasedDay ?? (m?.released ? `${m.released}-15` : null);
+      const rd = m?.releasedDay ?? null;
       if (rd && daysBetween(rd, day) > BOARD_WINDOW_DAYS) continue;
     }
     if (!best || (lower ? run.score < best.score : run.score > best.score) || (run.score === best.score && run.date > best.date)) best = run;
@@ -986,3 +993,33 @@ export function peerCls(s) {
   return s.company.tier === 'small' && m ? clsOf(m) : null;
 }
 export { addMonths };
+
+const POST_SHADOWS = new WeakSet();
+// New opt-in only. The normal write uses a fully independent state/model; never swap a live ledger.
+function boundedPostGains(s, m, gains, opts, efficiency) {
+  if (!Number.isFinite(efficiency) || efficiency < 0 || efficiency > 1) throw Error('非法后训练兑现率');
+  const before = structuredClone(m); initializeExposure(before);
+  const shadow = structuredClone(s); POST_SHADOWS.add(shadow);
+  const index = shadow.models.findIndex(x => x.id === m.id);
+  if (index < 0) throw Error('后训练目标不存在');
+  const normal = structuredClone(before); shadow.models[index] = normal;
+  normal.post = structuredClone(before.postExposure); delete normal.postExposure; delete normal.postExposureVersion;
+  applyGains(shadow, normal, gains, opts);
+  const after = { ...normal.dims }, applied = {};
+  for (const [k, x] of Object.entries(after)) {
+    const b = before.dims[k];
+    after[k] = Math.min(x, Math.max(Math.min(b, x), x - (1 - efficiency) * Math.max(0, x - b)));
+    if (after[k] !== b) applied[k] = after[k] - b;
+  }
+  const mod = m.mod ?? s.mod, q0 = qOf(mod, before.dims), q1 = qOf(mod, after), G = Math.max(0, q1 - q0);
+  let all = 0, dist = 0;
+  for (const [k, w] of Object.entries(Q_W[mod])) { const d = Math.max(0, (after[k] || 0) - (before.dims[k] || 0)); all += w*d; dist += w*d*clamp(opts.dshare?.[k] ?? 0, 0, 1); }
+  const share = opts.dshare ? (all > 0 ? dist/all : 0) : clamp(Number.isFinite(opts.sigma) ? opts.sigma : 0, 0, 1);
+  const actual = structuredClone(before.post), D = Object.values(opts.levels || {}).reduce((a,x) => a+x,0);
+  actual.own += G*(1-share); actual.dist += G*share;
+  if (G > 0 && share > 0 && D > 0) for (const [f,x] of Object.entries(opts.levels)) actual.teachers[f] = (actual.teachers[f] || 0) + G*share*x/D;
+  // Commit only after all calculations succeed. Risk effects cannot be discounted.
+  Object.assign(m.dims, after); m.post = actual; m.postExposure = structuredClone(normal.post); m.postExposureVersion = 1;
+  if (Object.hasOwn(normal, 'tainted')) m.tainted = normal.tainted;
+  return { G, applied, q0, q1 };
+}

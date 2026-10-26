@@ -12,7 +12,7 @@ import { cardLeft } from './net.js';
 // 默认项：服务器到期时选的那个（第一个能选、不是“激化”的；规则在 world/index.js 的 autoResolve）。
 function defaultChoice(view) {
   const opts = (view?.choices || []).filter(c => !c.disabled);
-  return opts[0]?.label ?? '默认处理';
+  return (view?.id === 'ipo_window' ? opts.find(c => c.id === 'later')?.label : opts[0]?.label) ?? '默认处理';
 }
 const leftText = l => (l.days > 0 ? `还剩 ${l.days} 个游戏日` : l.secs > 0 ? `${l.secs} 秒后` : '马上') + '按默认项处理';
 
@@ -27,7 +27,7 @@ export function inboxHtml(S) {
     const urgent = l && l.days === 0 && l.secs <= 15;
     return `<li class="mp-card${card?.major ? ' is-major' : ''}${urgent ? ' is-urgent' : ''}">
       <div><span class="ev-tag">${esc(view?.tag || '事件')}</span><b>${esc(view?.title || '一张卡')}</b>
-      <small>${l ? esc(leftText(l)) : '期限算出来以前不会自动处理'}：「${esc(defaultChoice(view))}」${card?.major ? ' · 重大：全场暂时放慢' : ''}</small></div>
+      <small>${l ? esc(leftText(l)) : '期限算出来以前不会自动处理'}：「${esc(defaultChoice(view))}」${card?.major ? ' · 重大事件：不会暂停或放慢全场' : ''}</small></div>
       <button class="btn btn--primary btn--sm" data-act="mp-card" data-id="${at}">处理</button></li>`;
   }).join('');
   return `<section class="mp-inbox" aria-label="收件箱"><header><b>收件箱</b><small>${S.queue.length} 张 · 时间不停，到期按默认项处理</small></header><ol>${rows}</ol></section>`;
@@ -40,7 +40,7 @@ export async function openCard(at) {
   if (playing || !S?.queue?.[at]) return;
   playing = true;
   try {
-    const view = E.currentEvent(S, at);
+    const view = multiplayerEventView(E.currentEvent(S, at));
     const key = JSON.stringify(S.queue[at]);
     if (view.kind === 'goal') {
       const root = openLayer(goalHtml(view), 'overlay--event');
@@ -55,6 +55,7 @@ export async function openCard(at) {
       return;
     }
     const choice = await viewFor(view.kind)(S, view);
+    if (choice === null) return; // 新导航替换了决策：不发送旧事件命令
     // 看卡的这会儿可能已经到期、被服务器按默认项处理了：下标对不上就不发。
     if (JSON.stringify(getState().queue[at] ?? null) !== key) { closeLayer(); toast('这张卡已经按默认项处理过了'); return; }
     const res = await act(S, 'resolveEvent', { choiceId: choice, at });
@@ -70,4 +71,10 @@ export async function openCard(at) {
     playing = false;
     render();
   }
+}
+
+// 仅联机显示替换教程，不改权威事件或存档内容。
+export function multiplayerEventView(view) {
+  if(view?.title !== '时间怎么走') return view;
+  return {...view, text:'联机时间由房主控制：房主用上方按钮或空格暂停/继续，数字 1–4 切换速度；普通玩家不能暂停或调速。打开后台、事件和中途加入申请都不会暂停或放慢世界。事件到期会按默认项处理；公司任务继续，买卡和数据要等到货。'};
 }

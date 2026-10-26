@@ -44,6 +44,47 @@ function readyToSubmit() {
 
 // 每条命令的正例：返回 { s, args }。s 都是拷出来的，用例之间不互相影响。
 const POSITIVE = {
+  'postPlan.replan': () => {
+    const s = fresh(); s.jobs.list = []; s.techs = s.techs.filter(t => t !== 'dpo');
+    assert(E.applyCommand(s, { name: 'postPlan.enable' }).ok);
+    let r = E.applyCommand(s, { name: 'postPlan.open', args: { modelId: s.working, expectedModelToken: null } }); assert(r.ok, r.err);
+    let v = r.result;
+    r = E.applyCommand(s, { name: 'postPlan.confirmDeck', args: { sessionId: v.sessionId, expectedRevision: v.revision, cardIds: ['basic', 'ptc_qwen_sample_tabs', 'ptc_deepseek_pro_tidy_tray', 'ptc_kimi_bookmark_chain'], directionPolicy: 'model-general' } }); assert(r.ok, r.err); v = r.result;
+    for (let i = 0; i < 6; i++) { r = E.applyCommand(s, { name: 'postPlan.choose', args: { sessionId: v.sessionId, expectedRevision: v.revision, turn: v.turn, cardId: 'basic' } }); assert(r.ok, r.err); v = r.result.view; }
+    s.techs.push('dpo');
+    return { s, args: { sessionId: v.sessionId, expectedRevision: v.revision } };
+  },
+  'postPlan.enable': () => { const s = fresh(); s.jobs.list = []; return { s, args: {} }; },
+  'postPlan.open': () => {
+    const s = fresh(); s.jobs.list = []; assert(E.applyCommand(s, { name: 'postPlan.enable' }).ok);
+    return { s, args: { modelId: s.working, expectedModelToken: null } };
+  },
+  'postPlan.updateDraft': () => {
+    const { s, args } = POSITIVE['postPlan.open']();
+    const r = applyCommand(s, { name: 'postPlan.open', args }); assert(r.ok, r.err);
+    const v = r.result;
+    // Real incomplete draft: keep the required free card, remove one chosen card.
+    return { s, args: { sessionId: v.sessionId, expectedRevision: v.revision,
+      cardIds: v.deck.filter(id => id !== 'ptc_qwen_sample_tabs') } };
+  },
+  'postPlan.confirmDeck': () => {
+    const { s, args } = POSITIVE['postPlan.open']();
+    const r = E.applyCommand(s, { name: 'postPlan.open', args }); assert(r.ok, r.err);
+    return { s, args: { sessionId: r.result.sessionId, expectedRevision: 0, cardIds: r.result.deck, directionPolicy: 'model-general' } };
+  },
+  'postPlan.choose': () => {
+    const { s, args } = POSITIVE['postPlan.confirmDeck']();
+    const r = E.applyCommand(s, { name: 'postPlan.confirmDeck', args }); assert(r.ok, r.err);
+    return { s, args: { sessionId: r.result.sessionId, expectedRevision: r.result.revision, turn: 1, cardId: 'basic' } };
+  },
+  'postPlan.setControl': () => {
+    const { s, args } = POSITIVE['postPlan.choose']();
+    return { s, args: { sessionId: args.sessionId, expectedRevision: args.expectedRevision, mode: 'auto', scope: 'session' } };
+  },
+  setPlayMode: () => ({s:E.createSinglePlayerGame('deepseek','y2025',1),args:{mode:'post'}}),
+  enableAutomation: () => ({s:fresh(),args:{}}),
+  configureAutomationBatch: () => {const s=fresh();E.enableAutomation(s);return {s,args:{modules:['data','research'],mode:'manual',expectedRev:0,requestId:'batch-test'}};},
+  configureAutomation: () => {const s=fresh();E.enableAutomation(s);return {s,args:{module:'data',mode:'manual',preset:'balanced',expectedRev:0,requestId:'test'}};},
   startJob: () => {
     const s = mid();
     const spec = [
@@ -161,6 +202,17 @@ const POSITIVE = {
 
 // 每条命令的反例：参数表校验一定失败（类型、范围、取值、缺参数、多参数）。
 const NEGATIVE = {
+  'postPlan.replan': { sessionId: 'x', expectedRevision: -1, unlocked: ['ptc_qwen_paired_preferences'] },
+  'postPlan.enable': { rate: 1 },
+  'postPlan.open': { modelId: 7, expectedModelToken: null },
+  'postPlan.updateDraft': { sessionId: 'x', expectedRevision: 0, cardIds: [] },
+  'postPlan.confirmDeck': { sessionId: 'x', expectedRevision: -1, cardIds: [], directionPolicy: 'model-general' },
+  'postPlan.choose': { sessionId: 'x', expectedRevision: 0, turn: 7, cardId: 'basic' },
+  'postPlan.setControl': { sessionId: 'x', expectedRevision: 0, mode: 'skip', scope: 'session' },
+  enableAutomation: {unexpected:true},
+  setPlayMode: {mode:'bad'},
+  configureAutomation: {module:'capital'},
+  configureAutomationBatch: {modules:['capital'],mode:'manual',expectedRev:0,requestId:'bad-batch'},
   startJob: { spec: { kind: 'nope' } },
   cancelJob: { id: 5 },
   pauseJob: { id: 'j1', on: 'yes' },
@@ -205,6 +257,9 @@ describe('COMMANDS 命令表', () => {
   it('参数表覆盖 M.6.5 的全部引擎命令，每条都有 fn、args、readOnly', () => {
     // 规格 M.6.5 的命令清单（互动命令 M2 再追加，房间命令不进引擎）。
     const M65 = [
+      'postPlan.enable', 'postPlan.open', 'postPlan.updateDraft', 'postPlan.confirmDeck', 'postPlan.choose', 'postPlan.setControl', 'postPlan.replan',
+      'setPlayMode', 'enableAutomation', 'configureAutomation', 'configureAutomationBatch', // 单机显式托管试用，联机权限仍由引擎拒绝
+
       'startJob', 'cancelJob', 'pauseJob', 'setJobPrio', 'setJobCap', 'setPost', 'setRush', 'setRepair', 'setAutoRepair', 'setOwnOnly', 'setPlan', 'focusResearch', 'submitEval', 'cancelEval',
       'decide', 'researchTech', 'stopTech', 'buyGpu', 'buySmuggled', 'releaseGpu', 'setInferShare', 'setLease', 'setProduct', 'setTier', 'setSmallApi', 'setRouting', 'setPolicy',
       'trade', 'startFunding', 'startIpo', 'startStrategy', 'cancelStrategy', 'resolveEvent', 'applyAdvice',
@@ -240,6 +295,38 @@ describe('COMMANDS 命令表', () => {
       assert.equal(JSON.stringify(s), before, `${name} 校验失败以后状态不能变`);
     });
   }
+
+  it('updateDraft 真实保存三张草稿、不确认不抽牌；只读局拒绝同一合法命令', () => {
+    const { s, args } = POSITIVE['postPlan.updateDraft']();
+    assert.equal(args.cardIds.length, 3);
+    const readOnly = clone(s); readOnly.status = 'finished';
+    const beforeReadOnly = JSON.stringify(readOnly);
+    const rejected = applyCommand(readOnly, { name: 'postPlan.updateDraft', args });
+    assert.equal(rejected.ok, false); assert.match(rejected.err, /只能回看/);
+    assert.equal(JSON.stringify(readOnly), beforeReadOnly);
+    const r = applyCommand(s, { name: 'postPlan.updateDraft', args });
+    assert.equal(r.ok, true, r.err); assert.deepEqual(r.result.deck, args.cardIds);
+    assert.equal(r.result.status, 'draft'); assert.equal(r.result.confirmed, false);
+    assert.deepEqual(r.result.hand, []); assert.equal(r.result.turn, 0);
+    const p = s.postPlanSessions.sessions[args.sessionId];
+    assert.equal(p.drawTicket, null); assert.equal(p.confirmedDeck, null);
+    assert.equal(p.draftChanges, 1); assert.equal(p.revision, args.expectedRevision + 1);
+  });
+
+  it('updateDraft 参数表拒绝空/过量/非数组/负版本/额外字段，真实草稿不变', () => {
+    const { s, args } = POSITIVE['postPlan.updateDraft']();
+    const cases = [
+      { ...args, cardIds: [] }, { ...args, cardIds: [...args.cardIds, 'basic', 'basic'] },
+      { ...args, cardIds: 'basic' }, { ...args, expectedRevision: -1 },
+      { ...args, cardIds: ['basic', 7] }, { ...args, drawTicket: 123 },
+    ];
+    for (const invalid of cases) {
+      const before = JSON.stringify(s);
+      const r = applyCommand(s, { name: 'postPlan.updateDraft', args: invalid });
+      assert.equal(r.ok, false); assert.equal(typeof r.err, 'string'); assert.ok(r.err.length);
+      assert.equal(JSON.stringify(s), before);
+    }
+  });
 
   it('不认识的命令、不是对象的命令都拒绝', () => {
     const s = fresh();

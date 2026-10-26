@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { ROOT, tmpDir, startServer, stopServer, api, Client, sleep, waitFor, replayHash, roomSettings } from '../helpers/mp_server.mjs';
+import { stripPrivate } from '../../src/career/net/protocol.js';
 import { fixtureProject } from '../helpers/mp_fixture.mjs';
 
 const root = fixtureProject(ROOT);
@@ -74,68 +75,34 @@ test('大厅：申请、批准、公司资料、准备、开局；权限、一 c
   assert.ok(g.guest.raw.includes('<b>乙公司</b>'));
 });
 
-test('投票：在线真人中位数，偶数取慢档，上限由房主设置', async t => {
-  const g = await game(t);
-  ok(await g.host.roomCmd('speed', { speed: 3 }));
-  ok(await g.host.roomCmd('vote', { speed: 3 }));
-  ok(await g.guest.roomCmd('vote', { speed: 1 }));
-  assert.equal((await g.status()).speed, 1);
-  ok(await g.guest.roomCmd('vote', { speed: 2 }));
-  assert.equal((await g.status()).speed, 2);
-  ok(await g.host.roomCmd('speed', { speed: 1 }));
-  assert.equal((await g.status()).speed, 1);
-  assert.equal((await g.guest.roomCmd('speed', { speed: 3 })).status, 400);
+test('房主直接选择档位，所有投票停用，普通玩家不能调速', async t => {
+ const g=await game(t);assert.equal((await g.status()).hostSpeed,1);
+ for(const who of [g.host,g.guest]) assert.equal((await who.roomCmd('vote',{speed:3})).status,400);
+ assert.equal((await g.guest.roomCmd('speed',{speed:3})).status,400);
+ for(const speed of [0,3,1]){ok(await g.host.roomCmd('speed',{speed}));assert.equal((await g.status()).speed,speed);}
+ assert.equal((await g.host.roomCmd('speed',{speed:4})).status,400);
 });
 
-test('暂停：60 秒自动继续，30 秒后别人才能继续，非房主每年三次', async t => {
-  const g = await game(t, { timeScale: .005 });
-  ok(await g.guest.roomCmd('pause'));
-  assert.equal((await g.host.roomCmd('resume')).status, 400);
-  await sleep(180);
-  ok(await g.host.roomCmd('resume'));
-  for (let i = 0; i < 2; i++) {
-    ok(await g.guest.roomCmd('pause'));
-    await waitFor(async () => !(await g.status()).paused, 1500);
-  }
-  const fourth = await g.guest.roomCmd('pause');
-  assert.equal(fourth.status, 400, fourth.text);
-  assert.equal((await g.status()).players.find(p => p.seat === 1).pauseUses, 3);
-  assert.ok(logs(g.dir).some(e => e.name === 'sys.autoResume'));
+test('普通玩家暂停和恢复均被拒绝，不改变世界和时钟', async t => {
+ const g=await game(t);const before=await g.status();
+ for(const name of ['pause','resume'])assert.equal((await g.guest.roomCmd(name)).status,400);
+ assert.equal((await g.status()).hash,before.hash);assert.equal((await g.status()).pause,null);
+ ok(await g.host.roomCmd('pause'));assert.equal((await g.guest.roomCmd('resume')).status,400);assert.equal((await g.status()).paused,true);
 });
 
-test('全员同意暂停不设超时；房主不受三次限制', async t => {
-  const g = await game(t, { timeScale: .002 });
-  ok(await g.host.roomCmd('pause'));
-  ok(await g.guest.roomCmd('pause'));
-  await sleep(180);
-  assert.equal((await g.status()).paused, true);
-  assert.equal((await g.status()).pause.all, true);
-  ok(await g.guest.roomCmd('resume'));
-  for (let i = 0; i < 3; i++) {
-    ok(await g.host.roomCmd('pause'));
-    await waitFor(async () => !(await g.status()).paused, 1000);
-  }
+test('房主暂停无自动超时、不需投票且无次数限制', async t => {
+ const g=await game(t,{timeScale:.002});await sleep(1100);
+ for(let i=0;i<4;i++){ok(await g.host.roomCmd('pause'));await sleep(260);const st=await g.status();assert.equal(st.paused,true);assert.equal(st.pause.until,null);assert.equal(st.pause.hostOnly,true);ok(await g.host.roomCmd('resume'));assert.equal((await g.status()).paused,false);}
+ assert.ok(!logs(g.dir).some(e=>e.name==='sys.autoResume'));
 });
 
-test('掉线：两次 120 秒保护，之后 60 秒托管；回来交还，全员离线存快照', async t => {
-  const g = await game(t, { timeScale: .002 });
-  for (let attempt = 0; attempt < 3; attempt++) {
-    g.guest.close();
-    const offline = await waitFor(async () => { const s = await g.status(); return !s.players.find(p => p.seat === 1).online && s; }, 1000);
-    assert.equal(offline.dropUsed, Math.min(attempt + 1, 2));
-    assert.equal(offline.paused, attempt < 2);
-    await waitFor(async () => (await g.status()).players.find(p => p.seat === 1).hosted, 1500);
-    assert.equal((await g.status()).paused, false);
-    await g.guest.connect();
-    await waitFor(async () => !(await g.status()).players.find(p => p.seat === 1).hosted, 1000);
-  }
-  g.host.close(); g.guest.close();
-  await waitFor(async () => { const s = await g.status(); return s.paused && s.players.every(p => !p.online); }, 1000);
-  assert.ok(fs.readdirSync(g.dir).some(f => /^snap-/.test(f)));
-  const log = logs(g.dir);
-  assert.ok(log.some(e => e.name === 'sys.host'));
-  assert.ok(log.some(e => e.name === 'sys.unhost'));
-  assert.ok(log.some(e => e.name === 'sys.allOffline'));
+test('单席掉线不停全局，到期托管并重连交还；全员离线仍暂停', async t => {
+ const g=await game(t,{timeScale:.002,tickMs:15});const before=await g.status();g.guest.close();
+ await waitFor(async()=>!(await g.status()).players[1].online,1000);const disconnected=await g.status();assert.equal(disconnected.drop,null);assert.equal(disconnected.paused,false);
+ await waitFor(async()=>(await g.status()).players[1].hosted,1500);assert.ok((await g.status()).day>before.day);assert.ok(!logs(g.dir).some(e=>e.name==='sys.dropPause'));
+ await g.guest.connect();await waitFor(async()=>!(await g.status()).players[1].hosted,1000);
+ g.guest.close();g.host.close();await waitFor(async()=>(await g.status()).reason==='offline',1000);const frozen=await g.status();await sleep(100);assert.equal((await g.status()).day,frozen.day);
+ await g.host.connect();await waitFor(async()=>(await g.status()).reason!=='offline',1000);
 });
 
 test('收件箱：十天已经过去也要等满 45 秒，期限只发给本人', async t => {
@@ -158,18 +125,9 @@ test('收件箱：45 秒已过仍需十个游戏日', async t => {
   assert.ok(entry.day >= '2024-01-11');
 });
 
-test('重大卡：0 档降速、处理后恢复、每人每年累计最多 180 秒', async t => {
-  const g = await game(t, { seed: 180, timeScale: .003, tickMs: 10000 });
-  assert.equal((await g.status()).speed, 0);
-  ok(await g.guest.cmd(1, 'answer', { at: 0 }));
-  await waitFor(async () => (await g.status()).speed === 1, 1000);
-  ok(await g.guest.cmd(2, 'refill', { major: true }));
-  await waitFor(async () => (await g.status()).speed === 0, 1000);
-  await waitFor(async () => (await g.status()).speed === 1, 2000);
-  const p = (await g.status()).players.find(p => p.seat === 1);
-  assert.ok(p.slowUsed >= 179.9 && p.slowUsed <= 180.1, String(p.slowUsed));
-  assert.ok(logs(g.dir).some(e => e.name === 'sys.slowCap'));
-  assert.ok(events(g.guest, 'inbox').at(-1).data.cards.length > 0);
+test('普通玩家重大收件箱不调慢房主明确选择的全局速度', async t => {
+ const g=await game(t,{seed:180,timeScale:.02,tickMs:10000});ok(await g.host.roomCmd('speed',{speed:3}));await sleep(120);
+ const st=await g.status();assert.equal(st.speed,3);assert.equal(st.hostSpeed,3);assert.equal(st.slow,false);assert.ok(!logs(g.dir).some(e=>e.name==='sys.slowStart'));
 });
 
 test('聊天：广播纯文本、200 字上限、每现实秒一条；请求体至多 8KB', async t => {
@@ -202,7 +160,8 @@ test('中途批准仅能接管电脑公司，既有 SSE 收到 init；系统日�
   await g.guest.connect();
   await waitFor(async () => !(await g.status()).players.find(p => p.seat === 1).hosted, 1000);
   await waitFor(() => logs(g.dir).some(e => e.name === 'sys.autoResolve'), 2000);
-  ok(await g.host.roomCmd('pause'));
+  // 三人一致暂停不设期限；单人暂停仅180ms，外进程重放时可能已恢复推进。
+  ok(await g.host.roomCmd('pause')); // 房主暂停不设超时，重放比较无需其他席位投票。
   const before = await g.status();
   assert.equal(replayHash(g.dir, { root }), `${before.day} ${before.hash}`);
   const log = logs(g.dir);
@@ -221,6 +180,7 @@ test('旧建房/直接入座路径、同 seq 去重与终局公开全部 private
   ok(await host.cmd(7, 'noop'));
   ok(await host.roomCmd('start'));
   await waitFor(() => events(host, 'end').length && events(guest, 'end').length, 2000);
+  assert.equal((await post(s, `/api/r/${room}/join`, {seat:1})).status,400);
   const end = events(host, 'end').at(-1).data;
   assert.equal(end.companies.length, 3);
   assert.deepEqual(end.companies.map(c => c.id).sort(), ['c0', 'c1', 'c2']);
@@ -253,31 +213,10 @@ test('SSE 断线补发、超过三条拒绝；保存后 kill -9 恢复仍能从�
   assert.equal(replayHash(g.dir, { root }), `${state.day} ${state.hash}`);
 });
 
-test('暂停次数按游戏年重置；托管座位不参与速度投票', async t => {
-  const s = await setup(t, { timeScale: .001, tickMs: 20 });
-  const created = await post(s, '/api/rooms', { settings: { ...roomSettings({ humans: 2, bots: 1, days: 100 }), start: '2024-12' } });
-  if (!created.json?.ok) throw new Error(created.text + '\n' + s.log());
-  const { room } = ok(created);
-  const joined = await post(s, `/api/r/${room}/join`, { seat: 1 }); ok(joined);
-  const host = s.client(room, created.cookie), guest = s.client(room, joined.cookie);
-  await host.connect(); await guest.connect(); ok(await host.roomCmd('start'));
-  const status = async () => ok(await api(s.base, `/api/r/${room}/status`));
-  for (let i = 0; i < 3; i++) {
-    ok(await guest.roomCmd('pause'));
-    await waitFor(async () => !(await status()).paused, 1000);
-  }
-  assert.equal((await guest.roomCmd('pause')).status, 400);
-  await waitFor(async () => (await status()).day >= '2025-01-01', 3000);
-  ok(await guest.roomCmd('pause'));
-  assert.equal((await status()).players.find(p => p.seat === 1).pauseUses, 1);
-  await waitFor(async () => !(await status()).paused, 1000);
-  ok(await host.roomCmd('speed', { speed: 3 }));
-  ok(await host.roomCmd('vote', { speed: 3 }));
-  ok(await guest.roomCmd('vote', { speed: 0 }));
-  assert.equal((await status()).speed, 0);
-  guest.close();
-  await waitFor(async () => (await status()).players.find(p => p.seat === 1).hosted, 1000);
-  assert.equal((await status()).speed, 3);
+test('普通玩家跨年后仍不能暂停或投票，托管不改变房主档位', async t => {
+ const g=await game(t,{timeScale:.002,tickMs:1,settings:{start:'2024-01',years:2}});ok(await g.host.roomCmd('speed',{speed:3}));
+ await waitFor(async()=>(await g.status()).day>='2025-01-01',3000);
+ assert.equal((await g.guest.roomCmd('pause')).status,400);assert.equal((await g.guest.roomCmd('vote',{speed:0})).status,400);g.guest.close();await waitFor(async()=>(await g.status()).players[1].hosted,1500);assert.equal((await g.status()).speed,3);
 });
 
 test('收件箱：下标平移不重置剩余卡期限，系统处理可以从头重放', async t => {
@@ -338,8 +277,10 @@ test('踢人撤销 cookie、断开 SSE 并托管；旧路径不能重占被踢�
   await assert.rejects(g.guest.connect(), /401/);
   assert.equal((await g.status()).players.find(p => p.seat === 1).hosted, true);
   const again = await post(g.s, `/api/r/${g.room}/join`, { companyId: 'c1' }, g.guest.cookie);
-  const replacement = ok(again).member;
-  const returning = g.s.client(g.room, again.cookie); await returning.connect();
+  assert.equal(again.status,400); // 真人托管公司在申请入口即拒绝。
+  const valid = await post(g.s, `/api/r/${g.room}/join`, {companyId:'c2'});
+  const replacement = ok(valid).member;
+  const returning = g.s.client(g.room, valid.cookie); await returning.connect();
   assert.equal((await g.host.roomCmd('approveSeat', { member: replacement, companyId: 'c1' })).status, 400);
   ok(await g.host.roomCmd('approveSeat', { member: replacement, companyId: 'c2' }));
   const state = await g.status();
@@ -421,4 +362,57 @@ test('最后一次 tick 已提交但终局日志尚未写入时崩溃，恢复�
   assert.equal(end.companies.length, 3);
   for (const c of end.companies) assert.equal(c.s.secret, `PRIVATE-${c.id}`);
   assert.equal(replayHash(dir, { root }), `${state.day} ${state.hash}`);
+});
+
+test('刷新私有快照仅返回本cookie的self，大厅/开局身份一致，公开广播不泄漏self', async t => {
+ const s=await setup(t); const g=await lobby(s);
+ await waitFor(()=>events(g.host,'lobby').some(e=>e.data.self) && events(g.guest,'lobby').some(e=>e.data.self),3000);
+ assert.equal(events(g.host,'lobby').find(e=>e.data.self).data.self,g.hostMember);
+ assert.equal(events(g.guest,'lobby').find(e=>e.data.self).data.self,g.member);
+ assert.ok(events(g.host,'lobby').every(e=>!e.data.self||e.data.self===g.hostMember));
+ assert.ok(events(g.guest,'lobby').every(e=>!e.data.self||e.data.self===g.member));
+ assert.equal((await api(s.base,`/api/r/${g.room}/events`)).status,401);
+ ok(await g.host.roomCmd('approveSeat',{member:g.member,seat:1}));
+ ok(await g.host.roomCmd('ready',{name:'主公司',brand:'主',country:'CN',ready:true}));
+ ok(await g.guest.roomCmd('ready',{name:'客公司',brand:'客',country:'US',ready:true}));
+ ok(await g.host.roomCmd('start'));
+ for(const [cookie,member] of [[g.host.cookie,g.hostMember],[g.guest.cookie,g.member]]) {
+   const fresh=s.client(g.room,cookie);await fresh.connect();
+   await waitFor(()=>events(fresh,'init').length && events(fresh,'lobby').some(e=>e.data.self),3000);
+   assert.equal(events(fresh,'lobby').find(e=>e.data.self).data.self,member);
+   if(member===g.member) assert.equal((await fresh.roomCmd('save')).status,400);
+   else ok(await fresh.roomCmd('save'));
+ }
+});
+
+test('并发申请同一NPC只能批准一人，保留全部私有资产/模型/项目且不暂停其他人', async t => {
+ const g=await game(t,{tickMs:10000,settings:{bots:2}});ok(await g.host.roomCmd('pause'));ok(await g.host.roomCmd('save'));
+ const snaps=fs.readdirSync(g.dir).filter(n=>/^snap-.*gz$/.test(n)).sort();const before=JSON.parse(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(g.dir,snaps.at(-1)))).toString()).text).companies.c2.s;
+ const a=await post(g.s,`/api/r/${g.room}/join`,{companyId:'c2'}),b=await post(g.s,`/api/r/${g.room}/join`,{companyId:'c2'});ok(a);ok(b);
+ const ca=g.s.client(g.room,a.cookie),cb=g.s.client(g.room,b.cookie);await ca.connect();await cb.connect();assert.equal(ca.s,null);assert.equal(cb.s,null);
+ assert.equal((await g.guest.roomCmd('approveSeat',{member:a.json.member,companyId:'c2'})).status,400);
+ const replies=await Promise.all([g.host.roomCmd('approveSeat',{member:a.json.member,companyId:'c2'}),g.host.roomCmd('approveSeat',{member:b.json.member,companyId:'c2'})]);assert.deepEqual(replies.map(r=>r.status).sort(),[200,400]);
+ const winner=replies[0].status===200?ca:cb,loser=winner===ca?cb:ca;await waitFor(()=>winner.s,1000);assert.deepEqual(winner.s,stripPrivate(before));assert.equal(winner.s.postRandom.runSeed,undefined);
+ ok(await g.host.roomCmd('save'));const saved=JSON.parse(JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(g.dir,fs.readdirSync(g.dir).filter(n=>/^snap-.*gz$/.test(n)).sort().at(-1)))).toString()).text);assert.deepEqual(saved.companies.c2.s,before);assert.equal(loser.s,null);assert.ok(!loser.raw.includes('PRIVATE-c2'));
+ assert.equal((await g.status()).players.filter(p=>p.id==='c2').length,1);assert.equal((await g.status()).pause.hostOnly,true);
+ ok(await g.host.roomCmd('resume'));assert.equal((await g.status()).paused,false);
+});
+
+test('真人掉线托管不是NPC，不能通过申请或批准抢走原公司', async t => {
+ const g=await game(t,{timeScale:.002,tickMs:10000});g.guest.close();await waitFor(async()=>(await g.status()).players[1].hosted,1500);
+ assert.equal((await post(g.s,`/api/r/${g.room}/join`,{companyId:'c1'})).status,400);
+ const pending=await post(g.s,`/api/r/${g.room}/join`,{});ok(pending);assert.equal((await g.host.roomCmd('approveSeat',{member:pending.json.member,companyId:'c1'})).status,400);
+ await g.guest.connect();await waitFor(async()=>!(await g.status()).players[1].hosted,1000);assert.equal(g.guest.company,'c1');
+});
+
+test('旧或未知时钟存档明确拒绝且原文件保留', async t => {
+ for(const version of [undefined,2]){
+  const s=await setup(t),g=await lobby(s);ok(await g.host.roomCmd('save'));for(const c of s.clients)c.close();await stopServer(s);
+  const name=fs.readdirSync(g.dir).filter(n=>/^snap-.*gz$/.test(n)).sort().at(-1),file=path.join(g.dir,name),snap=JSON.parse(zlib.gunzipSync(fs.readFileSync(file)).toString());
+  if(version===undefined)delete snap.runtime.clock.clockRulesVersion;else snap.runtime.clock.clockRulesVersion=version;
+  fs.writeFileSync(file,zlib.gzipSync(JSON.stringify(snap)));const original=fs.readFileSync(file);
+  const logPath=path.join(g.dir,'log.ndjson');fs.appendFileSync(logPath,'{uncommitted');const originalLog=fs.readFileSync(logPath);
+  const reopened=await startServer({root,data:s.data,args:['--tick-ms','10000']});s.extraServers.push(reopened);
+  await waitFor(async()=>(await api(reopened.base,`/api/r/${g.room}/status`)).status===404,2000);assert.match(reopened.log(),/不支持旧版或未知版本联机存档/);assert.deepEqual(fs.readFileSync(file),original);assert.deepEqual(fs.readFileSync(logPath),originalLog);await stopServer(reopened);
+ }
 });

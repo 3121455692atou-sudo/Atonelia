@@ -1,4 +1,4 @@
-// 在途订单：下单后按到货日排队，到期交付（显卡、租卡、数据、旧档的蒸馏数据）；
+// 在途订单：下单后按到货日排队，到期交付（显卡、租卡、数据）；
 // 生成订单（规格 D7）：用自家推理卡或 API 老师生成蒸馏数据包、合成教材，按进度交付，可以暂停、恢复、取消。
 import { GPUS } from '../data/core.js';
 import { DATASET_BY_ID } from '../data/datasets.js';
@@ -16,6 +16,8 @@ export function addOrder(s, o) {
   s.orders.sort((a, b) => a.eta.localeCompare(b.eta));
 }
 export function dailyOrders(s, out) {
+  // 先拒绝旧结构，不能在抛错之前删除订单或推进另一张生成单。
+  if (s.orders.some(o => o.kind === 'distill' && !o.gen || o.gen?.stalled === true)) throw Error('不支持旧版生成订单，请新开一局');
   genTick(s, out);
   // 到期的普通订单（生成订单按进度交付，不看 eta）。顺序照到货日。
   for (let i = 0; i < s.orders.length;) {
@@ -42,10 +44,6 @@ export function dailyOrders(s, out) {
       deliverData(s, ds);
       out.notes.push(`数据到位：${ds.name}。`);
       log(s, `数据到位：${ds.name}`);
-    } else if (o.kind === 'distill') {
-      // 旧档里在途的 BASE 蒸馏订单：按原到货日交付，入库按 D7 的规则（老师快照、按老师分开记等级）。
-      applyDistill(s, o);
-      out.notes.push(`蒸馏数据到位：${o.name}。`);
     }
   }
 }
@@ -112,9 +110,9 @@ function genTick(s, out) {
       if (g.done < g.need) {
         const n = plan.use[o.id] ?? 0;
         if (n > 0) { g.done = Math.min(g.need, g.done + 24 * n); g.stalled = false; } else {
-          // 停着的原因（genPlan 的 wait）：排在前一张后面，或者推理卡放不下老师。原因变了才再提醒一次；旧档的 true 按放不下算。
+          // 停着的原因（genPlan 的 wait）：排在前一张后面，或者推理卡放不下老师。原因变了才再提醒一次。
           const why = plan.wait?.[o.id] === 'queue' ? 'queue' : 'nofit';
-          if ((g.stalled === true ? 'nofit' : g.stalled) !== why) {
+          if (g.stalled !== why) {
             g.stalled = why;
             out.notes.push(why === 'queue' ? `「${o.name}」：排在前一张后面，等它跑完（同一时间只跑一张生成单）。`
               : `「${o.name}」：推理卡放不下老师（至少要 ${g.nMin} 张 H100 的显存），先停着。把推理份额调高、或者添卡就能接着跑。`);

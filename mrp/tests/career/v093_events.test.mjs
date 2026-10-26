@@ -2,14 +2,13 @@
 // 前 9 条迁自外部 v0.9.2 改动包 test_event_actions.mjs，按我们的引擎改写：禁用原因按我们的文案匹配；
 // “调拨算力”那条按 G5-9 补上训练算力下降的断言；加租那条补上“开通后负载回到 85% 以下”（按负载定张数）。
 // 改动包里“算力下单拒绝非整数”那条已由 M1 的 test_v093_fixes.mjs 覆盖，不重复迁。
-// 其余按先修补写：不积压补演、旧档丢弃 superEarned、预估只读、预估卡格式。
+// 其余按先修补写：不积压补演、旧档 superEarned 明确拒绝、预估只读、预估卡格式。
 // 审查遗留修复补了三条：加租按实际能多出的推理和在途订单定张数、候选卡租不到时换卡、命令白名单读规格的 SUPER_ACTIONS。
 // 复核时改了一处：在途订单只扣这批开通前就到的，交货期几个月的买卡不扣。
 import { describe, it } from 'node:test';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import * as E from '../../src/career/engine.js';
-import { loadSave } from '../helpers/career_util.mjs';
 import { SUPER_EVENTS } from '../../src/career/data/super.js';
 import { RENT_LEAD } from '../../src/career/data/supply.js';
 import { addDays } from '../../src/career/sim/clock.js';
@@ -264,13 +263,18 @@ describe('超事件选项是真实操作（审查 B6）', () => {
 });
 
 describe('超事件不积压补演（先修）', () => {
-  it('读档丢掉 v0.9.2 的 superEarned；冷却期里达成的不记账，过后条件不成立也不补演', () => {
-    let s = E.createGame('deepseek', 'y2025', 71);
+  it('v0.9.2 的 superEarned 旧档明确拒绝，原记录不静默丢弃', () => {
+    const raw=E.createGame('deepseek','y2025',71);
+    raw.flags.superEarned={super_tenx:{day:raw.day,model:'x',pop:0}};
+    raw.v=3;
+    const before=JSON.stringify(raw), r=E.migrateGame(raw);
+    assert.equal(r.ok,false); assert.match(r.reason,/请新开一局/);
+    assert.equal(JSON.stringify(raw),before);
+  });
+  it('当前新局冷却期里达成的不记账，过后条件不成立也不补演', () => {
+    const s=E.createGame('deepseek','y2025',71);
     resolveAll(s);
-    s.flags.superEarned = { super_tenx: { day: s.day, model: 'x', pop: 0 } };
-    s.v = 3;   // v0.9.2 的存档结构版本是 v3
-    s = loadSave(s);
-    assert.equal(s.flags.superEarned, undefined);
+    assert.equal(s.flags.superEarned,undefined);
     // 开局首月不触发超事件（P1.4，规格 E4）：当作已经过了第一个月。
     s.monthsPlayed = 1;
     // 让“绝境翻盘”的条件这个月成立；别的超事件当作已经演过，免得它们先占了这个月的名额。

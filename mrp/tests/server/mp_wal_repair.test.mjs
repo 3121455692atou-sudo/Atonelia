@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {tmpDir,startServer,stopServer,api,Client,waitFor,replayHash,roomSettings} from '../helpers/mp_server.mjs';
+import {readLog} from '../../server/store.mjs';
+const ok=r=>{assert.equal(r.status,200,r.text);assert.equal(r.json?.ok,true,r.text);return r.json;};
+const kill=async srv=>{const died=new Promise(r=>srv.proc.once('exit',r));srv.proc.kill('SIGKILL');await died;};
+test('新版残尾先修复再追加，重复seq不重做，二次SIGKILL恢复完整hash一致',async t=>{
+ const data=tmpDir(),servers=[],clients=[];t.after(async()=>{clients.forEach(c=>c.close());for(const s of servers)await stopServer(s);});
+ const open=async()=>{const s=await startServer({data,args:['--tick-ms','10000']});servers.push(s);return s;};
+ let srv=await open();const made=await api(srv.base,'/api/rooms',{method:'POST',body:{settings:roomSettings({humans:1,bots:1,days:365})}});const info=ok(made),dir=path.join(data,info.room),file=path.join(dir,'log.ndjson');
+ const connect=async()=>{const c=new Client(srv.base,info.room,made.cookie);clients.push(c);await c.connect();await waitFor(()=>c.s,2000);return c;};
+ let host=await connect();ok(await host.roomCmd('start'));ok(await host.roomCmd('speed',{speed:2}));ok(await host.roomCmd('pause'));ok(await host.cmd(7,'setInferShare',{v:.1}));ok(await host.roomCmd('save'));
+ const before=ok(await api(srv.base,`/api/r/${info.room}/status`));await kill(srv);host.close();const committed=fs.readFileSync(file);fs.appendFileSync(file,'{"n":999999,"t":"cmd","partial":');
+ srv=await open();const first=ok(await api(srv.base,`/api/r/${info.room}/status`));assert.equal(first.hash,before.hash);assert.equal(first.hostSpeed,2);assert.equal(first.pause.hostOnly,true);assert.equal(first.pause.until,null);
+ const repaired=fs.readFileSync(file);assert.ok(repaired.subarray(0,committed.length).equals(committed));assert.equal(repaired.includes(Buffer.from('"partial":')),false);assert.ok(readLog(dir).some(e=>e.name==='sys.recover'));
+ host=await connect();ok(await host.cmd(7,'setInferShare',{v:.1}));assert.equal((await api(srv.base,`/api/r/${info.room}/status`)).json.hash,before.hash);
+ ok(await host.cmd(8,'setInferShare',{v:.2}));const second=ok(await api(srv.base,`/api/r/${info.room}/status`));await kill(srv);host.close();srv=await open();
+ const final=ok(await api(srv.base,`/api/r/${info.room}/status`));assert.equal(final.hash,second.hash);assert.equal(final.day,second.day);assert.equal(replayHash(dir),`${final.day} ${final.hash}`);assert.equal(replayHash(dir,{fromStart:false}),`${final.day} ${final.hash}`);
+ const log=readLog(dir);log.forEach((e,i)=>assert.equal(e.n,i+1));assert.deepEqual(log.filter(e=>e.t==='cmd').map(e=>e.cseq),[7,8]);
+});

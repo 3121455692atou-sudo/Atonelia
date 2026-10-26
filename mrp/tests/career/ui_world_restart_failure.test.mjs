@@ -1,0 +1,20 @@
+import {test,afterEach} from 'node:test';
+import assert from 'node:assert/strict';
+import * as E from '../../src/career/engine.js';
+import {ui,setWorld,setState,getWorld,clock,bind} from '../../src/career/ui/state.js';
+import {WORLD_LEAVE_KEY} from '../../src/career/ui/storage.js';
+afterEach(()=>{delete globalThis.location;setWorld(null);setState(null);ui.screen='title';E.migrateWorld({});delete globalThis.localStorage;delete globalThis.sessionStorage;delete globalThis.document;});
+test('终局重开保存失败保留原终局；修复存储后可重试且不删存档',async()=>{
+ const w=E.createWorld({seed:1,start:'2024-01',days:60,companies:[{name:'测试智能',brand:'测试',country:'CN',tier:'specialist',kind:'human'},{name:'伙伴智能',brand:'伙伴',country:'US',tier:'specialist',kind:'bot'},{name:'同行智能',brand:'同行',country:'EU',tier:'specialist',kind:'bot'}]});
+ const pid=Object.values(w.companies).find(c=>c.kind==='human').id;w.settings.you=pid;w.result={kind:'world'};setWorld(w);setState(w.companies[pid].s);ui.screen='home';clock.speed=5;
+ const mem=new Map();let fail=true,reloads=0;const messages=[];
+ globalThis.localStorage={getItem:k=>mem.get(k)||null,setItem:(k,v)=>{if(fail)throw Error('quota');mem.set(k,v);}};
+ globalThis.sessionStorage={getItem:k=>mem.get(k)||null,setItem:(k,v)=>mem.set(k,v),removeItem:k=>mem.delete(k)};
+ globalThis.location={reload:()=>reloads++};
+ globalThis.document={createElement:()=>({classList:{add(){}},remove(){}}),getElementById:()=>({append:e=>messages.push(e.textContent)})};
+ bind({render(){}});ui.screen='title';
+ for(let n=0;n<100&&!messages.length&&!reloads;n++)await new Promise(r=>setTimeout(r,10));
+ assert.equal(reloads,0,'保存失败禁止刷新');assert.equal(ui.screen,'result');assert.equal(clock.speed,0);assert.equal(getWorld(),w);assert.equal(mem.has(WORLD_LEAVE_KEY),false);assert.ok(messages.some(x=>x.includes('存档')));
+ fail=false;ui.screen='title';for(let n=0;n<100&&!reloads;n++)await new Promise(r=>setTimeout(r,10));
+ assert.equal(reloads,1);assert.equal(mem.get(WORLD_LEAVE_KEY),'1');assert.ok(mem.has('mrp.world.v1'));
+});

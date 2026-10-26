@@ -252,13 +252,13 @@ describe('D9 第 6 条：难度曲线', () => {
     }
   });
 
-  it('6.8 ρ 回退（没有策略状态时；P2.2 起开局有策略树，读特质，数值相同）：DeepSeek y2025 0.45、GPT y2023 1.6、Gemini y2024 0.7；Gemini y2023 在 2023-11-16 以前 0.45、以后 0.7', () => {
+  it('6.8 ρ 当前策略特质数值（缺策略拒绝）：DeepSeek y2025 0.45、GPT y2023 1.6、Gemini y2024 0.7；Gemini y2023 在 2023-11-16 以前 0.45、以后 0.7', () => {
     for (const [c, sc, rho] of [['deepseek', 'y2025', 0.45], ['gpt', 'y2023', 1.6], ['gemini', 'y2024', 0.7]]) {
       const s = fresh(c, sc);
-      // P2.2 起开局就有策略树，ρ 改读特质；去掉策略状态就是回退口径。两边都等于表里的值（“合入后 ρ 不变”的逐日核对在 strategy.test.mjs）。
+      // 当前新局数值不变；删除策略的旧结构不能再走身份回退。
       const bare = clone(s);
       delete bare.strategy;
-      assert.ok(Math.abs(rhoOf(bare) - rho) < 1e-12, `${c} ${sc} 回退 ${rhoOf(bare)}`);
+      assert.throws(() => rhoOf(bare), /不支持|策略树/);
       assert.ok(Math.abs(rhoOf(s) - rho) < 1e-12, `${c} ${sc} ${rhoOf(s)}`);
     }
     // Lyria 在 2023-11-16 拿到算数的标签：那天推进时（D10.5 的 kinTick）写 s.sota.kin，第二天起按“集团出过”算。
@@ -273,14 +273,11 @@ describe('D9 第 6 条：难度曲线', () => {
     assert.deepEqual([g.sota.kin, switched, sotaMade(g)], ['2023-11-16', '2023-11-17', false]);
   });
 
-  it('6.8 ρ 回退的条件是 s.strategy?.tree（D6.2）：策略引擎的存根已经会写 s.strategy（特质），只要还没有策略树就照旧回退；有了树才读特质的 sotaEase', () => {
+  it('6.8 没有策略树的存根被拒绝；当前树没有 sotaEase 特质时 ρ = 1', () => {
     const s = fresh('deepseek', 'y2025');
-    s.strategy = { spirits: {} };   // 存根阶段 applyEffects 的 spirit 键、addSpirit 会写出这样的 s.strategy
-    assert.ok(Math.abs(rhoOf(s) - 0.45) < 1e-12, `只有特质、没有策略树：仍按“没炼出过”回退，${rhoOf(s)}`);
-    const g = fresh('gpt', 'y2023');
-    g.strategy = { spirits: {} };
-    assert.ok(Math.abs(rhoOf(g) - 1.6) < 1e-12, `GPT y2023 炼出过：${rhoOf(g)}`);
-    // 有了策略树（P2.2 的 initStrategy）就改读特质：存根没有登记特质来源，sotaEase 是 0，ρ = 1。
+    s.strategy = { spirits: {} };
+    const before = JSON.stringify(s);
+    assert.throws(() => rhoOf(s), /不支持|策略树/); assert.equal(JSON.stringify(s), before);
     s.strategy.tree = 'deepseek';
     assert.equal(rhoOf(s), 1);
   });

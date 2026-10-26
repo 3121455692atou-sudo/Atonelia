@@ -10,6 +10,7 @@ import * as E from '../../src/career/engine.js';
 import { loadSave, baseJob } from '../helpers/career_util.mjs';
 import { COMPANIES, SCENARIOS, GPUS, TECH_BY_ID } from '../../src/career/data/core.js';
 import { monthlyCosts } from '../../src/career/sim/economy.js';
+import { validateTrainingAcc } from '../../src/career/sim/projects.js';
 import { daysInMonth, inDays, daysBetween } from '../../src/career/sim/clock.js';
 import { llmBase, knowledgeCap, postPreview } from '../../src/career/sim/model.js';
 import { resolveAll, advance } from '../helpers/career_bot.mjs';
@@ -150,18 +151,14 @@ describe('物理算力与逐日账单', () => {
     close(report.costs.owned, rates.owned, '自有卡一整月都在');
   });
 
-  it('旧档没有逐日账本：读进来那个月已经过去的天数按当时配置估，之后逐日记', () => {
-    const s = fresh();
-    advance(s, 9);
-    const day = Number(s.day.slice(8, 10));
-    delete s.computeLedger;
-    const old = loadSave({ ...clone(s), v: 3 });
-    resolveAll(old);
-    const rates = monthlyCosts(old), n = daysInMonth(old.date);
-    E.tickDay(old);
-    assert.equal(old.computeLedger.estimatedDays, day - 1);
-    assert.equal(old.computeLedger.days, day);
-    close(old.computeLedger.owned, rates.owned * day / n);
+  it('缺逐日账本的旧档及伪当前档明确拒绝，不能估算已过去的天数', () => {
+    const s = fresh(); advance(s, 9);
+    for (const v of [3,s.v]) {
+      const raw = clone(s); raw.v=v; delete raw.computeLedger;
+      const before = JSON.stringify(raw), result=E.migrateGame(raw);
+      assert.equal(result.ok,false); assert.match(result.reason,/请新开一局/);
+      assert.equal(JSON.stringify(raw),before);
+    }
   });
 
   it('开源蒸馏占推理卡的旧规则在 P4.1 删了：旧档带着 flags.distillLoad，月结也不再按它压低平均推理能力', () => {
@@ -488,28 +485,18 @@ describe('预训练分段记账与研发经验', () => {
     assert.equal(loaded.know, s.know);
   });
 
-  it('旧档里练到一半的预训练：补上分段字段，权重对齐实际进度，接着练完不出 NaN', () => {
+  it('缺少分段账的中途预训练拒绝，不重估旧进度；当前完整账只验证不改写', () => {
     const s = freshMaintain(); E.setInferShare(s, 0.9);
-    L.startProject(s, { total: 70, active: 70, arch: 'dense', tokens: 12 });
-    advance(s, 3);
-    // 造一份 v3 旧档：项目还在 s.project 里（P2.4a 之前的写法），没有作业表。
-    const old = JSON.parse(JSON.stringify(s));
-    old.v = 3;
-    old.project = JSON.parse(JSON.stringify(baseJob(s).pj));
-    old.focus = { kind: 'maintain', since: s.day };
-    for (const k of ['jobs', 'evals', 'prevWorking', 'smallShelf']) delete old[k];
-    delete old.mig.jobs;
-    // 旧版记账（v3 存档）：没有 effectiveQ / repeat；炸炉回滚过，权重比实际进度多。
-    delete old.project.acc.effectiveQ; delete old.project.acc.repeat;
-    old.project.acc.w *= 1.3; old.project.acc.q *= 1.3;
-    const m = loadSave(old);
-    const pj = baseJob(m).pj, acc = pj.acc;
-    near(acc.w, pj.done / pj.need, '权重对齐进度');
-    assert.ok(Number.isFinite(acc.effectiveQ) && Number.isFinite(acc.repeat));
-    near(acc.effectiveQ / acc.w, acc.q / acc.w * acc.repeat / acc.w, '已练部分按读档时的池子估一次');
-    for (let i = 0; i < 90 && E.hasBaseJob(m); i++) advance(m, 1);
-    const p = E.workingModel(m).pretraining;
-    assert.ok([p.quality, p.capacityQuality, p.repeat, p.experience.credit].every(Number.isFinite));
+    L.startProject(s, { total: 70, active: 70, arch: 'dense', tokens: 12 }); advance(s, 3);
+    const pj = baseJob(s).pj, good = JSON.stringify(pj);
+    validateTrainingAcc(pj); assert.equal(JSON.stringify(pj), good);
+    for (const v of [3,s.v]) {
+      const old=clone(s); old.v=v;
+      const oldPj=baseJob(old).pj; delete oldPj.acc.effectiveQ; delete oldPj.acc.repeat;
+      const before=JSON.stringify(old);
+      assert.throws(() => validateTrainingAcc(oldPj), /不支持|训练账/);
+      assert.equal(E.migrateGame(old).ok,false); assert.equal(JSON.stringify(old),before);
+    }
   });
 });
 

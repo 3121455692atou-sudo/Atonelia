@@ -123,7 +123,7 @@ describe('P3.T 第 1 批：每个授名都能按条件授出', () => {
     s.products.chat = { ...(s.products.chat || {}), on: true };
     s.products.api = { ...(s.products.api || {}), on: true, tier: 'standard' };
     // 授名的 world 条件里有“已经有小模型在卖”：放一个在线小模型。
-    s.models.push({ id: 'sm_test', stage: 'released', role: 'small', dims: { ...DIMS } });
+    s.models.push({ id: 'sm_test', stage: 'released', role: 'small', line: 'small', dims: { ...DIMS } });
     s.smallLive = 'sm_test';
     return s;
   }

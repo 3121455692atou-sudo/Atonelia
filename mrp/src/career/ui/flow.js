@@ -1,26 +1,34 @@
 // 主流程里的“做决定”和“处理事件”：选择面板、下决定、按顺序放事件和里程碑、结算、回到标题。
 import * as E from '../engine.js';
+import { recordHall } from './hof.js';
 import { daysBetween, inDays } from '../engine.js';
 import { esc } from './fmt.js';
 import { act, decideAct } from './act.js';
 import { viewFor } from './views/index.js';
 import { playBench, playSuite } from './bench.js';
-import { getState, setState, getMp, ui, clock, save, render, toast, openLayer, closeLayer, waitFor, scheduleTick } from './state.js';
+import { getState, setState, getWorld, getMp, ui, clock, save, render, toast, openLayer, closeLayer, waitFor, scheduleTick } from './state.js';
 import { load, store, drop, SAVE_KEY, HOF_KEY } from './storage.js';
 import * as dataPanel from './panels/data.js';
 import * as evalPanel from './panels/eval.js';
 import * as releasePanel from './panels/release.js';
+import { usesPostTrainingCards, beginPostTraining } from './post_training_entry.js';
 
 // 做一个决定（不推进时间）。跑分、发布（跳过评测当天发布）有演出；下单、送评、作业操作只提示一下。
 export async function doDecision(action, arg = {}) {
   if (ui.busy) return;
   ui.busy = true;
   const S = getState();
+  let postPlanSessionId = null;
   try {
     // 联机里卡片不挡时间（M.6.4）：在收件箱里自己点开处理，这里不先放卡；结束由服务器推复盘。
     const mp = !!getMp();
     if (S.queue.length && !mp) { await runQueue(); return; }
-    const r = await decideAct(S, action, arg);
+    const current = action === 'job' && arg.op === 'pause' && arg.on === false ? S.jobs.list.find(j => j.id === arg.id) : null;
+    const spec = action === 'job' && arg.op === 'start' ? arg.spec ?? arg : current;
+    const r = usesPostTrainingCards(S, spec)
+      ? await beginPostTraining(S, spec, current ? { existingOnly: true, jobId: current.id, resume: true } : { resume: true, updateDirection: !!arg.updateDirection })
+      : await decideAct(S, action, arg);
+    postPlanSessionId = r?.postPlan?.sessionId ?? null;
     save();
     if (r?.kind === 'eval') await playBench(r.run, E.leaderboard(S, r.run.benchId, { playerModel: r.run.modelId }), r.rank, r.classRank);
     if (r?.kind === 'release') { ui.emotion = 'happy'; await playSuite(r); toast(releaseToast(S, r)); }
@@ -36,6 +44,10 @@ export async function doDecision(action, arg = {}) {
   } finally {
     ui.busy = false;
     if (S && S.status === 'playing') render();
+    if (postPlanSessionId && getState() === S && S.status === 'playing') {
+      const { openOffice } = await import('./office.js');
+      if (getState() === S) openOffice('train', { postPlanSessionId });
+    }
     scheduleTick();
   }
 }
@@ -62,6 +74,8 @@ export async function playReleases(list = []) {
   }
 }
 export async function runQueue() {
+  const S=getState();
+  if(E.isPostOnly(S)) { E.postOnlyEvents(S); await save(); return; }
   clock.busy = true;
   try { await drainQueue(); } finally { clock.busy = false; }
 }
@@ -96,6 +110,8 @@ async function playItem(S) {
   }
   // 按事件种类找演出方式（ui/views/index.js）；没有专门视图的都是对话加选项。
   const choice = await viewFor(view.kind)(S, view);
+  // 决策被新导航/新局替换，不消费旧事件，也不覆盖较新的弹层。
+  if (choice === null) return true;
   const res = await act(S, 'resolveEvent', { choiceId: choice });
   save();
   render();
@@ -157,12 +173,13 @@ export function finishGame() {
   const S = getState();
   clearTimeout(clock.timer);
   clock.speed = 0;
-  const hof = load(HOF_KEY) || [];
-  if (!S.hofSaved) {
-    hof.unshift({ at: new Date().toISOString(), charId: S.charId, name: S.persona.name, company: S.company.company, scenario: S.scenario, rank: S.result.rank, total: S.result.total, reason: S.result.reason, date: S.date, model: S.result.model, modelId: S.result.modelId ?? null, revenue: S.result.revenue, valuation: S.result.valuation });
-    store(HOF_KEY, hof.slice(0, 50));
-    S.hofSaved = true;
-  }
+  const world = getWorld();
+  const record = recordHall(S, world, { ...(S.result.kind === 'world' ? { kind: 'world', place: S.result.place, wealth: S.result.wealth, of: S.result.of } : {}), at: new Date().toISOString(), charId: S.charId, name: S.persona.name, company: S.company.company, scenario: S.scenario, rank: S.result.rank, total: S.result.total, reason: S.result.reason, date: S.date, model: S.result.model, modelId: S.result.modelId ?? null, revenue: S.result.revenue, valuation: S.result.valuation });
+  record.then(ok => {
+    if (!ok) toast('名人堂没有保存成功，重新打开本局结算可以重试');
+    // 异步记账期间玩家可能已开另一局，不能把新局覆盖成旧局。
+    if (getState() === S && getWorld() === world) save();
+  });
   save();
   ui.screen = 'result';
   render();
@@ -188,16 +205,33 @@ export const onEnterGame = fn => { RESET_HOOKS.push(fn); };
 export function enterGame(s, { persist = false } = {}) {
   clearTimeout(clock.timer);
   clock.speed = 0;
+  if (!getMp() && getWorld()) E.finishWorld(getWorld());
   setState(s);
   ui.skip.clear();
   ui.report = null;
   ui.lineIdx = 0;
   ui.emotion = 'neutral';
   ui.moreOpen = false;
+  ui.postOnlyShown=null;
+  ui.postOnlyResumeToken=null;ui.busy=false;
+  clock.postPlanToken=null;clock.busy=false;
   for (const fn of RESET_HOOKS) fn();
   ui.screen = 'home';
   if (persist) save();
   closeLayer();
   render();
-  return runQueue().then(() => { if (getState() === s) { if (s.status === 'ended') finishGame(); else render(); } }).catch(err => { console.error(err); toast('处理事件时出错了'); });
+  return runQueue().then(async () => { if (getState() === s) { if (s.status === 'ended') finishGame(); else {render();await presentPostOnly(s);} } }).catch(err => { console.error(err); toast('处理事件时出错了'); });
+}
+
+// A new real card session interrupts only for the player's deck/hand, not economics.
+export async function presentPostOnly(s,{force=false}={}) {
+  if(!E.isPostOnly(s)||s.status!=='playing'||getState()!==s||ui.screen!=='home')return false;
+  const id=E.pendingPostOnlySession(s);
+  if(!id||(!force&&ui.postOnlyShown===id))return false;
+  const saved=await save();
+  if(saved?.ok===false||getState()!==s||ui.screen!=='home'||!E.isPostOnly(s)||E.pendingPostOnlySession(s)!==id)return false;
+  const {openOffice}=await import('./office.js');
+  if(getState()!==s||ui.screen!=='home'||!E.isPostOnly(s)||E.pendingPostOnlySession(s)!==id)return false;
+  ui.postOnlyShown=id;clock.speed=0;clearTimeout(clock.timer);
+  openOffice('train',{postPlanSessionId:id});return true;
 }

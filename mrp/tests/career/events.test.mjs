@@ -37,8 +37,8 @@ const warGame = (id = 'ernie', sc = 'y2024') => {
   s.products.api.tier = 'standard';
   return s;
 };
-// 市场期待（P3.E）还没落地，新开局的 s.expect 是空的：测试里按 D11.10 的形状自己构造，hot 记最近一次“超出预期”的发布日。
-const setHot = (s, day) => { (s.expect ??= initExpect()).hot = day; };
+// hot 记最近一次“超出预期”的发布日，测试只改这一项当前字段。
+const setHot = (s, day) => { s.expect.hot = day; };
 const hotAgo = (s, n) => setHot(s, addDays(s.day, -n));
 const stepDays = (s, n) => { s.day = addDays(s.day, n); s.date = s.day.slice(0, 7); };
 
@@ -47,14 +47,14 @@ describe('E5：按日期弹出的抉择已经没有了', () => {
     assert.equal(EVENTS.open_question, undefined);
     assert.equal(EVENTS.reasoning_race, undefined);
     for (const w of WORLD_EVENTS) assert.ok(!('decision' in w), w.id);
-    // 数据和引擎里不再有它们（迁移那一步还认得 open_question，用来丢掉旧档里没答的那张；界面的背景表另算）。
+    // 数据和引擎里不再有它们（界面的背景表另算）。
     for (const [f, src] of SIM_NO_MIGRATION) assert.ok(!/open_question|reasoning_race|budgetPromise/.test(src), `${f} 里还有日期抉择的残留`);
   });
   it('引擎里没有“某年某月一到就弹”的写法：不拿日期做相等判断来排事件', () => {
     for (const [f, src] of SOURCES.filter(([f]) => f.startsWith('sim/') && !f.startsWith('sim/migrations/')))
       assert.ok(!/\.date\s*===?\s*'\d{4}-\d{2}'/.test(src), `${f} 里有日期相等的触发`);
   });
-  it('旧档读进来：队列和排期里的 open_question、reasoning_race 当成认不出的项丢掉，不会弹出来卡住', () => {
+  it('旧队列和排期明确拒绝，不静默丢弃 open_question、reasoning_race', () => {
     for (const id of ['open_question', 'reasoning_race']) {
       const s = fresh('gpt', 'y2023');
       assert.equal(knownQueueItem(s, { kind: 'event', id }), false, id);
@@ -62,10 +62,9 @@ describe('E5：按日期弹出的抉择已经没有了', () => {
     const raw = clone(E.createGame('gpt', 'y2023', 1));
     raw.queue.push({ kind: 'event', id: 'open_question' }, { kind: 'event', id: 'reasoning_race' });
     raw.scheduled.push({ at: addDays(raw.day, 9), item: { kind: 'event', id: 'reasoning_race' } });
-    const r = E.migrateGame(clone(raw));
-    assert.ok(r.ok);
-    assert.ok(!r.s.queue.some(q => ['open_question', 'reasoning_race'].includes(q.id)));
-    assert.ok(!r.s.scheduled.some(x => x.item?.id === 'reasoning_race'));
+    const before = JSON.stringify(raw), r = E.migrateGame(raw);
+    assert.equal(r.ok, false); assert.match(r.reason, /请新开一局/);
+    assert.equal(JSON.stringify(raw), before);
   });
   it('整局玩下来：不出现 open_question、reasoning_race；价格战出现时，局面确实满足条件', () => {
     const games = [['qwen', 'y2023'], ['llama', 'y2023'], ['seed', 'y2024'], ['claude', 'y2025'], ['deepseek', 'y2024'], ['kimi', 'y2023'], ['ernie', 'y2024'], ['minimax', 'y2024'], ['gpt', 'y2023'], ['suno', 'y2023']];
@@ -432,7 +431,7 @@ describe('CASES.tos 带上厂商参数', () => {
     }
   });
   it('蒸馏了哪家的 API，被告的就是哪家：诉讼从 risky.tos_<家族> 取厂商名', () => {
-    for (const [key, vendor] of [['tos_claude', FAMILIES.claude.company], ['tos_deepseek_pro', FAMILIES.deepseek_pro.company], ['ds_gpt4_distill', 'OpenAI']]) {
+    for (const [key, vendor] of [['tos_claude', FAMILIES.claude.company], ['tos_deepseek_pro', FAMILIES.deepseek_pro.company], ['tos_gpt', 'OpenAI']]) {
       const s = fresh('qwen', 'y2025');
       s.data.risky[key] = true;
       s.risk.tos = 1e6;
@@ -588,7 +587,7 @@ describe('事件数据的自洽', () => {
       assert.doesNotMatch(words, /expect|hot|canRaise|\b(19|20)\d\d\b/, id);
     }
   });
-  it('第一次读到状态里没有 cool、seen 的老档也不抛错（新检查读 s.cool、s.seen 前由迁移补齐）', () => {
+  it('新开局的 cool、seen 支持当前事件检查与逐月推进', () => {
     const s = fresh('kimi', 'y2025');
     hotAgo(s, 3);
     assert.doesNotThrow(() => check(s));

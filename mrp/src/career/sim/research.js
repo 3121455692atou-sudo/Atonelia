@@ -63,7 +63,7 @@ export function researchCheck(s, t) {
   if (s.techs.includes(t.id)) return { ok: false, reason: '已经掌握' };
   if ((s.research || []).some(r => r.id === t.id)) return { ok: false, reason: '正在研究' };
   const st = techStatus(s, t);
-  if (st.level === 'secret' && st.ahead > AHEAD_MONTHS) return { ok: false, reason: `还摸不到门路（现实里 ${fmtDate(t.from)} 才出现，最多能提前 ${AHEAD_MONTHS} 个月自研）` };
+  if (st.level === 'secret' && st.ahead > AHEAD_MONTHS) return { ok: false, reason: `还摸不到门路（技术年表 ${fmtDate(t.from)} 才进入探索期，最多能提前 ${AHEAD_MONTHS} 个月自研）` };
   const lack = missingPrereq(s, t);
   if (lack.length) return { ok: false, reason: `要先掌握：${lack.map(x => x.name).join('、')}` };
   if ((s.research || []).length >= researchSlots(s)) return { ok: false, reason: `研究槽满了（${researchSlots(s)} 个）` };
@@ -142,8 +142,13 @@ export function knowTick(s, day = 1) {
 export const unpublishedFirsts = s => Object.keys(s.firsts || {}).filter(id => !(s.papers || {})[id]);
 // 发表技术报告：口碑、品牌、技术积累都涨；从此别人也能照着学。
 export function publishPapers(s, ids) {
-  s.papers = s.papers || {};
-  const fresh = ids.filter(id => s.firsts?.[id] && !s.papers[id]);
+  if (!Array.isArray(ids)) throw new Error('技术报告列表必须是数组');
+  // One report earns its reward once, even when a submission repeats the ID.
+  // Resolve the entire selection before writing; unknown/non-string IDs remain ignored.
+  const papers = s.papers || {};
+  const fresh = [...new Set(ids)].filter(id => typeof id === 'string' && Object.hasOwn(TECH_BY_ID, id)
+    && Object.hasOwn(s.firsts || {}, id) && s.firsts[id] && !Object.hasOwn(papers, id));
+  s.papers = papers;
   for (const id of fresh) {
     s.papers[id] = s.day;
     s.know = (s.know || 0) + 6;

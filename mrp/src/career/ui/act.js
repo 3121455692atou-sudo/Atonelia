@@ -3,6 +3,7 @@
 // 联机：由 net.js 装上 remote。纯设定类命令先在本地镜像上跑一遍（立刻校验、拿结果写提示），同时发给服务器；
 // 服务器的差分回来以后，net.js 把自家 s 校正成权威值。动世界或带随机的命令只发服务器，返回一个 Promise。
 import * as E from '../engine.js';
+import { commitPostPlanCommand, postPlanPending } from './post_plan_transaction.js';
 
 let remote = null;
 // remote：{ send(name, args) → Promise<result>, localOk(name) → bool, fail(err) }；退出联机时传 null。
@@ -14,6 +15,11 @@ const QUEUE_GATED = new Set(['startJob', 'cancelJob', 'pauseJob', 'setJobPrio', 
   'focusResearch', 'setPlan', 'setOwnOnly', 'submitEval', 'cancelEval']);
 
 export function act(S, name, args = {}) {
+  if (postPlanPending(S)) throw new Error('正在保存后训练操作，请稍候');
+  if (name.startsWith('postPlan.')) {
+    if (remote) throw new Error('联机后训练没有卡牌会话');
+    return commitPostPlanCommand(S, name, args);
+  }
   if (remote && !remote.localOk(name)) return remote.send(name, args);
   if (!remote && QUEUE_GATED.has(name) && E.P().queueBlocks && S.queue?.length) throw new Error('请先处理眼前的事件');
   const r = E.applyCommand(S, { name, args });

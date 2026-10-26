@@ -5,14 +5,13 @@
 // - 对手发布按日可见（r.day ≤ 今天），同 org 同模态的发布算自家（isMine），不出现在对手里；
 // - 跟随者钳制（D5）：跟随者发布变为可见那天冻结 s.world.adj[r.id]，relDims 把它摊到 Q 计入的各维上；
 // - SOTA 标签（D10）：每个模态一枚，挂在模型上；s.sota 记持有者、场地、曾为 SOTA 的记录、炼出过的快照、开局播种和局内“集团出过”。
-// 状态读取一律容错：没有 s.sota、s.world 时按“还没有”处理。
+// 标签账本由新开局建立；运行期不补建旧存档状态。
 import { RELEASES, FAMILIES } from '../data/rivals.js';
-import { COMPANY_BY_ID, dimKeys } from '../data/core.js';
+import { dimKeys } from '../data/core.js';
 import { BENCH_BY_ID } from '../data/benchmarks.js';
 import { SOTA, FOLLOW_GAP, BOARD_WINDOW_DAYS } from '../data/balance.js';
 import { addDays, daysBetween } from './clock.js';
 import { rivalScore, lowerIsBetter } from './model.js';
-import { run as migrateSota } from './migrations/sota.js';
 import { P } from './provider.js';
 
 const MODS = ['llm', 'image', 'music', 'speech'];
@@ -33,17 +32,21 @@ export function qOf(mod, dims) {
   for (const [k, w] of QW[mod] || []) a += w * (dims?.[k] || 0);
   return a;
 }
-// 玩家所在的 org：开局时从 COMPANIES 抄进 s.company；旧存档没有这个字段，按公司表补。
-export const orgOf = s => s?.company?.org ?? COMPANY_BY_ID[s?.charId]?.org ?? null;
+// 玩家所在的 org 由新开局写入公司配置，不从旧档 id 猜回。
+export const orgOf = s => s?.company?.org ?? null;
 const famOrg = fam => FAMILIES[fam]?.org ?? fam;
 // 同 org、同模态就是自家（取代 sibling）：Anthropic 的 Claude 和 Fable、Google 的 Gemini 和 Gemma、深度求索的 Pro 和 Flash。
 export const isMine = (s, fam) => { const f = FAMILIES[fam]; return !!f && !!s && f.mod === s.mod && f.org === orgOf(s); };
 export const visible = (s, r, day = s.day) => r.day <= day && !isMine(s, r.family);
-// 发布角色（D1）：顶替了在线旗舰的是 flagship，副线和小模型是 small。还没有 line 的旧快照按 role 算（迁移时会补上 line）。
-export const relRole = snap => ((snap?.line ?? (snap?.role === 'small' ? 'side' : 'main')) === 'main' ? 'flagship' : 'small');
+// 已发布快照必须有发布线；尚未发布的当前模型仍用流水线 role（立项时还没有 line）。
+export const relRole = snap => {
+  if (['main', 'side', 'small'].includes(snap?.line)) return snap.line === 'main' ? 'flagship' : 'small';
+  if (snap?.stage !== 'released' && ['flagship','small'].includes(snap?.role)) return snap.role;
+  throw Error('不支持缺少发布线的旧存档，请新开一局');
+};
 // 开局继承的、带真实型号名的发布不算“开局后发布”（C6 记 m.hist）。
 const startDayOf = s => (s?.start ? `${s.start}-01` : null);
-const relDayOf = m => m?.releasedDay ?? (m?.released ? `${m.released}-15` : null);
+const relDayOf = m => m?.releasedDay ?? null;
 const isFollower = r => !!r.open || !FAMILIES[r.family]?.pusher;
 const released = (s, mod = s.mod) => (s?.models || []).filter(m => m.stage === 'released' && (m.mod ?? mod) === mod);
 const modelById = (s, id) => (s?.models || []).find(m => m.id === id) || null;
@@ -441,7 +444,7 @@ function playerStep(s, m, day) {
   return { res, c };
 }
 const blank = seed => ({ holder: null, field: [], log: [], made: [], before: seed === '★', seed, kin: null });
-// 回放：把截至 until 对玩家可见的对手发布和玩家已发布的快照，按日期过一遍 D10.2（不发新闻）。开局和读旧档共用。
+// 回放：把截至 until 对玩家可见的对手发布和玩家已发布的快照，按日期过一遍 D10.2（不发新闻）。只用于新开局的史实继承。
 // rivalsBefore：对手只收 until 之前的（开局：开局当天的发布由 startOfMonth 照常放出）。
 function replay(s, until, { rivalsBefore = false } = {}) {
   const evs = [];
@@ -464,24 +467,10 @@ export function initSota(s) {
   replay(s, st, { rivalsBefore: true });
   touch(s);
 }
-// 读旧档（E8 的 sota 特性步骤）：同样的回放，一直放到存档日（含当天已经可见的对手发布），再按存档日补 kin。
-export function rebuildSota(s) {
-  const st = startDayOf(s) ?? s.day;
-  s.sota = blank(seedOf(orgOf(s), s.mod, st));
-  for (const m of s.models || []) delete m.sota;
-  s.world ??= {};
-  s.world.adj = {};
-  replay(s, s.day);
-  s.sota.kin = kinDay(s, st, s.day);
-  touch(s);
-}
-// 特性步骤记成执行过、却没有 s.sota 的存档（见 kinTick）按读旧档的办法补跑整个 sota 特性步骤（migrations/sota.js，幂等）→ s.sota | null。
-// 只调 rebuildSota 不够：那时的存档里继承型号没有 hist、releasedDay（回放会按月份 15 日算，还会把继承型号记进 made），
-// 快照没有 line、origin，本月对手发布也还按旧的月内散列日排着（真实发布日在存档日之后、却已经按旧日子放过的那几条永远过不了标签规则）。
-// 别的情形什么都不做。
+// 运行期只接受新开局已经建立的标签账本，不回放修复旧档。
 export function ensureSota(s) {
-  if (s && !s.sota && s.mig?.sota && Array.isArray(s.models) && s.day) migrateSota(s);
-  return s?.sota ?? null;
+  if (!s?.sota || !Array.isArray(s.sota.field) || !Array.isArray(s.sota.log) || !Array.isArray(s.sota.made)) throw Error('不支持缺少 SOTA 账本的旧存档，请新开一局');
+  return s.sota;
 }
 // 某天 q 这一版发布能不能拿到标签（D10.2 第 6 条），和 labelOnRelease 同一套判断 → true | false | null（发布后场地仍不足）。
 export function sotaWouldTake(s, q, { day = s?.day, mod = s?.mod } = {}) {
@@ -538,17 +527,7 @@ export function labelOnRelease(s, snap) {
 }
 // 同集团别的模态的标签记录（只按脚本发布，和 SOTA_HISTORY 完全一样）。
 const kinEntries = (s) => { ix(); const org = orgOf(s); return MODS.filter(m => m !== s.mod).flatMap(m => (SOTA_HISTORY[m] || []).filter(h => h.org === org)); };
-// 局内“集团出过 SOTA”的日子（D10.5）：开局到 until 之间，同 org 别的模态第一次拿到算数标签的那天；本公司那时已经炼出过、或开局就是 ○ 的不写。
-function kinDay(s, from, until) {
-  if (s.sota.seed === '○') return null;
-  const days = kinEntries(s).map(h => h.countedAt).filter(d => d && d >= from && d <= until).sort();
-  const d = days[0];
-  if (!d || s.sota.before || s.sota.made.some(x => x.day <= d)) return null;
-  return d;
-}
 // 每天调用（loop.js，D10.5）：同集团别的模态当天换手到本集团的发一条新闻；当天变成算数的，本公司还没炼出过、开局不是 ○ 时写 s.sota.kin。
-// 先兜底：P0.3a 到 P1.1 之间新开的 v4 存档，sota 特性步骤已经记成执行过（createGame 的 stampFeatures），可那时 initSota 是空存根，
-// 存档里没有 s.sota，读档也不会再补。第一天推进时按读旧档的办法回放一次（ensureSota）。
 export function kinTick(s, out) {
   ensureSota(s);
   if (!s?.sota) return;

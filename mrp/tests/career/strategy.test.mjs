@@ -14,7 +14,7 @@ import * as E from '../../src/career/engine.js';
 import { COMPANIES, SCENARIOS } from '../../src/career/data/core.js';
 import { COMPANY_FILES } from '../../src/career/data/companies/index.js';
 import { CORE_TREES } from '../../src/career/data/strategy_core.js';
-import { ROUTE_COOLDOWN, SHELF_DAYS, BOT, IDLE_ADVICE_EVERY, SOTA } from '../../src/career/data/balance.js';
+import { ROUTE_COOLDOWN, SHELF_DAYS, BOT, IDLE_ADVICE_EVERY, SOTA, SOTA_EASE, CURVE } from '../../src/career/data/balance.js';
 import {
   nodeOf, completeNode, snoozeStrategyAdvice, hasSpirit, addSpirit, ensureStrategy, resolvedTree, canStart, spiritDef,
 } from '../../src/career/sim/strategy.js';
@@ -31,15 +31,13 @@ import * as L from '../helpers/legacy_jobs.mjs';
 
 const SCS = SCENARIOS.map(x => x.id);
 const fresh = (c, sc, seed = 1) => { const s = E.createGame(c, sc, seed); resolveAll(s); return s; };
-// 回退口径的 ρ（D6.2：还没有策略树时按 sotaMade、seed、kin 算）：临时拿掉策略状态再算。
-// 通用树的“自研底座”一类特质也带 sotaEase，回退口径看不见策略特质，这里把非三档的 sotaEase 补回去再比。
+// 独立数值基准：身份三档 + 非身份特质；不调用已经删除的缺策略旧档回退路径。
 const TIER_SPIRITS = ['g_sota_maker', 'g_sota_kin', 'g_sota_rookie'];
-function fallbackRho(s) {
-  const extra = Object.keys(s.strategy?.spirits || {}).filter(id => !TIER_SPIRITS.includes(id))
+function expectedRho(s) {
+  const extra = Object.keys(s.strategy.spirits).filter(id => !TIER_SPIRITS.includes(id))
     .reduce((a, id) => a + (spiritDef(s, id)?.mods?.sotaEase || 0), 0);
-  const keep = s.strategy;
-  delete s.strategy;
-  try { return rhoOf(s) + extra; } finally { s.strategy = keep; }
+  const tier = sotaMade(s) ? SOTA_EASE.maker : s.sota.seed === '○' || s.sota.kin ? SOTA_EASE.kin : SOTA_EASE.rookie;
+  return Math.max(CURVE.RHO_MIN, Math.min(CURVE.RHO_MAX, 1 + tier + extra));
 }
 // 测试用的公司文件（装到 jev 身上，测完还原成存根）。节点默认 ai.base 0：顾问和机器人不会自己挑它们。
 const NODE = (id, x = {}) => ({ id, title: `节点${id.slice(3)}`, desc: '测试用的节点。', branch: 'biz', pos: [0, 0], days: 14, prereq: [], popup: 'none', ai: { base: 0 }, ...x });
@@ -420,7 +418,7 @@ describe('炼出 SOTA 与技术储备（A6、A4 规则 8、D6.2、D9 6.8、D10.5
     assert.ok(sotaMade(s), '这一版拿到了算数的标签');
     assert.equal(s.sota.made[0].day, D);
     assert.equal(s.strategy.done.g_sota, undefined, '当天还没记');
-    assert.equal(rhoOf(s), fallbackRho(s));
+    assert.equal(rhoOf(s), expectedRho(s));
     assert.ok(Math.abs(rhoOf(s) - 1.6) < 1e-12);
     resolveAll(s);
     E.tickDay(s);
@@ -431,14 +429,14 @@ describe('炼出 SOTA 与技术储备（A6、A4 规则 8、D6.2、D9 6.8、D10.5
     assert.ok(hasSpirit(s, 'g_sota_maker') && !hasSpirit(s, 'g_sota_rookie') && !hasSpirit(s, 'g_sota_kin'));
     assert.equal(E.nodeStatus(s, 'g_sota').state, 'bypassed');
     assert.equal(s.queue.filter(q => q.kind === 'strategy').length, 0, 'g_sota 不弹卡（庆祝卡归 ms_first_sota）');
-    assert.ok(Math.abs(rhoOf(s) - 1.6) < 1e-12 && rhoOf(s) === fallbackRho(s));
+    assert.ok(Math.abs(rhoOf(s) - 1.6) < 1e-12 && rhoOf(s) === expectedRho(s));
   });
   it('构造夹具（Gemini y2023，还没炼出过）：2023-11-16 写入 kin 后，次日特质换成 g_sota_kin，只发新闻不弹卡；ρ 每天都和回退口径相同（11-16 以前 0.45，以后 0.7）', () => {
     const g = fresh('gemini', 'y2023');
     let swapped = null;
     while (g.day <= '2023-12-31') {
       const r = rhoOf(g);
-      assert.equal(r, fallbackRho(g), g.day);
+      assert.equal(r, expectedRho(g), g.day);
       assert.ok(Math.abs(r - (g.day <= '2023-11-16' ? 0.45 : 0.7)) < 1e-12, `${g.day} ${r}`);
       const kinds = day(g);
       if (hasSpirit(g, 'g_sota_kin') && !swapped) { swapped = addDays(g.day, -1); assert.ok(!kinds.includes('strategy'), '不弹卡'); }
@@ -450,7 +448,7 @@ describe('炼出 SOTA 与技术储备（A6、A4 规则 8、D6.2、D9 6.8、D10.5
   it('D9 6.8 后半句：P2.2 合入后同一状态下的 ρ 和回退口径一致——24 家 × 4 剧本开局，DeepSeek y2025 0.45、GPT y2023 1.6、Gemini y2024 0.7；机器人整局每周都相同', () => {
     for (const [c, sc, rho] of [['deepseek', 'y2025', 0.45], ['gpt', 'y2023', 1.6], ['gemini', 'y2024', 0.7]]) assert.ok(Math.abs(rhoOf(fresh(c, sc)) - rho) < 1e-12, `${c} ${sc}`);
     let n = 0;
-    const same = (s, at) => assert.ok(Math.abs(rhoOf(s) - fallbackRho(s)) < 1e-12, `${at}：${rhoOf(s)} ≠ ${fallbackRho(s)}`);
+    const same = (s, at) => assert.ok(Math.abs(rhoOf(s) - expectedRho(s)) < 1e-12, `${at}：${rhoOf(s)} ≠ ${expectedRho(s)}`);
     for (const c of COMPANIES) for (const sc of SCS) {
       const s = E.createGame(c.id, sc, 1);
       same(s, `${c.id} ${sc}`);
@@ -463,74 +461,20 @@ describe('炼出 SOTA 与技术储备（A6、A4 规则 8、D6.2、D9 6.8、D10.5
   });
 });
 
-describe('读档（E8 的 strategy 特性步骤）', () => {
-  const DIR = new URL('../fixtures/saves/', import.meta.url);
-  const NAMES = ['gpt_y2023_open', 'deepseek_y2025_mid', 'history_queue_claude', 'teachercap_rwkv', 'kimi_y2026', 'listed_glm_y2026'];
-  it('6 份 v3 夹具：g_sota 已完成，当且仅当 sotaMade(s)（开局前炼出过的记 start，局内的记 bypass）；cur 为空；读进来以后第一天提示“公司策略上线了”；推进 60 天不出错', () => {
-    for (const name of NAMES) {
-      const r = E.migrateGame(JSON.parse(fs.readFileSync(new URL(`${name}.json`, DIR), 'utf8')));
-      assert.ok(r.ok, `${name} ${r.reason}`);
-      const s = r.s;
-      assert.ok(s.strategy?.tree, name);
-      assert.equal(!!s.strategy.done.g_sota, sotaMade(s), `${name}：g_sota 已完成当且仅当炼出过`);
-      // 播种档是 ★ 的按第 0 步以 start 完成；别的（开局后、或者回放时继承型号才拿到算数标签的）以 bypass 完成。
-      if (s.strategy.done.g_sota) assert.equal(s.strategy.done.g_sota.how, s.sota.seed === '★' ? 'start' : 'bypass', name);
-      const tiers = ['g_sota_maker', 'g_sota_kin', 'g_sota_rookie'].filter(id => hasSpirit(s, id));
-      assert.equal(tiers.length, 1, name);
-      assert.equal(tiers[0] === 'g_sota_maker', sotaMade(s), name);
-      assert.equal(s.strategy.cur, null, name);
-      assert.ok(!s.queue.some(q => /公司策略上线了/.test(q.title || '')), `${name}：读档本身不往队列里加`);
-      resolveAll(s);
-      E.tickDay(s);
-      assert.ok(s.queue.some(q => q.kind === 'notice' && q.title === '公司策略上线了'), `${name} 第一天提示`);
-      advance(s, 60);
-      assert.equal(!!s.strategy.done.g_sota, sotaMade(s), `${name} 推进 60 天后`);
-      // 迁移过的存档再读一遍，策略状态不变（幂等）。
-      assert.deepEqual(E.migrateGame(clone(s)).s.strategy, s.strategy, name);
+describe('策略树不补建旧结构', () => {
+  it('历史 v3 夹具明确拒绝，原始 JSON 不改写', () => {
+    const dir = new URL('../fixtures/saves/', import.meta.url);
+    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json') && !x.startsWith('.'))) {
+      const raw = JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8')), before = JSON.stringify(raw);
+      const r = E.migrateGame(raw); assert.equal(r.ok, false, f); assert.match(r.reason, /不支持|版本|旧存档/);
+      assert.equal(JSON.stringify(raw), before, f);
     }
   });
-  it('迁移：存档日之前的史实节点预完成，局内“集团出过”的换成 kin；开发期存档（mig.strategy 已记、没有策略树）第一天推进时补跑整个特性步骤，和正常开局推进一天的特质、完成节点一致', async () => {
-    const i = fs.readFileSync(new URL('../../docs/spec/v1.0-spec.md', import.meta.url), 'utf8');
-    const at = i.indexOf('// src/career/data/companies/deepseek.js');
-    const f = (await import(`data:text/javascript;base64,${Buffer.from(i.slice(at, i.indexOf('```', at))).toString('base64')}`)).default;
-    f.names = ['hn_ds_v2:ds_mla', 'hn_ds_v3:ds_v3', 'hn_ds_r1:ds_r1', 'hn_ds_r1_distill:ds_distill_family', 'hn_ds_v31:ds_hybrid', 'hn_ds_v4_pro:ds_v4', 'hn_ds_v4_flash:ds_v4'].map(x => { const [id, node] = x.split(':'); return { id, name: id, role: 'flagship', node, real: '2025-01-20', model: { open: true } }; });
-    f.exclusives = ['ex_ds_price_war', 'ex_ds_v3_cost', 'ex_r1_moment', 'ex_r1_appstore', 'ex_r1_gov_ban'].map(id => ({ id, title: id, on: 'month', cond: null }));
-    withFile(f, () => {
-      // DeepSeek y2024 开局，推进到 2024-06-01 当作存档：迁移按存档日预完成 mla、price_butcher（05-06）。
-      const s = fresh('deepseek', 'y2024');
-      advance(s, 152);
-      const dev = clone(s);
-      delete dev.strategy;
-      delete dev.mig.strategy;
-      const m = E.migrateGame(dev).s;
-      assert.deepEqual(Object.keys(m.strategy.done).filter(id => id.startsWith('ds_')).sort(), ['ds_coder', 'ds_found', 'ds_grpo', 'ds_mla', 'ds_moe', 'ds_price_butcher'].sort());
-      assert.ok(Object.values(m.strategy.done).every(d => d.how === 'start'));
-      assert.equal(m.strategy.cur, null);
-    }, 'deepseek');
-    // 开发期存档：新开局去掉策略状态（mig.strategy 还记着），推进一天。
-    for (const [c, sc] of [['gpt', 'y2024'], ['gemini', 'y2024'], ['deepseek', 'y2025'], ['suno', 'y2023']]) {
-      const want = fresh(c, sc);
-      const dev = clone(want);
-      delete dev.strategy;
-      assert.equal(dev.mig.strategy, true);
-      E.tickDay(want);
-      E.tickDay(dev);
-      assert.ok(dev.strategy?.tree, `${c} ${sc} 补上了策略树`);
-      assert.deepEqual(Object.keys(dev.strategy.spirits).sort(), Object.keys(want.strategy.spirits).sort(), `${c} ${sc} 特质`);
-      assert.deepEqual(Object.keys(dev.strategy.done).sort(), Object.keys(want.strategy.done).filter(id => want.strategy.done[id].how !== 'done').sort(), `${c} ${sc} 完成的节点`);
-      assert.ok(dev.queue.some(q => q.title === '公司策略上线了'));
-      assert.equal(rhoOf(dev), rhoOf(want));
-    }
-    // 只写过特质的开发期存档（P1.2 的 g_beyond 试炼会写 g_self_reliant）：特质保留。
-    // rwkv 从 P3.T 第 6 批起有了本家树；这个夹具原本拿它当“没有本家树”的样本，这里临时把公司文件摘掉，
-    // 让它退回通用树（不换成别的公司，别的公司也在同时写树）。
-    withFile(null, () => {
-      const g = fresh('rwkv', 'y2025');
-      g.strategy = { spirits: { g_self_reliant: { since: g.day, until: null } } };
-      assert.equal(ensureStrategy(g)?.tree, '_generic_llm');
-      assert.ok(hasSpirit(g, 'g_self_reliant') && hasSpirit(g, 'g_sota_rookie'));
-      assert.ok(Math.abs(modifier(g, 'sotaEase') - (-0.55 + 0.2)) < 1e-12, '青出于蓝改用 sotaEase');
-    }, 'rwkv');
+  it('旧策略树：拒绝缺失结构且不补写原对象', () => {
+    const s = E.createGame('qwen', 'y2025', 1); delete s.strategy;
+    const before = JSON.stringify(s); assert.throws(() => ensureStrategy(s), /不支持|旧存档/);
+    assert.equal(JSON.stringify(s), before);
+    const r = E.migrateGame(s); assert.equal(r.ok, false); assert.equal(JSON.stringify(s), before);
   });
 });
 

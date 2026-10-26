@@ -1,3 +1,4 @@
+import { riskPost } from '../sim/post_exposure.js';
 // SOTA 世界账本（规格 M.3.4、M.3.10）：全世界只存一份标签，各家读收盘时投影回来的镜像 s.sota。
 // - 候选：公司的全部发布，不分大小、开闭源；学界的行不当候选，但给候选设门槛；
 // - 挂标、换手、挡住挑战才算数、稳坐也算数；
@@ -43,7 +44,7 @@ function bestOther(world, org, day) {
 // 完整血统（只在服务器上）：这款模型的老师（后训练、续训底座、合成教材）所在公司，再并上那些公司已发布行的血统，去掉自己。
 export function kinOf(world, org, m) {
   const fams = new Set([
-    ...Object.keys(m?.post?.teachers || {}),
+    ...Object.keys(riskPost(m)?.teachers || {}),
     ...Object.keys(m?.taintTeachers || {}),
     m?.lineage?.fam,
     m?.distillation?.teacher?.id,

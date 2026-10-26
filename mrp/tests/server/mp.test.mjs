@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import zlib from 'node:zlib';
 import path from 'node:path';
-import { startServer, stopServer, api, Client, waitFor, replayHash, roomSettings, tmpDir, sleep } from '../helpers/mp_server.mjs';
+import { startServer, stopServer, api, Client, waitFor, replayHash, roomSettings, tmpDir, sleep, waitForClientDays } from '../helpers/mp_server.mjs';
 import { readLog, listSnaps } from '../../server/store.mjs';
 import { PROTOCOL_V } from '../../src/career/net/protocol.js';
 
@@ -34,8 +34,8 @@ async function playUntil(srv, room, clients, day) {
     await c.cmd(seq++, 'setInferShare', { v: [0.1, 0.2, 0.3][seq % 3] });
     await sleep(20);
   }
-  // M3b：单人暂停 60 秒自动继续；在线真人全都按了暂停才不限时（后面要从头重放算哈希，世界不能再走）。
-  for (const c of clients) await c.roomCmd('pause');
+  // 房主明确暂停持续到主动恢复，确保重放比较期间世界不推进。
+  await clients[0].roomCmd('pause');
   return status(srv, room);
 }
 
@@ -172,7 +172,7 @@ describe('联机服务器（M3a）', () => {
     for (const c of clients) c.close();
   });
 
-  it('⑤ 一个人卡片没处理，时间照走；同一座位开两个页面都收到；--max-rooms 生效', async () => {
+  it('⑤ 一个人卡片没处理，时间照走；同一座位开两个页面都收到；--max-rooms 生效', async t => {
     // 前面已经开了 4 间（上限 4）：第 5 间被拒。
     const full = await api(srv.base, '/api/rooms', { method: 'POST', body: { settings: roomSettings({ humans: 2, bots: 0 }) } });
     assert.equal(full.status, 503);
@@ -187,17 +187,20 @@ describe('联机服务器（M3a）', () => {
     // 所以本用例自己开一个服务器。
     const data3 = tmpDir();
     const s3 = await startServer({ data: data3, args: ['--tick-ms', '3'] });
+    t.after(() => stopServer(s3));
     s3.data = data3;
     const { room: r3, clients } = await openRoom(s3, { humans: 2, bots: 1, seed: 21 });
+    t.after(() => clients.forEach(c => c.close()));
     void room;
     const twin = new Client(s3.base, r3, clients[0].cookie);
+    t.after(() => twin.close());
     await twin.connect();
     await waitFor(() => twin.s);
     await clients[0].roomCmd('start');
     // 等到座位 0 手上有卡没处理，再看时间是不是照走。
     await waitFor(() => clients[0].s?.queue?.length > 0, 30000);
     const dayWithCard = clients[0].day || clients[0].s.day;
-    await waitFor(() => clients[0].day && clients[0].day > dayWithCard && clients[0].s.queue.length > 0, 30000);
+    await waitForClientDays(clients, dayWithCard, 30000, () => clients[0].s.queue.length > 0);
     assert.ok(clients[1].day > dayWithCard, '别人的时间也照走');
     // 同一座位两个页面都收到 day 事件，拼出来的 s 一样。
     await clients[0].roomCmd('pause');

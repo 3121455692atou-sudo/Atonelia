@@ -1,13 +1,14 @@
 // 单人 · 自洽世界的开局设置页（规格 M.2.1–M.2.3、M.7）。
 // 单列、整页滚动；所有选项都在原位展开，不弹窗。这里只收集设置，真正的世界由 startSolo 交给 createWorld。
 import * as E from '../../engine.js';
+import {defaultPlaySetup,playSetupReady,renderPlaySetup,applyPlaySetup,validatePlaySetup} from '../panels/play_setup.js';
 import { COMPANIES, MODALITIES, TIERS, characterById } from '../../data/core.js';
 import { STANCE } from '../../data/routes.js';
 import { CHARACTER_ROSTER } from '../../data/roster.js';
 import { BRAND_BLACKLIST, BOT_COMPANIES } from '../../data/selfplay.js';
 import { ACAD_START } from '../../data/academia.js';
 import { RELEASES } from '../../data/rivals.js';
-import { esc, art } from '../fmt.js';
+import { esc, art, icon } from '../fmt.js';
 
 export const SOLO_TIERS = [
   { id: 'small', label: '小作坊', desc: '钱少、卡少，靠一个方向活下去' },
@@ -33,10 +34,10 @@ const BLACK = new Set(BRAND_BLACKLIST.map(x => String(x).toLowerCase()));
 export function isPhoneWidth() {
   try { return typeof globalThis.matchMedia === 'function' && globalThis.matchMedia('(max-width: 760px)').matches; } catch { return false; }
 }
-export function defaultSolo(phone = isPhoneWidth()) {
+export function defaultSolo(phone = isPhoneWidth(), playMode = null) {
   const keep = phone ? 8 : 12;
   return {
-    mode: 'zero', year: '2024', years: 2, count: keep, tier: 'specialist', bot: 'normal',
+    playSetup:defaultPlaySetup(playMode), mode: 'zero', year: '2024', years: 2, count: keep, tier: 'specialist', bot: 'normal',
     name: '晨光智能', brand: '晨光', country: 'CN', strengths: ['code', 'math'], route: 'open_restricted',
     art: 'qwen', fork: 'deepseek', forkKeep: keep, showAcad: true,
   };
@@ -117,17 +118,18 @@ export function buildSettings(d, seed = 11) {
   const start = `${d.year}-01`;
   const days = Number(d.years) * 365;
   if (d.mode === 'fork') {
-    return { mode: 'fork', seed, start, days, keep: Number(d.forkKeep), seats: [{ id: d.fork, kind: 'human' }], bot: d.bot };
+    return { automationVersion:6, mode: 'fork', seed, start, days, keep: Number(d.forkKeep), seats: [{ id: d.fork, kind: 'human' }], bot: d.bot };
   }
   const player = {
     name: String(d.name).trim(), brand: String(d.brand).trim(), country: d.country, tier: d.tier,
     kind: 'human', stance: d.route, bot: d.bot,
   };
-  return { mode: 'zero', seed, start, days, companies: [player, ...botCompanies(Number(d.count), d.tier)] };
+  return { automationVersion:6, mode: 'zero', seed, start, days, companies: [player, ...botCompanies(Number(d.count), d.tier)] };
 }
 
 // 真的开一局：createWorld，再把玩家那家的立绘和两项擅长补上（createWorld 的 spec 不带这两项）。
 export function startSolo(d, seed) {
+  validatePlaySetup(d.playSetup);
   if (!validDraft(d)) throw new Error(companyError(d.name) || brandError(d.brand) || '还有没选好的地方');
   const settings = buildSettings(d, seed ?? ((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0));
   const world = E.createWorld(settings);
@@ -144,6 +146,8 @@ export function startSolo(d, seed) {
     const meta = (world.settings.companies || []).find(x => x.id === player.id);
     if (meta) { meta.art = r.id; meta.strengths = [...d.strengths]; }
   }
+  E.initializeSoloPostPlans(world, player.id);
+  applyPlaySetup(s,d.playSetup);
   return { world, s, playerId: player.id };
 }
 
@@ -154,14 +158,15 @@ export function renderSolo(d) {
   const acad = ACAD_START[d.year]?.[d.tier];
   const cErr = companyError(d.name);
   const bErr = brandError(d.brand);
-  const ok = validDraft(d);
+  const ok = validDraft(d) && playSetupReady(d.playSetup);
   return `<section class="solo-screen">
     <header class="solo-head">
-      <button class="icon-btn" data-act="solo-back" aria-label="返回">返回</button>
+      <button class="icon-btn" data-act="solo-back" aria-label="返回">${icon('back')}</button>
       <div><span class="eyebrow">SOLO · SELF-CONTAINED</span><h2>单人 · 自洽世界</h2>
         <p class="muted">你经营一家公司，其余公司由电脑经营。所有人同一套规则，从开局一路走到结束。</p></div>
     </header>
     <div class="solo-body">
+      ${renderPlaySetup(d.playSetup,{prefix:'solo-play-setup'})}
       ${field('开局方式', '从零是自己起一家新公司；分岔是接手一家现实里的语言模型公司', `<div class="solo-chips">
         ${chip('solo-set', 'mode', 'zero', zero, '从零开局')}${chip('solo-set', 'mode', 'fork', !zero, '分岔开局')}
       </div>`)}
@@ -230,12 +235,13 @@ export function soloClick(d, el) {
   return { changed: true };
 }
 
-// 输入框（公司名、品牌词）：边打边写回草稿，返回给那一格的中文原因。
+// 输入框（公司名、品牌词）：边打边写回草稿；非目标字段返回 null，
+// 合法输入返回空串以清除旧错误，非法输入返回中文原因。
 export function soloInput(d, t) {
   const key = t.dataset.solo;
   if (key !== 'name' && key !== 'brand') return null;
   d[key] = t.value;
-  return key === 'name' ? companyError(d.name) : brandError(d.brand);
+  return (key === 'name' ? companyError(d.name) : brandError(d.brand)) || '';
 }
 
 // 滑块（公司总数、在场家数）。

@@ -1,18 +1,20 @@
+import { assertSupplyState } from './supply_state.js';
+import { automationVersion, automationStateError } from '../sim/automation.js';
+import { assertRuleVersions, assertRuleSettings } from './rules.js';
 // 世界存档（规格 E8）：纯函数 serialize/deserialize，读档 migrateWorld 永不抛错。
 // 存储适配层 storage() 只在浏览器里跑：IndexedDB 库 mrp、表 worlds，主档加备份各一份，gzip 压缩；
 // IndexedDB 不可用时退回 localStorage（gzip + base64），主档加备份超过约 1.5MB 就明确报错，不静默吞掉。
 // 这个文件必须能在 Node 里导入：测到 indexedDB / localStorage 不存在时安静跳过。
 import { COMPANY_BY_ID, dimKeys } from '../data/core.js';
 import { RELEASES, setReleases } from '../data/rivals.js';
-import { setProvider, HistoryProvider, companiesSnapshot, restoreCompanies, registerCompany } from '../sim/provider.js';
-import { migrateGame } from '../sim/migrate.js';
+import { P, setProvider, HistoryProvider, companiesSnapshot, restoreCompanies, registerCompany } from '../sim/provider.js';
+import { migrateGame, validateGame, SAVE_VERSION } from '../sim/migrate.js';
+import { assertPostPlanSaveBoundary } from '../sim/post_plan_state.js';
 import { projectSota } from './label.js';
 import { SimProvider, ensureAcademiaFamily } from './sim_provider.js';
 import { attachWorld } from './index.js';
 
-export const WORLD_SAVE_VERSION = 1;
-// 世界特性步骤（E8 第 6 步）。M1 还没有世界级的迁移，留空表；M2 以后按需要往里加。
-export const FEATURES_WORLD = [];
+export const WORLD_SAVE_VERSION = 2;
 
 const clone = x => JSON.parse(JSON.stringify(x ?? null));
 
@@ -22,6 +24,16 @@ function releaseRows() {
     r.family, r.date, r.name, r.cls, r.open ? 1 : 0,
     dimKeys(r.mod).map(k => r.dims?.[k] ?? 0), r.price, (r.tags || []).join(','),
   ]);
+}
+
+// 预览只校验候选，所有退出路径还原当前世界接缝；只有确认导入才提交。
+export function previewWorld(text) {
+  const provider = P(), companies = companiesSnapshot();
+  // RELEASES 按日期排序，但 ord 是原始行序；恢复时不能改变同日同分裁定。
+  const rows = [...RELEASES].sort((a, b) => a.ord - b.ord).map(r => [r.family, r.date, r.name, r.cls, r.open ? 1 : 0,
+    dimKeys(r.mod).map(k => r.dims[k] ?? 0), r.price, r.tags.join(',')]);
+  try { return migrateWorld(text); }
+  finally { restoreCompanies(companies); setReleases(rows); setProvider(provider); }
 }
 
 // 存档：{ kind: 'world', v, engine, settings, world, companies: [{ spec, s }], seed }。
@@ -58,13 +70,13 @@ const stableJson = v => (Array.isArray(v) ? `[${v.map(stableJson).join(',')}]`
   : v && typeof v === 'object' ? `{${Object.keys(v).sort().map(k => `${JSON.stringify(k)}:${stableJson(v[k])}`).join(',')}}` : JSON.stringify(v));
 const sameJson = (a, b) => stableJson(a) === stableJson(b);
 
-// 模块加载时的史实快照：读坏档以后一律回到这里（PLAYABLE 只有 24 家、RELEASES 是原表、Provider 是史实）。
+// 当前 schema 安装阶段失败时的史实恢复点；旧/未知 schema 在安装前拒绝，不动当前 Provider。
 const HISTORY_SNAP = companiesSnapshot();
 const HISTORY_ROWS = releaseRows();
 
-// 读档（E8 第 1–7 步），永不抛错。任何一步失败都恢复单例快照、换回 HistoryProvider，返回中文原因。
+// 只读取当前 schema，不迁移。旧/未知 schema 无副作用拒绝；当前安装失败恢复史实并返回中文原因。
 export function migrateWorld(raw) {
-  // 失败一律回到模块加载时的史实状态（E8：换回 HistoryProvider）。
+  // 当前安装/解析失败沿用 E8 史实恢复语义；版本及规则预检用 bad()，不触发此恢复。
   const fail = reason => {
     restoreCompanies(HISTORY_SNAP);
     setReleases(HISTORY_ROWS);
@@ -77,16 +89,36 @@ export function migrateWorld(raw) {
   // 1) 形状检查。
   if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return fail('世界存档不是一个对象');
   if (doc.kind !== 'world') return fail('这不是世界存档（kind 不是 world）');
-  if (Number(doc.v) !== WORLD_SAVE_VERSION) return fail(`世界存档版本不对：v${doc.v}，这一版只认 v${WORLD_SAVE_VERSION}`);
+  if (!Number.isInteger(doc.v) || doc.v !== WORLD_SAVE_VERSION) return bad(`不支持旧版或未知世界存档（v${String(doc.v)}），当前只接受 v${WORLD_SAVE_VERSION}；请新开一局，原档未修改`);
+  if (doc.world?.v !== WORLD_SAVE_VERSION || !Array.isArray(doc.companies) || doc.companies.some(ent => ent?.s?.v !== SAVE_VERSION)) return bad('不支持旧版或混合 schema 的世界存档；请新开一局，原档未修改');
+  if (Object.hasOwn(doc.world,'mig') || doc.companies.some(ent => !doc.world.companies?.[ent.s.charId])) return bad('世界存档含旧迁移标记或缺少公司元数据；请新开一局，原档未修改');
+  if (doc.companies.some(ent => !validateGame(ent.s))) return bad('世界内公司不符合当前存档结构；不修补旧档，请新开一局，原档未修改');
+  // 当前 JSON 快照也不能原地改输入；恢复方法和共享引用仅发生在独立副本。
+  doc = clone(doc);
   const world = doc.world;
   if (!world || typeof world !== 'object') return fail('世界存档里没有世界状态');
+  try { assertRuleVersions(world); assertRuleSettings(doc.settings); assertRuleSettings(world.settings); assertSupplyState(world); }
+  // 规则不受支持时还没有安装候选世界；保留当前 Provider/登记表，不降级或切换当前局。
+  catch (e) { return bad(e.message); }
   if (typeof world.day !== 'string' || typeof world.startDay !== 'string') return fail('世界存档里没有开局日或当前日期');
   if (!Array.isArray(world.rels)) return fail('世界存档里没有发布表（rels）');
   if (!world.companies || typeof world.companies !== 'object') return fail('世界存档里没有公司表');
   if (!Array.isArray(doc.companies)) return fail('世界存档里没有各家的状态');
+  if ((world.settings?.mp || doc.settings?.mp) && doc.companies.some(c => c?.s?.postCards !== undefined || c?.s?.postPlanSessions !== undefined)) return bad('联机存档不能包含单机后训练卡牌');
+  // Reject unsupported card formats before changing provider/registries or input.
+  try { for (const ent of doc.companies) assertPostPlanSaveBoundary(ent?.s); }
+  catch (e) { return bad(e.message); }
   if (Number(world.ver) !== world.rels.length) return fail(`世界存档的发布表版本不对：ver ${world.ver}，rels ${world.rels.length} 条`);
 
   try {
+    const av=automationVersion(world.settings);
+    for(const ent of doc.companies) {
+      const err=automationStateError(ent?.s); if(err)return fail(err);
+      const c=world.companies?.[ent?.s?.charId];
+      if(av&&world.settings?.mp&&Object.hasOwn(ent.s?.automation||{},'cardDefault'))return fail('联机托管不得启用卡牌控制');
+      if(av&&c?.kind==='human'&&ent.s?.automation?.version!==av)return fail('新版房间缺少真人托管配置');
+      if(!av&&world.settings?.mp&&ent?.s?.automation)return fail('旧联机房间不能隐式启用新版托管');
+    }
     // JSON 会把共享引用拆成两份：算力账本的 entries 和 byKey 必须指回同一批对象，否则季末结算会走岔。
     if (Array.isArray(world.supply?.entries)) world.supply.byKey = Object.fromEntries(world.supply.entries.map(e => [e.wKey, e]));
     // 4) 逐家 registerCompany（幂等；同 id 不同 spec 由 registerCompany 报坏档），学界也登记上。
@@ -110,7 +142,7 @@ export function migrateWorld(raw) {
     const provider = new SimProvider(world);
     setProvider(provider);
 
-    // 5) 每家的 s 走 migrateGame。P() 已经是 SimProvider。
+    // 每家公司只校验当前 schema；P() 已经是 SimProvider，不进行版本迁移。
     const migrated = new Map();
     for (const ent of doc.companies) {
       const r = migrateGame(ent.s);
@@ -123,24 +155,8 @@ export function migrateWorld(raw) {
       else if (!c.frozen) return fail(`世界存档里缺了 ${c.id} 的状态`);
       else c.s = null;
     }
-    // 存档里多出来、但世界表里没有的公司：补一条最小元数据，免得后面的循环读不到。
-    for (const [id, s] of migrated) {
-      if (world.companies[id]) continue;
-      world.companies[id] = {
-        id, name: s.company.company, brand: s.company.name, series: [], org: s.company.org,
-        country: s.company.country, tier0: s.company.tier, kind: 'human', seat: null, bot: 'normal',
-        joined: world.startDay, frozen: false, s, decideAt: s.day, lastSeq: 0, thinks: 0, thinkDays: [],
-        seen: {}, evalsSeen: {}, techFirsts: {}, techPapers: {}, errors: [],
-      };
-    }
-
-    // 6) 世界特性步骤（幂等；M1 是空表）。
-    world.mig ??= {};
-    for (const key of FEATURES_WORLD) {
-      if (world.mig[`world:${key}`]) continue;
-      if (typeof key === 'function') key(world);
-      world.mig[`world:${key}`] = true;
-    }
+    // 公司状态和世界元数据必须匹配，不能替旧档补造公司或执行特性迁移。
+    for (const id of migrated.keys()) if (!world.companies[id]) return fail(`世界存档缺少 ${id} 的公司元数据；不支持旧档修补，请新开一局`);
 
     // 7) 校验：发布表、版本、每家 s.sota 等于 projectSota。
     if (Number(world.ver) !== world.rels.length) return fail('读档后发布表版本和 rels 条数对不上');

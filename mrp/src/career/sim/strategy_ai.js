@@ -6,11 +6,12 @@ import { daysBetween } from './clock.js';
 import { cond } from './cond.js';
 import { workingModel } from './model.js';
 import { qOf, worldSota, sotaMade } from './sota.js';
-import { expectPreview } from './expect.js';
+import { expectPreview, ensureExpect } from './expect.js';
 import { distillOptions } from './data_ops.js';
 import { resolvedTree, canStart, histDay, spiritDef, CORE_NODE_IDS } from './strategy.js';
 import { grantsFor, nameGrantCheck } from './naming.js';
 import { releaseLine } from './release.js';
+import { submitBlock } from './evals.js';
 import { releaseOpen } from './route.js';
 
 // ---------- 打分 ----------
@@ -187,9 +188,16 @@ const roundKey = w => `${w.id}#${w.releases || 0}`;  // 在练模型发布一次
 function holdConds(s, w, p) {
   return !!p && p.tier === 'champion' && HOLD_RESULTS.includes(p.result) && recentGain(s, w) >= 0.3 && !boardSoon(s, BOT.HOLD_MAX_DAYS);
 }
+// These necessary conditions are pure and much cheaper than badge/market
+// preview. A false result cannot be made true by any preview outcome.
+const holdWindowOpen = (s, w) => recentGain(s, w) >= 0.3 && !boardSoon(s, BOT.HOLD_MAX_DAYS);
 export function shouldHold(s, opts = {}) {
   const w = workingModel(s);
   if (!w || w.stage !== 'post') return false;
+  if (!('preview' in opts)) {
+    ensureExpect(s); // Preserve malformed-ledger rejection even on the fast path.
+    if (!holdWindowOpen(s, w)) return false;
+  }
   const p = 'preview' in opts ? (typeof opts.preview === 'function' ? opts.preview(s, w) : opts.preview) : expectPreview(s, w);
   if (!holdConds(s, w, p)) return false;
   const h = s.strategy?.hold;
@@ -207,5 +215,12 @@ export function holdTick(s) {
   const pts = S.trail.pts;
   if (!pts.length || daysBetween(pts.at(-1)[0], s.day) >= TRAIL_EVERY) pts.push([s.day, Math.round(qOf(s.mod, w.dims) * 100) / 100]);
   while (pts.length > 1 && daysBetween(pts[0][0], s.day) > TRAIL_KEEP) pts.shift();
-  if (holdConds(s, w, expectPreview(s, w))) { if (S.hold?.key !== roundKey(w)) S.hold = { key: roundKey(w), since: s.day }; } else if (S.hold) delete S.hold;
+  ensureExpect(s);
+  if (holdWindowOpen(s, w) && holdConds(s, w, expectPreview(s, w))) {
+    if (S.hold?.key !== roundKey(w)) {
+      // 不可送评时还谈不上推迟本轮发布；已开始的同轮计时仍守原45日历天上限。
+      if (!submitBlock(s, w, 'main')) S.hold = { key: roundKey(w), since: s.day };
+      else if (S.hold) delete S.hold;
+    }
+  } else if (S.hold) delete S.hold;
 }

@@ -1,0 +1,12 @@
+import test from'node:test';import assert from'node:assert/strict';import{startServer,stopServer,api,Client,waitFor,roomSettings,tmpDir}from'../helpers/mp_server.mjs';
+test('real HTTP/SSE evaluation manual/auto across two device connections and restart is authoritative and persistent',async t=>{
+ const data=tmpDir();let srv=await startServer({data,args:['--tick-ms','1000','--max-rooms','1']}),clients=[];t.after(async()=>{clients.forEach(c=>c.close());await stopServer(srv);});
+ const made=await api(srv.base,'/api/rooms',{method:'POST',body:{settings:roomSettings({humans:1,bots:1,days:30})}});assert.equal(made.status,200,made.text);const room=made.json.room,cookie=made.cookie;let a=new Client(srv.base,room,cookie);clients=[a];await a.connect();assert.equal((await a.roomCmd('start')).status,200);await waitFor(()=>a.s?.automation?.version===6);assert.equal(a.s.automation.modules.evaluation.mode,'auto');
+ const first={module:'evaluation',mode:'manual',preset:'balanced',expectedRev:0,requestId:'eval-device-one'};
+ assert.equal((await a.cmd(1,'configureAutomation',first)).json.ok,true);await waitFor(()=>a.s.automation.modules.evaluation.mode==='manual');
+ const b=new Client(srv.base,room,cookie);clients.push(b);await b.connect();await waitFor(()=>b.s?.automation?.modules.evaluation.mode==='manual');
+ assert.equal((await b.cmd(2,'configureAutomation',{module:'evaluation',mode:'auto',preset:'cautious',expectedRev:1,requestId:'eval-device-two'})).json.ok,true);await waitFor(()=>a.s.automation.rev===2&&b.s.automation.rev===2);assert.equal(a.s.automation.modules.evaluation.mode,'auto');assert.equal(a.s.automation.modules.evaluation.preset,'cautious');
+ assert.equal((await a.cmd(3,'configureAutomation',{module:'evaluation',mode:'manual',preset:'cautious',expectedRev:2,requestId:'eval-return-manual'})).json.ok,true);await waitFor(()=>a.s.automation.rev===3&&b.s.automation.rev===3);clients.forEach(c=>c.close());await stopServer(srv);
+ srv=await startServer({data,args:['--tick-ms','1000','--max-rooms','1']});a=new Client(srv.base,room,cookie);clients=[a];await a.connect();await waitFor(()=>a.s?.automation?.rev===3);assert.equal(a.s.automation.modules.evaluation.mode,'manual');assert.equal(a.s.automation.modules.evaluation.preset,'cautious');
+ assert.equal((await a.cmd(4,'configureAutomation',first)).json.ok,true);assert.equal(a.s.automation.rev,3);assert.equal((await a.cmd(5,'configureAutomation',{...first,module:'unknown',requestId:'unknown',expectedRev:3})).json.ok,false);assert.equal(a.s.automation.rev,3);
+});

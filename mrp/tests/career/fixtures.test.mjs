@@ -1,5 +1,5 @@
 // 存档夹具：tests/fixtures/saves/ 里是 6 份结构版本 v3 的旧存档（scripts/make_fixtures.mjs 用 v3 代码生成，不再重生成）。
-// 每份都要：迁移成功、通过检查，之后连续推进 120 天不抛错、状态里没有非有限数、推进后的存档还能再读回。
+// 每份旧档明确拒绝；对应公司新局连续推进120天不抛错，再验证当前存档精确往返。
 // 另外检查每份夹具“名副其实”（比如“选过开源”的那份 s.company.open 真是 true），防止以后不小心换成别的存档。
 // 读档那一步集中在 loadSave：P0.3 之后 migrateGame 返回 { ok, s, notes }，P0.4 之后读档走 safeLoadState，到时只改这里。
 import test from 'node:test';
@@ -13,11 +13,6 @@ import { advance } from '../helpers/career_bot.mjs';
 
 const DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/saves');
 
-function loadSave(json) {
-  const r = E.migrateGame(JSON.parse(json));
-  const s = r && typeof r === 'object' && 'ok' in r ? (r.ok ? r.s : null) : r;
-  return s && (typeof E.validateGame !== 'function' || E.validateGame(s)) ? s : null;
-}
 function badNumbers(x, at = 's', seen = new WeakSet(), out = []) {
   if (typeof x === 'number') { if (!Number.isFinite(x)) out.push(at); } else if (x && typeof x === 'object' && !seen.has(x)) {
     seen.add(x);
@@ -42,21 +37,13 @@ test('夹具目录里恰好是这 6 份', () => {
 });
 
 for (const [name, company, scenario, feature] of FIXTURES) {
-  test(`夹具 ${name}：迁移成功，之后推进 120 天不抛错`, () => {
-    const json = fs.readFileSync(path.join(DIR, `${name}.json`), 'utf8');
-    const raw = JSON.parse(json);
-    assert.equal(raw.v, 3, '夹具是 v3 存档');
-    assert.equal(raw.charId, company);
-    assert.equal(raw.scenario, scenario);
-    feature(raw);
-
-    const s = loadSave(json);
-    assert.ok(s, '迁移成功并通过检查');
-    assert.deepEqual(badNumbers(s), [], '读档后没有非有限数');
-    const day0 = s.day;
-    advance(s, 120);
-    assert.deepEqual(badNumbers(s), [], '推进后没有非有限数');
-    assert.ok(s.status !== 'playing' || daysBetween(day0, s.day) >= 120, `时间推进满 120 天（${day0} → ${s.day}）`);
-    assert.ok(loadSave(JSON.stringify(s)), '推进后的存档还能再读回');
+  test(`旧夹具 ${name} 明确不支持；相同公司新局可推进120天并同版往返`, () => {
+    E.setProvider();
+    const json=fs.readFileSync(path.join(DIR,`${name}.json`),'utf8'),raw=JSON.parse(json);feature(raw);
+    assert.equal(raw.v,3);assert.equal(raw.charId,company);assert.equal(raw.scenario,scenario);
+    const before=JSON.stringify(raw),out=E.migrateGame(raw);assert.equal(out.ok,false);assert.match(out.reason,/请新开一局/);assert.equal(JSON.stringify(raw),before);
+    const s=E.createGame(company,scenario,1),day0=s.day;advance(s,120);
+    assert.deepEqual(badNumbers(s),[]);assert.ok(s.status!=='playing'||daysBetween(day0,s.day)>=120);
+    const current=E.migrateGame(s);assert.equal(current.ok,true,current.reason);assert.equal(JSON.stringify(current.s),JSON.stringify(s));
   });
 }

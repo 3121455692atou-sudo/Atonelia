@@ -3,18 +3,24 @@
 // 训练卡在作业之间按“优先 / 正常”自动分（allocJobs，每次现算）；这里只显示分到多少、改优先级和“最多 N 张”，不做拖拽。
 // 手机（< 860px）整页纵向滚动，从上到下：分配条 → 进行中 → 新作业 → 模型 → 下一代计划 → 健康；作业行点 ⋯ 在原位展开操作，不弹窗、不加悬浮按钮。
 import * as E from '../../engine.js';
+import { jobCardCounts } from '../job_card_counts.js';
+import { patchTrainingNode } from '../train_sync.js';
 import { MODALITIES, ARCHS, SCALES, PARAM_TOTALS, PARAM_ACTIVES, TECH_BY_ID, dimLabel } from '../../data/core.js';
 import { BENCHMARKS } from '../../data/benchmarks.js';
 import { JOBS, REPAIR, LAB, EFFORT, CURVE, TRAIN_PACE } from '../../data/balance.js';
 import { RELEASES } from '../../data/rivals.js';
 import { esc, pct, count, params } from '../fmt.js';
 import { act, after, jobAct, decideAct } from '../act.js';
-import { closeLayer, render as renderMain } from '../state.js';
+import { closeLayer, getState, render as renderMain, toast } from '../state.js';
 import { doDecision } from '../flow.js';
 import * as projectForm from './project_form.js';
 import { optFields, optOf, optChange, checkLines, formCheck, startNew } from './project_form.js';
 import * as distillForm from './distill_form.js';
 import * as releasePanel from '../panels/release.js';
+import * as postPlanPanel from '../panels/post_plan.js';
+export { dispose } from '../panels/post_plan.js';
+export { afterTrainingRender as after };
+import { usesPostTrainingCards, pendingPostTraining, beginPostTraining, showPostTraining } from '../post_training_entry.js';
 
 const f1 = v => (Math.round(v * 10) / 10).toFixed(1);
 const f2 = v => (Math.round(v * 100) / 100).toFixed(2);
@@ -25,11 +31,11 @@ const days = d => Math.max(1, Math.round(d));
 export function curveLine(c) {
   if (!c) return '';
   const speed = `涨分速度 ×${f2(c.Hq)}`;
-  if (c.src === 'temp') return `这个领域还没有对手，按真实历史这时的水平约在 ${f1(c.R)}。${c.delta < 0 ? `还差 ${f1(-c.delta)} 分，${speed}` : `已经超过 ${f1(c.delta)} 分，${speed}`}。`;
-  const hist = c.src === 'hist' ? `按真实历史，这时的前沿约在 ${f1(c.R)}。` : '';
+  if (c.src === 'temp') return `该赛道暂无竞争对手，参照历史同期基准约在 ${f1(c.R)}。${c.delta < 0 ? `离基准差 ${f1(-c.delta)} 分，${speed}` : `已超越基准 ${f1(c.delta)} 分，${speed}`}。`;
+  const hist = c.src === 'hist' ? `参照历史同期前沿约在 ${f1(c.R)}。` : '';
   if (c.delta < 0) return `离最强对手还差 ${f1(-c.delta)} 分，${speed}。${hist}`;
   const lead = c.ws !== null ? c.q - c.ws : c.delta;
-  return `领先第二名 ${f1(lead)} 分，再往上每多 ${f1(c.b)} 分，涨得再慢一大截。${hist}`;
+  return `领先第二名 ${f1(lead)} 分，边际收益递减（再往上每多 ${f1(c.b)} 分，提分难度递增）。${hist}`;
 }
 // 模型行上的短说法：离最强还差多少、涨分打几折。
 const curveShort = c => (!c ? '' : c.delta < 0 ? `离最强还差 ${f1(-c.delta)}，涨分 ×${f2(c.Hq)}` : `领先 ${f1(c.ws !== null ? c.q - c.ws : c.delta)}，涨分 ×${f2(c.Hq)}`);
@@ -39,12 +45,12 @@ export function effortBars(c) {
   const bar = (label, v, [lo, hi], tip) => `<li title="${esc(tip)}"><span class="rk"></span><span class="nm">${label}</span><span class="track"><i style="width:${Math.round(Math.max(0, Math.min(1, (v - lo) / (hi - lo))) * 100)}%"></i></span><b>×${f2(v)}</b></li>`;
   const leadMax = 1 + EFFORT.LEAD_STEP * EFFORT.LEAD_MAX;
   return `<ul class="bars">
-      ${bar('算力', c.fComp, EFFORT.COMP, '训练卡越多越高；底座占着大部分训练卡时，后训练的冲顶力按四分之一算')}
-      ${bar('自有数据', c.fData, EFFORT.DATA, '只算自己的后训练数据，蒸馏数据不算')}
-      ${bar('技术积累', c.fKnow, EFFORT.KNOW, '按同年头部公司的技术积累折算')}
-      ${bar('独门技术', c.fLead, [1, leadMax], '掌握了、但业界还没公开的技术，每项 +25%，最多算两项')}
+      ${bar('算力', c.fComp, EFFORT.COMP, '训练显卡越多越强；底座占用较多算力时后训练冲顶力相应折减')}
+      ${bar('自有数据', c.fData, EFFORT.DATA, '团队自研采集的真实数据，不含模型蒸馏生成的数据')}
+      ${bar('技术积累', c.fKnow, EFFORT.KNOW, '核心算法与工程技术积累折算')}
+      ${bar('独门技术', c.fLead, [1, leadMax], '掌握但业界尚未公开的前沿技术，每项提供额外冲顶加成')}
     </ul>
-    <p class="muted">冲顶力 ${f2(c.A)}（四样相乘）。四样相乘不到 ${CURVE.A0}，就只能无限接近，过不去。技术储备 ×${f2(c.rho)}：${c.rho >= 1.3 ? '炼出过最强，冲顶更轻松' : c.rho >= 0.6 ? '同一集团别的领域出过最强' : '还没炼出过最强，最后几步特别难'}。</p>`;
+    <p class="muted">综合冲顶力 ${f2(c.A)}（四项指标乘积，冲顶门槛基准为 ${CURVE.A0}）。技术底蕴 ×${f2(c.rho)}：${c.rho >= 1.3 ? '曾登顶行业 SOTA，突破前沿性能更顺利' : c.rho >= 0.6 ? '集团关联赛道具备顶尖经验' : '尚未登顶 SOTA，突破前沿瓶颈需要更高投入'}。</p>`;
 }
 
 // ---------- 作业行（训练页和主界面“进行中”卡共用） ----------
@@ -81,10 +87,19 @@ export function jobView(S, al, it) {
   const name = job.kind === 'post' ? `${jobName(S, job)} · ${UNTIL_TEXT(S, job.until)}` : jobName(S, job);
   const paused = it.why === 'paused';
   if (paused) { const fp = Array.isArray(S.jobs.focusPause) && S.jobs.focusPause.includes(job.id); return { tag, name, state: fp ? '暂停中（专心研究）' : '暂停中', short: '暂停中', tone: 'muted', prog: progOf(job) }; }
+  if (it.why === 'cardUnsupported') return { tag, name, state: '卡牌调优方案仅支持通用能力方向，不支持单项刷榜；此方向未运行', short: '该方向尚未支持', tone: 'warn', prog: null };
+  if (it.why === 'sessionPending') {
+    // Presentation only: a completed receipt is ready, not an unfinished deck.
+    const model = E.postTarget(S, job), ledger = S.postPlanSessions;
+    const ready = Object.values(ledger?.sessions || {}).some(p => p.modelId === model?.id && p.status === 'ready');
+    return { tag, name, state: ready ? '后训练方案已完成，等待下一训练日生效，当前不占用训练卡' : '等待完成后训练卡组方案，当前不占用训练卡', short: ready ? '等待下一训练日生效' : '等待卡牌方案', tone: 'warn', prog: null };
+  }
+  if (it.why === 'cardInvalid') return { tag, name, state: '后训练方案状态异常，训练未运行；请重新载入有效存档', short: '方案状态异常', tone: 'warn', prog: null };
+  if (it.why === 'cardSettled') return { tag, name, state: '今日后训练已完成结算', short: '今日已结算', tone: '', prog: null };
   if (it.why === 'repair') return { tag, name, state: '检修中：后训练先停着', short: '检修中，先停着', tone: 'warn', prog: null };
-  if (it.why === 'target') return { tag, name, state: '没有能接着训练的模型', short: '没有模型可练', tone: 'warn', prog: null };
+  if (it.why === 'target') return { tag, name, state: '当前没有可继续训练的模型', short: '没有模型可练', tone: 'warn', prog: null };
   if (it.why === 'min') {
-    if (!(al.T > 0)) return { tag, name, state: '等待算力：现在没有训练卡（少出租一些，或者添卡）', short: '等待算力', tone: 'warn', prog: progOf(job), queued: true };
+    if (!(al.T > 0)) return { tag, name, state: '等待算力：当前没有可用训练卡（可减少出租或扩充显卡）', short: '等待算力', tone: 'warn', prog: progOf(job), queued: true };
     const left = leftFor(al, it);
     return { tag, name, state: `排队：要 ${count(it.minCards)} 张，现在只剩 ${count(left)} 张${job.queuedDays > 1 ? `（排了 ${job.queuedDays} 天）` : ''}`, short: `排队：缺 ${count(Math.max(1, Math.ceil(it.minCards - left)))} 张卡`, tone: 'warn', prog: progOf(job), queued: true };
   }
@@ -92,8 +107,13 @@ export function jobView(S, al, it) {
   if (job.kind === 'post') {
     const g = postGain(S, job, it);
     const left = Number.isFinite(eta) && eta !== null ? `，还剩 ${Math.max(0, Math.round(eta))} 天` : '';
-    const text = `第 ${job.days || 0} 天${left}${g ? ` · ${g.text}` : ''}`;
-    return { tag, name, state: text, short: `第 ${job.days || 0} 天${left}`, tone: '', prog: null };
+    // A persistent main post job can span model generations. Its elapsed days
+    // still govern its stop/ETA policy, but are not this model's training age.
+    const model = !job.bench ? E.postTarget(S, job) : null;
+    const elapsed = model && Number.isFinite(model.postDays) && model.postDays !== (job.days || 0)
+      ? `本模型后训 ${model.postDays} 天（本作业累计 ${job.days || 0} 天）` : `第 ${job.days || 0} 天`;
+    const text = `${elapsed}${left}${g ? ` · ${g.text}` : ''}`;
+    return { tag, name, state: text, short: `${elapsed}${left}`, tone: '', prog: null };
   }
   const p = progOf(job);
   const when = Number.isFinite(eta) ? `约 ${days(eta)} 天` : '等待算力';
@@ -109,7 +129,7 @@ function progOf(job) {
   return E.projectProgress(job.pj);
 }
 // 拿到 / 想要几张；排队时写 0 / 最低卡；暂停、检修、没有模型时不参加分卡，写“—”。
-const cardsText = it => (it.run ? `${count(it.cards)}/${Number.isFinite(it.wantCards) ? count(it.wantCards) : '—'} 张` : it.why === 'min' ? `0/${count(it.minCards)} 张` : '— 张');
+const cardsText = (it, display) => (it.run ? `${display.got}/${display.want !== null ? display.want : '—'} 张` : it.why === 'min' ? `0/${count(it.minCards)} 张` : '— 张');
 
 // ---------- 分配条：出租｜推理（含生成）｜训练（按作业分色）｜闲置（含检修留出的那份） ----------
 const COLOR = { lease: '#c09a55', infer: 'var(--accent)', idle: '#d5dbe0', pretrain: '#4f9474', distill: '#79b394', finetune: '#3f7a60', post: '#8a73c4', trial: '#d49a45' };
@@ -118,20 +138,22 @@ export function allocBar(S) {
   const ga = E.gpuAllocation(S);
   if (!ga.total) return '<p class="muted">还没有卡。</p>';
   const al = E.allocJobs(S);
-  const segs = [['出租', ga.leaseGpus, COLOR.lease, ''], ['推理', ga.inferGpus, COLOR.infer, '']];
-  for (const it of al.items) if (it.run && it.cards > 0) segs.push([jobTag(it.job), it.cards, kindColor(it.job), jobName(S, it.job)]);
+  const display = jobCardCounts(al);
+  const leaseShown = Math.round(ga.leaseGpus), inferShown = Math.round(ga.total) - leaseShown - display.total;
+  const segs = [['出租', ga.leaseGpus, COLOR.lease, '', leaseShown], ['推理', ga.inferGpus, COLOR.infer, '', inferShown]];
+  for (const it of al.items) if (it.run && it.cards > 0) segs.push([jobTag(it.job), it.cards, kindColor(it.job), jobName(S, it.job), display.byItem.get(it).got]);
   const idle = al.free * al.T;
-  segs.push(['闲置', idle, COLOR.idle, '']);
-  const bar = segs.filter(s => s[1] > 0).map(([l, n, c, t]) => `<i style="flex:${n};background:${c}" title="${esc(`${l}${t ? ` · ${t}` : ''} ${count(n)} 张`)}"></i>`).join('');
+  segs.push(['闲置', idle, COLOR.idle, '', display.idle]);
+  const bar = segs.filter(s => s[1] > 0).map(([l, n, c, t, shown]) => `<i style="flex:${n};background:${c}" title="${esc(`${l}${t ? ` · ${t}` : ''} ${shown} 张`)}"></i>`).join('');
   // 图例按种类合并（同一种作业几项加在一起）。
   const sum = {};
-  for (const it of al.items) if (it.run && it.cards > 0) { const k = jobTag(it.job); sum[k] = sum[k] || [0, kindColor(it.job)]; sum[k][0] += it.cards; }
+  for (const it of al.items) if (it.run && it.cards > 0) { const k = jobTag(it.job); sum[k] = sum[k] || [0, kindColor(it.job)]; sum[k][0] += display.byItem.get(it).got; }
   const gen = ga.genGpus > 0.5 ? `（含生成 ${count(ga.genGpus)} 张）` : '';
   const repair = S.jobs?.repair ? `，含检修留出 ${count(al.T * REPAIR.share)} 张` : '';
-  const legend = [['出租', ga.leaseGpus, COLOR.lease, ''], ['推理', ga.inferGpus, COLOR.infer, gen], ...Object.entries(sum).map(([k, [n, c]]) => [k, n, c, '']),
-    ['训练卡闲置', idle, COLOR.idle, al.T > 0 ? `（${pct(al.free)}${repair}）` : '']].filter(x => x[1] > 0.5);
+  const legend = [['出租', leaseShown, COLOR.lease, ''], ['推理', inferShown, COLOR.infer, gen], ...Object.entries(sum).map(([k, [n, c]]) => [k, n, c, '']),
+    ['训练卡闲置', display.idle, COLOR.idle, al.T > 0 ? `（${pct(al.free)}${repair}）` : '']].filter(x => x[1] > 0.5);
   return `<div class="alloc">${bar}</div>
-    <p class="alloc-legend">${legend.map(([l, n, c, x]) => `<span><i style="background:${c}"></i>${l} ${count(n)} 张${x}</span>`).join('')}</p>`;
+    <p class="alloc-legend">${legend.map(([l, n, c, x]) => `<span><i style="background:${c}"></i>${l} ${n} 张${x}</span>`).join('')}</p><p class="muted alloc-rounding">张数为整卡近似，分项与合计一致；条宽与实际结算仍按精确份额。</p>`;
 }
 
 // ---------- 进行中 ----------
@@ -140,12 +162,12 @@ function jobRow(S, al, it, i, st) {
   const v = jobView(S, al, it);
   const open = st.jobMenu === job.id;
   const prioBtn = `<button class="job-prio ${job.prio === 'high' ? 'is-high' : ''}" data-job-op="prio" data-id="${job.id}" data-prio="${job.prio === 'high' ? 'normal' : 'high'}" title="点一下在优先和正常之间切换">${job.prio === 'high' ? '优先' : '正常'}</button>`;
-  return `<div class="job-row${v.queued ? ' is-queued' : ''}${it.why === 'paused' ? ' is-paused' : ''}">
+  return `<div data-train-key="job:${job.id}" class="job-row${v.queued ? ' is-queued' : ''}${it.why === 'paused' ? ' is-paused' : ''}">
     <div class="job-main">
       <span class="job-n">${ROUND[i] || i + 1}</span>
       <b class="job-name">${esc(v.tag)} · ${esc(v.name)}</b>
       ${prioBtn}
-      <span class="job-cards">${cardsText(it)}${Number.isFinite(job.cap) ? `<small>（最多 ${count(job.cap)}）</small>` : ''}</span>
+      <span class="job-cards">${cardsText(it, jobCardCounts(al).byItem.get(it))}${Number.isFinite(job.cap) ? `<small>（最多 ${count(job.cap)}）</small>` : ''}</span>
       <span class="job-state ${v.tone}">${v.prog !== null ? `<i class="mini-prog"><i style="width:${Math.round(v.prog * 100)}%"></i></i>` : ''}${esc(v.state)}</span>
       <button class="job-more" data-job-menu="${job.id}" aria-expanded="${open}" title="更多操作">⋯</button>
     </div>
@@ -165,13 +187,13 @@ function jobMenu(S, it, st) {
     const fast = Math.round(E.fastestDays(S, job.pj.structure));
     const atFast = it.run && it.cards >= (it.wantRaw ?? Infinity) - 0.5;
     const why = atFast
-      ? `已经按最快天数（${fast} 天的节奏）在练：赶工不会更快，只是少占一些卡，集群每月照样多掉 ${JOBS.WEAR.rush}。`
-      : `赶工：进度 ×${JOBS.RUSH}，但快不过最快天数（${fast} 天的节奏）；集群每月多掉 ${JOBS.WEAR.rush}，更容易炸。`;
+      ? `已达到架构最快训练节奏（${fast} 天）：赶工无法进一步加速，且集群损耗每月额外增加 ${JOBS.WEAR.rush}。`
+      : `赶工模式：进度 ×${JOBS.RUSH}（最快不超过物理极限 ${fast} 天）；集群损耗每月额外增加 ${JOBS.WEAR.rush}，增加故障概率。`;
     extra += `<p class="muted">${why}</p>`;
     ops.push(`<button class="btn btn--sm ${job.rush ? 'is-on' : ''}" data-job-op="rush" data-id="${id}" data-on="${job.rush ? 0 : 1}">${job.rush ? '赶工中（点一下恢复）' : '赶工'}</button>`);
   }
   if (job.kind === 'post') extra += postEdit(S, job);
-  const cancel = job.kind === 'pretrain' && job.lab?.used?.length ? '取消（用掉的试验结论退回）' : '取消';
+  const cancel = job.kind === 'pretrain' && job.lab?.used?.length ? '取消（退回试验结论）' : '取消';
   ops.push(`<button class="btn btn--sm btn--danger" data-job-op="cancel" data-id="${id}">${cancel}</button>`);
   return `<div class="job-menu"><div class="ops">${ops.join('')}</div>${capRow}${extra}</div>`;
 }
@@ -179,14 +201,14 @@ function jobMenu(S, it, st) {
 function dirOptions(S, m, cur) {
   const dirs = E.directionsFor(S).map(d => [d.key, d.label]);
   const benches = m ? BENCHMARKS.filter(b => b.mod === S.mod && S.date >= b.from && E.benchmaxPreview(S, b.id, m)).slice(0, 12) : [];
-  return [['auto', '自动（每 7 天换到涨得最多的方向）'], ...dirs, ...benches.map(b => [`bench:${b.id}`, `刷榜：${b.name}`])]
+  return [['auto', '自动（每 7 天自动切换至提升最大的方向）'], ...dirs, ...benches.map(b => [`bench:${b.id}`, `刷榜：${b.name}`])]
     .map(([k, l]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(l)}</option>`).join('');
 }
 const untilKey = u => (!u || u === 'none' ? 'none' : u === 'stall' ? 'stall' : Number.isFinite(u?.days) ? `d${u.days}` : u?.dim ? 'dim' : 'none');
 // “自动方向 + 练到涨不动”：自动方向看所有方向（含安全对齐，它的预估涨幅一直不低），多半停不下来，照实提醒一句。
-const STALL_AUTO = '自动方向要所有方向都涨不动才算停，安全对齐一般一直还有得涨，所以多半停不下来；想练到涨不动，最好选一个具体方向。';
+const STALL_AUTO = '自动方向会综合所有能力维度，若有任意维度仍可提升则不会自动停止；建议指定具体能力维度以便在提升平缓时及时停止。';
 function untilOptions(cur) {
-  return [['none', '一直练'], ['d7', '练 7 天'], ['d14', '练 14 天'], ['d30', '练 30 天'], ['d60', '练 60 天'], ['dim', '练到主维多少分'], ['stall', '练到涨不动']]
+  return [['none', '持续训练'], ['d7', '训练 7 天'], ['d14', '训练 14 天'], ['d30', '训练 30 天'], ['d60', '训练 60 天'], ['dim', '训练至目标分数'], ['stall', '练到涨不动']]
     .map(([k, l]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${l}</option>`).join('');
 }
 function postEdit(S, job) {
@@ -209,7 +231,7 @@ function evalRows(S) {
     const what = ev.line === 'small' ? `${ev.plan?.name || ''}（小模型，已冻结）` : `${ev.plan?.name || ''} 候选${ev.line === 'prev' ? '（上一代）' : ''}`;
     const along = ev.line === 'main' && w ? `（评测期间 ${E.modelLabel(w)} 接着练）` : '';
     const later = ev.line !== 'small' ? (S.deploy || []).filter(d => d.role !== 'small' && d.until > ev.until).map(d => d.name)[0] : null;
-    return `<div class="job-row eval-row"><div class="job-main">
+    return `<div data-train-key="eval:${esc(ev.id)}" class="job-row eval-row"><div class="job-main">
       <span class="job-n now-tag--go">评测</span>
       <b class="job-name">${esc(what)} · ${E.TIER_LABEL[ev.tier]}</b>
       <span class="job-state">还剩 ${left} 天${esc(along)}${later ? `，评完排在 ${esc(later)} 之后上线` : ''}</span>
@@ -227,14 +249,14 @@ function repairRow(S) {
   if (!J.repair) return '';
   return `<div class="job-row repair-row"><div class="job-main"><span class="job-n">检修</span>
     <b class="job-name">${esc(repairText(S))}</b>
-    <span class="job-state muted">后训练先停下，训练卡留出四分之一；底座和试验照常用剩下的</span>
+    <span class="job-state muted">后训练暂时挂起，预留 25% 算力用于硬件维护；底座与试验使用剩余算力继续运行</span>
     <button class="btn btn--sm" data-job-op="repair" data-on="0">结束检修</button></div></div>`;
 }
 function runningCard(S, al, st) {
   const rows = al.items.map((it, i) => jobRow(S, al, it, i, st)).join('');
   const evals = evalRows(S);
-  const empty = !al.items.length && !evals ? `<p class="muted">现在没有作业。${E.workingModel(S)?.stage === 'post' ? '在练的模型没人练：从下面挂一项后训练，或者在「模型」那一栏点“后训练”。' : '底座练完会自动挂上后训练；也可以从下面开新作业。'}团队没有重活时研究最快（×${JOBS.RESEARCH.free}）。</p>` : '';
-  return `<div class="card wide train-jobs"><div class="card-head"><b>进行中</b><small>先发最低卡，剩下的按 优先 3 : 正常 1 分；吃饱了的多出来的卡回给别的作业</small></div>
+  const empty = !al.items.length && !evals ? `<p class="muted">现在没有作业。${E.workingModel(S)?.stage === 'post' ? '在练的模型没人练：从下面挂一项后训练，或在下方展开模型开启。' : '首次主线底座预训练完成后会自动开启后训练（专心研究除外）；也可从下方开启新作业。'}团队没有重活时研发速度更快（×${JOBS.RESEARCH.free}）。</p>` : '';
+  return `<div class="card wide train-jobs"><div class="card-head"><b>进行中</b><small>先保障最低算力，剩余按 优先 3 : 正常 1 分配；达到显卡上限后多余算力回流</small></div>
     ${repairRow(S)}${rows}${evals}${empty}</div>`;
 }
 
@@ -272,7 +294,7 @@ function postTargets(S) {
 }
 function postForm(S, st) {
   const targets = postTargets(S);
-  if (!targets.length) return '<p class="muted">没有能挂后训练的模型：每个模型同一时间只挂一项后训练，在练的、上一代收尾的和待发布的小模型才能练。</p>';
+  if (!targets.length) return '<p class="muted">当前无符合后训练条件的模型：同一模型同一时间仅可运行一项后训练作业。</p>';
   const d = st.post ||= { target: targets[0][0], dir: 'auto', until: 'd30', dim: null, to: null };
   if (!targets.some(t => t[0] === d.target)) d.target = targets[0][0];
   const m = targets.find(t => t[0] === d.target)[2];
@@ -289,7 +311,7 @@ function postForm(S, st) {
         <label>分数<input type="number" min="1" max="100" step="0.5" value="${d.to ?? defaultTo(S, m, d.dim || dir)}" data-post="to" /></label>` : ''}
       ${optFields(st, 'post', 'normal', c.minCards)}
     </div>
-    ${p ? `<div class="gains">${gains || '<span class="muted">这个方向现在涨不动了</span>'}</div><p class="muted">${esc(curveLine(p.curve))}一个月大约能涨这么多；越接近上限、越接近当前最强，涨得越慢。失败率 ${p.fail}%。</p>` : d.dir.startsWith('bench:') ? '<p class="muted">刷榜：分数会涨，真实能力几乎不变。榜单换新题后加成作废，还可能被质疑。</p>' : ''}
+    ${p ? `<div class="gains">${gains || '<span class="muted">该方向提升已趋于平缓</span>'}</div><p class="muted">${esc(curveLine(p.curve))}月度预计提升幅度；越接近上限或行业顶尖，提升难度越高。失败风险 ${p.fail}%。</p>` : d.dir.startsWith('bench:') ? '<p class="muted">刷榜专项：针对特定评测集调优，榜单分数提升显著但实际泛化能力改善有限。评测集换题后加成失效。</p>' : ''}
     ${d.until === 'stall' && d.dir === 'auto' ? `<p class="muted">${STALL_AUTO}</p>` : ''}${checkLines(c)}
     <button class="btn btn--primary" data-op="start-post" ${c.ok ? '' : 'disabled'}>开始后训练</button>${c.ok ? '' : `<span class="bad"> ${esc(c.reason)}</span>`}`;
 }
@@ -318,7 +340,7 @@ function trialSpec(st) {
 function trialForm(S, st) {
   const plan = S.jobs?.plan;
   // 还没定计划：计划表单就在这里原位展开（保存按钮和「下一代计划」卡里的是同一个），存好以后这里换成试验的选项。
-  if (!plan) return `<p class="muted">试验都是给下一代底座做的：先定好下一代要练多大的底座，存好以后在这里挑试验。</p>${planForm(S, st)}`;
+  if (!plan) return `<p class="muted">试验针对下一代模型架构进行前置验证：请先设定下一代底座规划，存好以后在这里挑试验。</p>${planForm(S, st)}`;
   const d = st.trial ||= { type: 'tune', size: 'mid', tech: null, dim: null };
   const techs = E.archChoices(S, plan);
   if (d.type === 'arch' && !techs.includes(d.tech)) d.tech = techs[0] || null;
@@ -335,7 +357,7 @@ function trialForm(S, st) {
     </div>
     ${pv.ok ? `<ul class="kv"><li><span>流程</span><b>至少 ${pv.days} 天</b></li><li><span>成功率</span><b>${pct(pv.odds)}</b></li><li><span>成功时</span><b>${esc(pv.gains)}</b></li>${saveDays(S, plan, d)}</ul>
       ${pv.pRef < 0.999 ? `<p class="warn">计划比参照底座小很多：研究缩短和技术积累只按 ${pct(pv.pRef)} 算。</p>` : ''}
-      <p class="muted">结果当场就定了，可能失败；同一种结论只留最好的一条，用在下一个匹配的底座上（同架构、规模在计划的 1/4 到 4 倍之间、一年内）。试验不占作业位，同时最多 ${LAB.PARALLEL} 项。</p>` : ''}
+      <p class="muted">试验结论可直接应用于下一代匹配架构的底座训练（同架构、规模在计划的 1/4 到 4 倍之间、一年内）。同类试验保留最佳结果。试验不占作业槽位，最多并行 ${LAB.PARALLEL} 项。</p>` : ''}
     ${pv.ok ? checkLines(c) : ''}
     <button class="btn btn--primary" data-op="start-trial" ${pv.ok && c.ok ? '' : 'disabled'}>开始试验</button>${pv.ok && c.ok ? '' : `<span class="bad"> ${esc(pv.ok ? c.reason : pv.reason)}</span>`}`;
 }
@@ -348,19 +370,19 @@ function saveDays(S, plan, d) {
   const fast = E.fastestDays(S, pv.structure);
   const cut = save => Math.max(0, pv.days - Math.max(fast, pv.days * (1 - save)));
   const lo = cut(g.save * LAB.GAIN_MIN), hi = cut(g.save);
-  return `<li><span>下一代底座</span><b>${hi < 0.5 ? `已经卡在最快天数，省下的是卡（约 ${Math.round(pv.days)} 天）` : `约少 ${Math.round(lo)}–${Math.round(hi)} 天（现在约 ${Math.round(pv.days)} 天）`}</b></li>`;
+  return `<li><span>下一代底座</span><b>${hi < 0.5 ? `已达到最快工期极限，试验收益转化为算力节省（约 ${Math.round(pv.days)} 天）` : `工期约减少 ${Math.round(lo)}–${Math.round(hi)} 天（当前约 ${Math.round(pv.days)} 天）`}</b></li>`;
 }
 // 续训表单：在别家的开源权重上接着练（要先完成解锁它的策略）。
 function finetuneForm(S, st) {
-  if (!S.strategy?.unlocks?.adopt_open_base) return '<p class="muted">要先完成能解锁“在开源底座上续训”的公司策略。</p>';
+  if (!S.strategy?.unlocks?.adopt_open_base) return '<p class="muted">需先完成策略解锁「在开源底座上续训」。</p>';
   const list = RELEASES.filter(r => r.mod === S.mod && r.open && r.day <= S.day).filter(r => E.finetuneCheck(S, { relId: r.id }).ok).slice(-12).reverse();
-  if (!list.length) return '<p class="muted">现在没有能续训的开源权重（只能用宽松许可或可商用的、已经发布的别家模型）。</p>';
+  if (!list.length) return '<p class="muted">当前暂无可用作续训的开源模型（仅支持宽松商业许可或已公开发布的模型）。</p>';
   const d = st.ft ||= { relId: list[0].id };
   if (!list.some(r => r.id === d.relId)) d.relId = list[0].id;
   const c = formCheck(S, { kind: 'finetune', cfg: { relId: d.relId } });
   const fc = E.finetuneCheck(S, { relId: d.relId });
   return `<div class="form"><label>底座<select data-ft="relId">${list.map(r => `<option value="${r.id}" ${r.id === d.relId ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label></div>
-    <p class="muted">约 ${fc.days || '—'} 天练完。续训出来的模型带着别家的谱系，出生即被污染：后训练超不过这个底座和当前最强里低的那个。</p>
+    <p class="muted">预计约 ${fc.days || '—'} 天完成。基于第三方开源权重续训，受原底座基础质量限制，后训练上限无法超越原底座与当前行业基准。</p>
     ${checkLines(c)}
     <button class="btn btn--primary" data-op="start-finetune" ${c.ok ? '' : 'disabled'}>开始续训</button>${c.ok ? '' : `<span class="bad"> ${esc(c.reason)}</span>`}`;
 }
@@ -370,7 +392,7 @@ function modelCard(S, st) {
   const rows = [];
   const w = E.workingModel(S);
   if (w && w.stage === 'post') rows.push(mainRow(S, st, w));
-  else rows.push(`<div class="model-row"><div class="model-head"><span class="ev-tag">在练</span><b>${E.hasBaseJob(S, 'main') ? '主线底座还在预训练，练完会出现在这里' : '主线还没有在练的模型：从上面开一个底座'}</b></div></div>`);
+  else rows.push(`<div class="model-row"><div class="model-head"><span class="ev-tag">在练</span><b>${E.hasBaseJob(S, 'main') ? '主线底座还在预训练，完成后将在此就绪' : '主线暂无在练模型：可从上方创建新底座'}</b></div></div>`);
   const p = E.prevModel(S);
   if (p && p.stage === 'post') rows.push(prevRow(S, st, p));
   if (S.mod === 'llm') rows.push(smallRows(S, st));
@@ -388,7 +410,7 @@ function mainRow(S, st, w) {
   const why = E.submitBlock(S, w, 'main');
   // 送评过的写“送评以后又练了 N 天”；从没送评过的（比如刚练完的新底座）写“这一版练了 N 天”，和主界面模型卡同一个说法。
   const facts = [(w.releases || 0) > 0 ? `送评以后又练了 ${since} 天` : `这一版练了 ${since} 天`, curveShort(p?.curve), job ? '' : '没挂后训练', ev ? `${ev.plan?.name} 候选评测中` : ''].filter(Boolean);
-  return `<div class="model-row">
+  return `<div class="model-row" data-train-key="model:${esc(w.id)}">
     <div class="model-head"><span class="ev-tag">在练</span><button class="model-name" data-model-open="main" aria-expanded="${open}"><b>${esc(E.modelLabel(w))}</b><small>（主线）· ${esc(facts.join(' · '))}</small><em>${open ? '收起' : '冲顶力 ▸'}</em></button>
       <span class="ops">${submitBtn(S, w, 'main')}${job ? '' : '<button class="btn btn--sm" data-new-post="main">后训练</button>'}</span></div>
     ${why && !ev ? `<p class="muted">送评：${esc(why)}。</p>` : ''}
@@ -408,17 +430,17 @@ function mainDetail(S, w, job) {
     for (const f of p.held || []) held.add(f);
     const gains = Object.entries(p.gains).filter(([, v]) => Math.abs(v) >= 0.05).map(([k, v]) => `<span class="gain ${v < 0 ? 'neg' : ''}">${esc(dimLabel(S.mod, k))} ${v > 0 ? '+' : ''}${f1(v * TRAIN_PACE)}</span>`).join('');
     const h = p.curve?.H?.[d.main];
-    const near = Number.isFinite(h) && h < 0.995 ? `<span class="${h < 0.3 ? 'bad' : ''}">接近最强 ×${f2(h)}</span>` : '';
-    const capped = Number.isFinite(p.qCap) ? `<span class="bad">被老师卡在 ${f1(p.qCap)} 以下</span>` : '';
+    const near = Number.isFinite(h) && h < 0.995 ? `<span class="${h < 0.3 ? 'bad' : ''}">接近顶尖 ×${f2(h)}</span>` : '';
+    const capped = Number.isFinite(p.qCap) ? `<span class="bad">受老师上限约束在 ${f1(p.qCap)} 以下</span>` : '';
     return `<button class="pick-row ${cur === d.key ? 'is-on' : ''}" data-post-main="${d.key}"><div><b>${esc(d.label)}</b><small>${esc(d.method)}</small></div><div class="gains">${gains}</div>
       <div class="meta"><span>数据 ${p.useDistill ? `蒸馏占 ${pct(p.sigma)}` : p.dataLevel >= 2 ? '充足' : p.dataLevel >= 1 ? '一般' : p.dataLevel > 0 ? '偏少' : '缺乏'}</span><span>算力 ${pct(Math.min(1.2, p.computeMult))}</span><span class="${p.fail >= 20 ? 'bad' : ''}">失败率 ${p.fail}%</span>${near}${capped}</div></button>`;
   }).join('');
   const heldText = held.size ? ` ${[...held].map(f => S.data.teachers?.[f]?.name || f).join('、')} 比这一代弱，数据先放着不用（后台「数据」页可以确认）。` : '';
   const clean = E.grantsFor(S, 'flagship').flatMap(h => E.nameGrantCheck(S, w, h.id).lines.filter(l => /干净/.test(l.text)).map(l => `${l.ok ? '✓' : '✗'} 授名「${h.name}」：${l.text.replace('干净训练满 ', '干净训练 ')}，现在 ${l.now}`));
   return `<div class="model-detail">
-    ${curve ? `<p class="muted">${esc(curveLine(curve))}${S.jobs.ownOnly ? ' 现在只用自有数据（下面可以改）。' : ''}${esc(heldText)}</p><details class="curve" open><summary>冲顶力</summary>${effortBars(curve)}</details>` : ''}
+    ${curve ? `<p class="muted">${esc(curveLine(curve))}${S.jobs.ownOnly ? ' 当前仅使用自有数据（可在下方修改）。' : ''}${esc(heldText)}</p><details class="curve" open><summary>冲顶力</summary>${effortBars(curve)}</details>` : ''}
     ${clean.length ? `<ul class="check-lines">${clean.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
-    ${items ? `<p class="muted">一个月大约能涨多少（按主线后训练能分到的卡算）；点一下改练这个方向${job ? '' : '，没挂后训练的会挂上一项，一直练'}。</p><div class="pick-list">${items}</div>` : '<p class="muted">现在没有能练的方向。</p>'}
+    ${items ? `<p class="muted">月度预计提升幅度（按主线后训练分配算力计算）；点击切换训练方向${job ? '' : '，未挂载后训练的将自动开启并持续训练'}。</p><div class="pick-list">${items}</div>` : '<p class="muted">当前无可用训练方向。</p>'}
   </div>`;
 }
 function prevRow(S, st, p) {
@@ -514,8 +536,8 @@ function healthCard(S) {
     <label class="toggle"><input type="checkbox" data-auto-repair ${J.autoRepair ? 'checked' : ''} /> 自动检修（低于 ${REPAIR.start} 自动检修，到 ${REPAIR.until} 结束）</label>
     <div class="ops">${J.repair ? '<button class="btn btn--sm" data-job-op="repair" data-on="0">结束检修</button>' : '<button class="btn btn--sm" data-job-op="repair" data-on="1">现在检修</button>'}
       ${focus ? '<button class="btn btn--sm is-on" data-job-op="focus" data-on="0">恢复后训练</button>' : posts.some(j => !j.paused) ? '<button class="btn btn--sm" data-job-op="focus" data-on="1">专心研究</button>' : ''}</div>
-    <p class="muted">检修：后训练全部停下，训练卡留出四分之一，健康每天回升约 ${REPAIR.rate}；底座和试验照常用剩下的四分之三。团队有重活（后训练、检修）时研究速度 ×${JOBS.RESEARCH.busy}，没有时 ×${JOBS.RESEARCH.free}；专心研究就是暂停全部后训练，恢复时一起恢复。</p>
-    <label class="toggle"><input type="checkbox" data-own-only ${J.ownOnly ? 'checked' : ''} /> 只用自有数据（后训练不再用蒸馏数据；以后想解除老师的天花板，就得这样练）</label></div>`;
+    <p class="muted">集群检修：暂停所有后训练，预留 25% 显卡进行维护，健康度每日回升约 ${REPAIR.rate}；预训练与试验继续使用其余 75% 算力。团队没有重活（后训练、检修）时研究速度 ×${JOBS.RESEARCH.free}，有重活时 ×${JOBS.RESEARCH.busy}；专心研究可一键挂起所有后训练，恢复时一并恢复。</p>
+    <label class="toggle"><input type="checkbox" data-own-only ${J.ownOnly ? 'checked' : ''} /> 只用自有数据（后训练停止使用外部蒸馏数据，解除教师模型的能力天花板限制）</label></div>`;
 }
 function logCard(S) {
   const log = S.jobs?.log || [];
@@ -524,10 +546,15 @@ function logCard(S) {
 }
 
 export function render(S, st) {
+  if (st.postPlanSessionId && postPlanPanel.available(S)) return postPlanPanel.render(S, st);
+  if(st.trainingEntry&&st.newJob==='post')return `<h2>安排后训练</h2><p>选训练方向和时长，确认后进入卡包与出牌。</p><section class="card train-post-entry">${postForm(S,st)}</section>`;
+  if (st.trainIdentity && st.trainIdentity !== trainingIdentity(S)) st.trainStale = true;
+  if (!st.trainIdentity) st.trainIdentity = trainingIdentity(S);
   const al = E.allocJobs(S);
   const ga = E.gpuAllocation(S);
-  return `<h2>训练</h2>
-    <p class="train-sub">作业位 ${E.slotsUsed(S)}/${E.jobSlots(S)}（试验不占）· 训练卡 ${count(ga.trainGpus)} 张${S.jobs?.repair ? ' · 检修中' : ''}</p>
+  return `<h2>训练</h2><p class="warn" data-train-stale ${st.trainStale ? '' : 'hidden'}>训练目标已经变化，旧表单不会提交到新模型。<button class="btn" data-train-refresh>刷新目标后重新确认</button></p>
+    ${postPlanPanel.entry(S, st)}
+    <p class="train-sub">作业位 ${E.slotsUsed(S)}/${E.jobSlots(S)}（试验不占）· 训练卡 ${Math.round(ga.trainGpus)} 张${S.jobs?.repair ? ' · 检修中' : ''}</p>
     <div class="card wide train-alloc"><div class="card-head"><b>卡怎么分</b><button class="link-btn" data-goto="compute">推理份额、出租去「算力」页调 ›</button></div>${allocBar(S)}</div>
     ${runningCard(S, al, st)}
     ${newJobCard(S, st)}
@@ -537,11 +564,63 @@ export function render(S, st) {
     ${logCard(S)}`;
 }
 
+// Auto-entry is armed only by opening the training page, never by rendering it.
+// Return/back clears the session view without rearming this flag. No job is created
+// here: only an already-started, unpaused ordinary post job may be resumed.
+function afterTrainingRender(el, S, st, ctx) {
+  if (st.postPlanAutoEnter && !st.postPlanSessionId && !st.newJob && !st.readOnly) {
+    st.postPlanAutoEnter = false;
+    const job = pendingPostTraining(S);
+    if (job) {
+      st.postPlanBusy = true;
+      void beginPostTraining(S, { kind: 'post', target: job.target, dir: job.dir, until: job.until }, { existingOnly: true, jobId: job.id })
+        .then(result => { if (getState() === S && el.isConnected !== false && st.page === 'train') showPostTraining(st, result); })
+        .catch(error => { if (getState() === S && el.isConnected !== false) toast(error.message); })
+        .finally(() => { st.postPlanBusy = false; if (getState() === S && el.isConnected !== false) { ctx.draw(); renderMain(); } });
+      return;
+    }
+  }
+  postPlanPanel.after(el, S, st, ctx);
+}
+
+// 模型身份（不是进度）改变时保留草稿，但明确禁止旧目标提交。
+export function trainingIdentity(S) {
+  return JSON.stringify([S.charId, S.working, S.prevWorking?.id ?? S.prevWorking, S.smallWorking, S.smallShelf,
+    (S.models || []).map(m => [m.id, m.stage, m.evalId])]);
+}
+export function sync(S, root, st) {
+  const body = root?.querySelector('.office-body');
+  if (!body?.querySelector('.train-sub')) return false;
+  const identity = trainingIdentity(S);
+  if (st.trainIdentity && st.trainIdentity !== identity) st.trainStale = true;
+  const warning = body.querySelector('[data-train-stale]');
+  if (warning) warning.hidden = !st.trainStale;
+  const al = E.allocJobs(S), ga = E.gpuAllocation(S);
+  body.querySelector('.train-sub').textContent = `作业位 ${E.slotsUsed(S)}/${E.jobSlots(S)}（试验不占）· 训练卡 ${Math.round(ga.trainGpus)} 张${S.jobs?.repair ? ' · 检修中' : ''}`;
+  // 只生成无草稿副作用的区域；不调用整页 render 或新作业表单的 draftField。
+  const pieces = [runningCard(S, al, st), modelCard(S, {...st, submit:null, modelOpen:null}), healthCard(S)];
+  for (const html of pieces) {
+    const box = document.createElement('template'); box.innerHTML = html;
+    const next = box.content.firstElementChild;
+    const selector = next.classList.contains('train-jobs') ? '.train-jobs' : next.classList.contains('train-health') ? '.train-health' : '.train-models';
+    const old = body.querySelector(selector); if(old) patchTrainingNode(old,next);
+  }
+  const alloc = body.querySelector('.train-alloc');
+  if(alloc) { const box=document.createElement('template'); box.innerHTML=allocBar(S); for(const sel of ['.alloc','.alloc-legend']) {const a=alloc.querySelector(sel),b=box.content.querySelector(sel);if(a&&b) patchTrainingNode(a,b);} }
+  const head=body.querySelector('.train-new .card-head small');if(head) head.textContent=`作业位 ${E.slotsUsed(S)}/${E.jobSlots(S)}（试验不占）`;
+  return true;
+}
+
 // ---------- 交互 ----------
 const confirmOnce = (b, text) => { if (b.dataset.confirm) return true; b.dataset.confirm = '1'; b.textContent = text; return false; };
 const job = (S, arg) => jobAct(S, arg);
 export function click(S, t, ctx) {
+  if (postPlanPanel.click(S, t, ctx)) return;
+  if (ctx.st.postPlanBusy) return;
   const { st, guard, draw } = ctx;
+  if(t.closest('[data-train-refresh]')) { st.trainIdentity=trainingIdentity(S); st.trainStale=false; draw(); return; }
+  if(st.trainIdentity && st.trainIdentity !== trainingIdentity(S)) st.trainStale=true;
+  if(st.trainStale && t.closest('[data-op],[data-job-op],[data-cancel-eval],[data-post-main],[data-pick]')) { return guard(() => { throw new Error('训练目标已经变化，请先刷新目标后重新确认'); }); }
   const go = t.closest('[data-goto]');
   if (go) { st.page = go.dataset.goto; draw(); return; }
   const nb = t.closest('[data-new]');
@@ -561,7 +640,11 @@ export function click(S, t, ctx) {
     const k = op.dataset.jobOp, id = op.dataset.id, on = op.dataset.on === '1';
     if (k === 'cancel' && !confirmOnce(op, '再点一次确认取消')) return;
     return guard(() => {
-      if (k === 'pause') return job(S, { op: 'pause', id, on });
+      if (k === 'pause') {
+        const current = S.jobs.list.find(j => j.id === id);
+        if (!on && usesPostTrainingCards(S, current)) return after(beginPostTraining(S, current, { existingOnly: true, jobId: id, resume: true }), r => showPostTraining(st, r));
+        return job(S, { op: 'pause', id, on });
+      }
       if (k === 'prio') return job(S, { op: 'prio', id, prio: op.dataset.prio });
       if (k === 'rush') return job(S, { op: 'rush', id, on });
       if (k === 'repair') return { ...job(S, { op: 'repair', on }), note: on ? '开始检修：后训练先停下，健康每天回升约 1.6' : '检修结束，后训练接着练' };
@@ -576,7 +659,7 @@ export function click(S, t, ctx) {
     return guard(() => after(decideAct(S, 'cancelEval', { id: ce.dataset.cancelEval }), () => ({ note: '撤回了送评：这一版回到在练模型上，以后可以再送评' })));
   }
   const pm = t.closest('[data-post-main]');
-  if (pm) return guard(() => postMain(S, pm.dataset.postMain));
+  if (pm) return guard(() => postMain(S, pm.dataset.postMain, st));
   const pick = t.closest('[data-submit-box] [data-pick]');
   if (pick) {
     const box = pick.closest('[data-submit-box]');
@@ -586,15 +669,24 @@ export function click(S, t, ctx) {
     return guard(() => after(decideAct(S, action, arg), r => { st.submit = null; return r?.kind === 'submit' ? { note: `已送评「${r.name}」，${r.days} 天后评完自动发布` } : null; }));
   }
   const o = t.closest('[data-op]')?.dataset.op;
-  if (o === 'start-post') return guard(() => { const w = postTargets(S).find(x => x[0] === st.post.target)?.[2]; startNew(S, postSpec(S, st, w)); st.newJob = null; st.post = null; return { note: '后训练开始了' }; });
-  if (o === 'start-trial') return guard(() => { startNew(S, trialSpec(st)); st.newJob = null; return { note: '试验开始了：结果做完才知道' }; });
-  if (o === 'start-finetune') return guard(() => { startNew(S, { kind: 'finetune', cfg: { relId: st.ft.relId } }); st.newJob = null; return { note: '续训开始了' }; });
+  if (o === 'start-post') return guard(() => {
+    const w = postTargets(S).find(x => x[0] === st.post?.target)?.[2];
+    if (!w) throw Error('训练目标已经变化，请重新确认');
+    const spec = postSpec(S, st, w), check = formCheck(S, spec);
+    if (!check.ok) throw Error(check.reason);
+    if (usesPostTrainingCards(S, spec)) return after(beginPostTraining(S, spec, { modelId: w.id }), r => showPostTraining(st, r));
+    return after(startNew(S, spec), () => { st.newJob = null; st.post = null; return { note: '后训练开始了' }; });
+  });
+  if (o === 'start-trial') return guard(() => { return after(startNew(S, trialSpec(st)), () => { st.newJob = null; return { note: '试验开始了：结果做完才知道' }; }); });
+  if (o === 'start-finetune') return guard(() => { return after(startNew(S, { kind: 'finetune', cfg: { relId: st.ft.relId } }), () => { st.newJob = null; return { note: '续训开始了' }; }); });
   if (o === 'save-plan') return guard(() => { job(S, { op: 'plan', plan: st.plan }); st.planEdit = false; st.plan = null; return { note: '下一代计划定好了' }; });
   projectForm.click(S, t, ctx);
   distillForm.click(S, t, ctx);
 }
 // 在练模型展开区点了一个方向：主线后训练改练它（被“专心研究”暂停的一起恢复）；没挂后训练就挂一项，一直练。
-function postMain(S, dir) {
+function postMain(S, dir, st) {
+  const spec = { kind: 'post', target: 'main', dir, until: 'none' };
+  if (usesPostTrainingCards(S, spec)) return after(beginPostTraining(S, spec, { resume: true, updateDirection: true }), r => showPostTraining(st, r));
   if (Array.isArray(S.jobs.focusPause)) act(S, 'focusResearch', { on: false });
   const j = E.mainPostJob(S);
   if (j) { if (j.paused) act(S, 'pauseJob', { id: j.id, on: false }); act(S, 'setPost', { id: j.id, dir }); return { note: `主线后训练改练：${E.directionsFor(S).find(d => d.key === dir)?.label || dir}` }; }
@@ -602,8 +694,11 @@ function postMain(S, dir) {
   return { note: '主线挂上了后训练' };
 }
 export function change(S, t, ctx) {
+  if (postPlanPanel.change(S,t,ctx)) return;
   const { st, guard, draw } = ctx;
   const ds = t.dataset;
+  if(st.trainIdentity && st.trainIdentity !== trainingIdentity(S)) st.trainStale=true;
+  if(st.trainStale && (ds.jobCap || ds.postDir || ds.postUntil || ds.postDim || ds.postTo || ds.autoRepair !== undefined || ds.ownOnly !== undefined)) return guard(() => { throw new Error('训练目标已经变化，请先刷新目标后重新确认'); });
   if (optChange(st, t, draw)) return;
   if (ds.post) { const d = st.post; d[ds.post] = t.value; if (ds.post === 'until' && t.value === 'dim') { d.dim = null; d.to = null; } draw(); return; }
   if (ds.trial) { st.trial[ds.trial] = t.value; draw(); return; }

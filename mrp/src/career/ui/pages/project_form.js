@@ -44,7 +44,7 @@ export function optFields(st, kind, def, min = null) {
   const o = (st.opt ||= {})[kind] ||= { prio: def, cap: '' };
   const lo = Number.isFinite(min) && min > 0 ? min : 1;
   return `<label>优先级<select data-opt="prio" data-kind="${kind}"><option value="high" ${o.prio === 'high' ? 'selected' : ''}>优先</option><option value="normal" ${o.prio !== 'high' ? 'selected' : ''}>正常</option></select></label>
-    <label>最多几张卡<input type="number" inputmode="numeric" min="${lo}" step="1" value="${esc(o.cap)}" placeholder="不限" data-opt="cap" data-kind="${kind}" />${Number.isFinite(min) && min > 0 ? `<small>最少 ${count(min)} 张，不填就是不限</small>` : ''}</label>`;
+    <label>最多占用显卡<input type="number" inputmode="numeric" min="${lo}" step="1" value="${esc(o.cap)}" placeholder="不限" data-opt="cap" data-kind="${kind}" />${Number.isFinite(min) && min > 0 ? `<small>至少 ${count(min)} 张显卡，不填就是不限</small>` : ''}</label>`;
 }
 export function optOf(st, kind, def) {
   const o = st.opt?.[kind] || { prio: def, cap: '' };
@@ -174,8 +174,8 @@ export function render(S, st, opts = {}) {
 
 export function click(S, t, { st, guard }) {
   const op = t.closest('[data-op]')?.dataset.op;
-  if (op === 'start-project') guard(() => { startNew(S, { kind: 'pretrain', line: 'main', cfg: st.proj, ...optOf(st, 'pretrain', 'high') }); st.newJob = null; return { note: '立项成功，底座开始预训练' }; });
-  if (op === 'start-small') guard(() => { startNew(S, { kind: 'pretrain', line: 'small', cfg: st.small, ...optOf(st, 'small', 'high') }); st.newJob = null; return { note: '小底座开始预训练' }; });
+  if (op === 'start-project') guard(() => after(startNew(S, { kind: 'pretrain', line: 'main', cfg: st.proj, ...optOf(st, 'pretrain', 'high') }), () => { st.newJob = null; return { note: '立项成功，底座开始预训练' }; }));
+  if (op === 'start-small') guard(() => after(startNew(S, { kind: 'pretrain', line: 'small', cfg: st.small, ...optOf(st, 'small', 'high') }), () => { st.newJob = null; return { note: '小底座开始预训练' }; }));
 }
 export function change(S, t, { st, draw }) {
   if (t.dataset.draft === 'proj' || t.dataset.draft === 'small') { const c = st[t.dataset.draft] || (st[t.dataset.draft] = {}); c.draftName = t.value; draw(); return; }

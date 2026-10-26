@@ -13,8 +13,7 @@ import { MILESTONES, MS_BY_ID, msMods } from '../../src/career/data/milestones.j
 import { MS_TEXT } from '../../src/career/data/milestones_gen.js';
 import { SUPER_EVENTS, SUPER_BY_ID } from '../../src/career/data/super.js';
 import { POPUP_PER_HOOK } from '../../src/career/data/balance.js';
-import { rivalMatch, playerMatch, playerCond, initMilestones } from '../../src/career/sim/milestones.js';
-import { run as runMilestones } from '../../src/career/sim/migrations/milestones.js';
+import { rivalMatch, playerMatch, playerCond, initMilestones, milestoneCandidates } from '../../src/career/sim/milestones.js';
 import { realOf } from '../../src/career/sim/milestone_view.js';
 import { fire, prioOf, registerKind, closePopupDay } from '../../src/career/sim/queue.js';
 import { releaseScheduled } from '../../src/career/sim/loop.js';
@@ -387,143 +386,20 @@ describe('ms_first_sota：开局以后第一次炼出 SOTA（规格 E4、D10）'
     advance(s, 60, ev => { if (ev.id === 'ms_first_sota') again += 1; return null; });
     assert.equal(again, 0, '只弹一次');
   });
-  it('读旧档（6 份 v3 夹具，加一份构造的“已经炼出过”的存档）以后推进 60 天，不弹 ms_first_sota；已经成立的静默记账', () => {
-    const dir = new URL('../fixtures/saves/', import.meta.url);
-    const files = fs.readdirSync(dir).filter(f => /^[^._].*\.json$/.test(f));
-    assert.equal(files.length, 6);
-    const saves = files.map(f => [f, JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8'))]);
-    // 构造：P1.4 之前存的 v4 档，开局后已经拿到第一枚算数标签，里程碑步骤还没跑过。
-    const made = E.createGame('qwen', 'y2025', 3);
-    resolveAll(made);
-    advanceMonth(made);
-    made.queue = [];
-    const w = E.workingModel(made);
-    for (const k of Object.keys(w.dims)) w.dims[k] = 99;
-    w.postDays = (w.postDays || 0) + 40;
-    L.decide(made, 'release', { open: false });
-    made.queue = [];
-    made.scheduled = made.scheduled.filter(x => x.item?.id !== 'ms_first_sota');
-    delete made.ms.ms_first_sota;
-    delete made.ms.ms_open_reasoning_frontier;
-    made.mig.milestones = false;
-    saves.push(['constructed_made.json', clone(made)]);
-    for (const [f, raw] of saves) {
-      const s = loadSave(raw);
-      if (s.sota.made.length && !s.sota.before) assert.ok(s.ms.ms_first_sota?.silent, `${f} 应当静默记账`);
-      else assert.equal(s.ms.ms_first_sota, undefined, f);
-      let popped = 0;
-      const pick = ev => { if (ev.id === 'ms_first_sota') popped += 1; return null; };
-      resolveAll(s, pick);
-      advance(s, 60, pick);
-      assert.ok(!pendingEvents(s).some(q => q.id === 'ms_first_sota'));
-      assert.equal(popped, 0, f);
-    }
-  });
-  it('开发期的 v4 存档（mig.milestones 早就记了、账本没有版本号）：第一次检查前静默补记 ms_first_sota 和 ms_open_reasoning_frontier，之后不弹', () => {
-    // 构造：P0.3a 到 P1.4 之间新开的局，开局后已经拿到第一枚算数标签；那时 stampFeatures 已经把 milestones 记成执行过，读档不会再跑这一步。
-    const made = E.createGame('qwen', 'y2025', 3);
-    resolveAll(made);
-    advanceMonth(made);
-    made.queue = [];
-    const w = E.workingModel(made);
-    for (const k of Object.keys(w.dims)) w.dims[k] = 99;
-    w.postDays = (w.postDays || 0) + 40;
-    L.decide(made, 'release', { open: false });
-    made.queue = [];
-    made.scheduled = made.scheduled.filter(x => x.item?.id !== 'ms_first_sota');
-    delete made.ms.ms_first_sota;
-    delete made.ms.ms_open_reasoning_frontier;
-    delete made.msVer;
-    assert.equal(made.mig.milestones, true);
-    const s = loadSave(clone(made));
-    assert.ok(s.sota.made.length && !s.sota.before);
-    assert.equal(s.ms.ms_first_sota, undefined, '读档本身不补（特性步骤记成执行过了）');
-    let popped = 0;
-    const pick = ev => { if (ev.id === 'ms_first_sota') popped += 1; return null; };
-    advance(s, 60, pick);
-    assert.equal(popped, 0);
-    assert.ok(!pendingEvents(s).some(q => q.id === 'ms_first_sota'));
-    assert.ok(s.ms.ms_first_sota?.silent, JSON.stringify(s.ms.ms_first_sota));
-    assert.equal(s.ms.ms_first_sota.modelId, s.sota.made[0].modelId);
-    assert.ok(s.ms.ms_open_reasoning_frontier?.silent, JSON.stringify(s.ms.ms_open_reasoning_frontier));
-    assert.equal(s.msVer, 1);
-    // 新开局、读旧档迁移过的都已经写了版本号，不再补。
-    assert.equal(E.createGame('qwen', 'y2025', 3).msVer, 1);
-  });
-  it('更早的开发期存档（P1.1 以前，连 s.sota 都没有）：第一天研究完成的钩子先于 kinTick 补 s.sota，照样静默补记、不弹', () => {
-    // 构造同上，再去掉 s.sota（那时 initSota 还是存根）。第一天推进时研究完成，tech 钩子在 kinTick 的 ensureSota 之前就查里程碑。
-    const made = E.createGame('qwen', 'y2025', 3);
-    resolveAll(made);
-    advanceMonth(made);
-    made.queue = [];
-    const w = E.workingModel(made);
-    for (const k of Object.keys(w.dims)) w.dims[k] = 99;
-    w.postDays = (w.postDays || 0) + 40;
-    L.decide(made, 'release', { open: false });
-    made.queue = [];
-    made.scheduled = made.scheduled.filter(x => x.item?.id !== 'ms_first_sota');
-    delete made.ms.ms_first_sota;
-    delete made.ms.ms_open_reasoning_frontier;
-    delete made.msVer;
-    delete made.sota;
-    const s = loadSave(clone(made));
-    assert.equal(s.sota, undefined, '读档本身不补 s.sota（特性步骤记成执行过了）');
-    const opt = E.researchOptions(s).find(x => x.check.ok);
-    assert.ok(opt);
-    E.researchTech(s, opt.t.id);
-    for (const r of s.research) r.done = r.need;
-    let popped = 0;
-    const pick = ev => { if (ev.id === 'ms_first_sota') popped += 1; return null; };
-    advance(s, 60, pick);
-    assert.ok(s.sota.made.length && !s.sota.before);
-    assert.equal(popped, 0);
-    assert.ok(s.ms.ms_first_sota?.silent, JSON.stringify(s.ms.ms_first_sota));
-    assert.equal(s.ms.ms_first_sota.modelId, s.sota.made[0].modelId);
+  it('缺少里程碑版本时拒绝，不按过去日期静默补账', () => {
+    const s = E.createGame('qwen', 'y2025', 3); delete s.msVer; const before = JSON.stringify(s);
+    assert.throws(() => milestoneCandidates(s, { on: 'tech' }), /不支持|旧版/);
+    assert.equal(JSON.stringify(s), before); assert.equal(E.migrateGame(s).ok, false);
   });
 });
 
-describe('读档特性步骤 milestones（规格 E8）', () => {
-  it('新里程碑 ms_open_reasoning_frontier 在存档日之前发生的部分静默记账；跑两遍结果一样；删掉的里程碑和超事件并进 super_sota', () => {
-    const raw = JSON.parse(fs.readFileSync(new URL('../fixtures/saves/kimi_y2026.json', import.meta.url), 'utf8'));
-    raw.ms.ms_export_resume = { who: 'me', day: null };
-    raw.flags = { ...raw.flags, 'super:super_cn_first': '2026-03-31' };
-    const s = loadSave(raw);
-    assert.deepEqual([s.ms.ms_open_reasoning_frontier.who, s.ms.ms_open_reasoning_frontier.model, s.ms.ms_open_reasoning_frontier.silent], ['deepseek_pro', 'DeepSeek-R1', true]);
-    assert.equal(s.ms.ms_export_resume, undefined);
-    assert.equal(s.marks['super:super_sota'], '2026-03-31');
-    // 已经记过的不动：旧档里开源推理记在 R1 名下（旧规则），照旧。
-    assert.equal(s.ms.ms_open_reasoning.who, raw.ms.ms_open_reasoning.who);
-    const again = clone(s);
-    initMilestones(again, addDays(again.day, 1));
-    assert.deepEqual(again.ms, s.ms);
-    // 队列里认不出的超事件（已删除的）读档时丢掉。
-    const r2 = clone(raw);
-    r2.queue = [{ kind: 'super', id: 'super_open_crown', params: {} }, { kind: 'super', id: 'super_reasoning_pioneer', params: {} }];
-    const r = E.migrateGame(r2);
-    assert.ok(r.ok && r.s.queue.length === 0 && r.notes.length === 2);
-    // 队列和排期里还没演的“东方登顶”改写成 super_sota 的 cn 变体，照常弹；跑两遍结果一样。
-    const r3 = clone(raw);
-    r3.queue = [{ kind: 'super', id: 'super_cn_first', params: { pop: 0 } }];
-    r3.scheduled = [...(r3.scheduled || []), { at: addDays(r3.day, 5), item: { kind: 'super', id: 'super_cn_first' } }];
-    const m3 = E.migrateGame(r3);
-    assert.ok(m3.ok, m3.reason);
-    assert.ok(!m3.notes.some(n => n.includes('super_cn_first')), m3.notes.join('；'));
-    assert.deepEqual(m3.s.queue, [{ kind: 'super', id: 'super_sota', v: 'cn', params: { pop: 0 } }]);
-    assert.deepEqual(m3.s.scheduled.filter(x => x.item?.kind === 'super').map(x => x.item), [{ kind: 'super', id: 'super_sota', v: 'cn', params: {} }]);
-    assert.equal(E.currentEvent(m3.s).title, '东方登顶');
-    const twice = clone(m3.s);
-    runMilestones(twice);
-    assert.deepEqual([twice.queue, twice.scheduled], [m3.s.queue, m3.s.scheduled]);
-  });
-  it('读旧档时 superEarned 字段被丢弃', () => {
-    for (const [c, sc] of [['deepseek', 'y2025'], ['gpt', 'y2023']]) {
-      const s0 = E.createGame(c, sc, 71);
-      resolveAll(s0);
-      s0.flags.superEarned = { super_tenx: { day: s0.day, model: 'x', pop: 0 }, super_sota: { day: s0.day } };
-      s0.v = 3;
-      const s = loadSave(s0);
-      assert.equal(s.flags.superEarned, undefined);
-      assert.ok(!JSON.stringify(s).includes('superEarned'));
+describe('里程碑旧存档明确不支持', () => {
+  it('历史 v3 夹具明确拒绝，原始 JSON 不改写', () => {
+    const dir = new URL('../fixtures/saves/', import.meta.url);
+    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json') && !x.startsWith('.'))) {
+      const raw = JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8')), before = JSON.stringify(raw);
+      const r = E.migrateGame(raw); assert.equal(r.ok, false, f); assert.match(r.reason, /不支持|版本|旧存档/);
+      assert.equal(JSON.stringify(raw), before, f);
     }
   });
 });

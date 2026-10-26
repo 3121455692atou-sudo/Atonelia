@@ -8,9 +8,10 @@ import fs from 'node:fs';
 import * as E from '../../src/career/engine.js';
 import { applyEffects, validateEffects } from '../../src/career/sim/effects.js';
 import { openCase, legalTick, CASE_COOL_DAYS } from '../../src/career/sim/legal.js';
-import { previewDistill, knowledgeCap, computeCaps, historyTeacher } from '../../src/career/sim/model.js';
+import { previewDistill, knowledgeCap, computeCaps, distillTeachers } from '../../src/career/sim/model.js';
 import { publishPapers } from '../../src/career/sim/research.js';
 import { noticeOf } from '../../src/career/sim/queue.js';
+import { initComputeLedger } from '../../src/career/sim/economy.js';
 import { addDays } from '../../src/career/sim/clock.js';
 import { kcapOffset } from '../../src/career/data/balance.js';
 import { HISTORY_FACTS } from '../../src/career/data/history_facts.js';
@@ -43,6 +44,8 @@ describe('计时器存到期日，在 tickDay 结算', () => {
   it('上市 90 天后挂牌；开局就在招股的（港股 2026）30 天后、开局当月月底挂牌', () => {
     const s = game('kimi', 'y2025');
     s.valuation = 5e9; s.date = '2024-07'; s.day = '2024-07-10';
+    // 夹具把日期移到上市申请日，同时显式建该月当前账本，不依赖旧档估算。
+    s.computeLedger = initComputeLedger(s.date);
     E.startIpo(s);
     assert.equal(s.due.ipo, '2024-10-08');
     days(s, 90);
@@ -231,9 +234,10 @@ describe('引擎提示是 notice；旧版历史时刻删除', () => {
   });
   it('history 不再是认得的事件种类；史实选项的效果都在词表内，由 applyEffects 结算', () => {
     const s = game('claude', 'y2024');
-    s.queue.push({ kind: 'history', id: 'personal_claude_trio' });
-    const r = E.migrateGame(s);
-    assert.ok(r.ok && !r.s.queue.some(q => q.kind === 'history') && r.notes.some(x => /history/.test(x)));
+    const old = structuredClone(s); old.queue.push({ kind: 'history', id: 'personal_claude_trio' });
+    const before = JSON.stringify(old), r = E.migrateGame(old);
+    assert.equal(r.ok,false); assert.match(r.reason,/请新开一局/);
+    assert.equal(JSON.stringify(old),before);
     assert.ok(!/applyHistoryChoice|applyHistEffects|HISTORY\b/.test(read('sim/queue.js') + read('sim/milestone_view.js')));
     assert.ok(!/export const HISTORY\b|function effectsFrom|function hintOf|const DEFAULT/.test(read('data/history.js')));
     for (const f of HISTORY_FACTS) for (const mod of Object.keys(MODALITIES)) for (const c of histInfo(f.id, mod).choices) validateEffects(c.effects, { source: 'milestone' });
@@ -275,9 +279,10 @@ describe('服务命令：setLease、setTier、setSmallApi', () => {
 describe('蒸馏预览的 kcap 偏移和 computeCaps 统一读 kcapOffset(k)', () => {
   it('学生容量小、老师很强时，各维度卡在 kcap + 6（知识）/ kcap + 14（其他）', () => {
     const s = game('deepseek', 'y2025');
-    const t = historyTeacher('deepseek_pro', s.date);
+    const t = distillTeachers(s).find(t => t.own);
+    assert.ok(t, '当前新局的自家老师快照');
     // P1.2 换成规格 D7 的学生差距（1.5B、1T 时约 41 分），老师写得足够强，才看得到 kcap 卡住。
-    const pv = previewDistill(s, { teacher: 'x', total: 1.5, active: 1.5, arch: 'dense', tokens: 1 }, { ...t, dims: Object.fromEntries(Object.keys(t.dims).map(k => [k, 199])) });
+    const pv = previewDistill(s, { teacher: 'x', total: 1.5, active: 1.5, arch: 'dense', tokens: 1 }, { teacher: { ...t, dims: Object.fromEntries(Object.keys(t.dims).map(k => [k, 199])) } });
     assert.equal(pv.kcap, knowledgeCap(1.5, Math.max(E.poolStats(s).quality, 1.6)));
     for (const [k, v] of Object.entries(pv.dims)) if (k !== 'safety') assert.equal(v, Math.round(Math.min(95, pv.kcap + kcapOffset(k)) * 10) / 10, k);
     const caps = computeCaps(s, { mod: 'llm', base: Object.fromEntries(Object.keys(pv.dims).map(k => [k, 90])), kcap: pv.kcap });

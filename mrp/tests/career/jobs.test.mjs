@@ -111,12 +111,18 @@ describe('T4.2 分卡', () => {
   });
   it('16. 不缓存：同一天调推理份额以后，allocJobs 和立项预估立刻变；同一天里后训练先扣损耗，底座用的是扣完以后的 trainFlops', () => {
     const s = fresh('deepseek', 'y2025');
-    const cfg = { total: 236, active: 236, arch: 'dense', tokens: 2 };
+    // 8T keeps both previews above the fastest-day clamp even with inherited FP8/MTP.
+    const cfg = { total: 236, active: 236, arch: 'dense', tokens: 8 };
     startJob(s, { kind: 'post', target: 'main', dir: 'code', until: 'none' });
     const before = E.previewProject(s, cfg).days, T0 = allocJobs(s).T;
+    const share0 = s.inferShare;
+    assert.ok(before > E.fastestDays(s, { total: cfg.total }), 'fixture must not hit fastest-day clamp');
     E.setInferShare(s, 0.7);
     assert.ok(allocJobs(s).T < T0);
     assert.ok(E.previewProject(s, cfg).days > before);
+    E.setInferShare(s, share0);
+    assert.equal(E.previewProject(s, cfg).days, before, 'same-day reverse change is also fresh');
+    assert.equal(allocJobs(s).T, T0);
     E.setInferShare(s, 0.5);
     const j = startJob(s, { kind: 'pretrain', line: 'main', cfg });
     s.health = 90;
@@ -367,40 +373,18 @@ describe('T7 上一代收尾', () => {
   });
 });
 
-describe('T11.3 迁移', () => {
-  const dir = new URL('../fixtures/saves/', import.meta.url);
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.json') && !f.startsWith('.'));
-  it('11. 6 份 v3 夹具：底座作业的 pj 等于原 s.project，主线后训练的方向、榜单、since 等于原 s.focus，maintain 变成检修；第一天不排队；idle 迁移成没有作业', () => {
-    assert.equal(files.length, 6);
-    for (const f of files) {
-      const raw = JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8'));
-      const s = loadSave(raw);
-      const base = s.jobs.list.find(E.isBaseJob);
-      if (raw.project) {
-        assert.ok(base, `${f} 有项目`);
-        for (const k of ['type', 'need', 'done', 'start', 'tokens', 'structure']) assert.deepEqual(base.pj[k], raw.project[k], `${f} pj.${k}`);
-        assert.equal(base.prio, 'high');
-        assert.equal(base.rush, !!raw.flags?.push);
-        assert.ok(Number.isFinite(base.legacyMin));
-      } else assert.equal(base, undefined);
-      const post = s.jobs.list.find(j => j.kind === 'post');
-      if (['train', 'benchmax'].includes(raw.focus?.kind)) {
-        assert.equal(post.dir ?? null, raw.focus.dir ?? null);
-        assert.equal(post.bench ?? null, raw.focus.bench ?? null);
-        assert.equal(post.since, raw.focus.since);
-        assert.equal(post.until, 'none');
-      } else assert.equal(post, undefined);
-      assert.equal(s.jobs.repair, raw.focus?.kind === 'maintain');
-      const json = JSON.parse(JSON.stringify(s));
-      assert.ok(!('project' in json) && !('focus' in json) && !('push' in json.flags) && !('postPaused' in json.flags));
-      assert.ok(s.models.filter(m => m.stage === 'released').every(m => m.evalTier === 'legacy'));
-      assert.ok(allocJobs(s).items.every(i => i.why !== 'min'), `${f} 读档就排队`);
-      assert.ok(E.validateGame(s));
+describe('作业旧存档明确不支持', () => {
+  it('历史 v3 夹具明确拒绝，原始 JSON 不改写', () => {
+    const dir = new URL('../fixtures/saves/', import.meta.url);
+    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json') && !x.startsWith('.'))) {
+      const raw = JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8')), before = JSON.stringify(raw);
+      const r = E.migrateGame(raw); assert.equal(r.ok, false, f); assert.match(r.reason, /不支持|版本|旧存档/);
+      assert.equal(JSON.stringify(raw), before, f);
     }
-    const raw = JSON.parse(fs.readFileSync(new URL(files[0], dir), 'utf8'));
-    const idle = loadSave({ ...raw, focus: { kind: 'idle', since: '2025-01-01' }, project: null });
-    assert.deepEqual(idle.jobs.list, []);
-    assert.deepEqual(idle.jobs.focusPause, []);
+  });
+  it('legacyMin 不得降低实际最低卡需求', () => {
+    const s = fresh('gpt', 'y2025'), job = { kind: 'pretrain', pj: { structure: { total: 120 } }, legacyMin: 0 };
+    assert.throws(() => E.minCards(s, job), /不支持|旧版/);
   });
 });
 

@@ -20,16 +20,6 @@ export const modKind = key => KIND.get(key) || null;
 
 // 一个来源给出的一份加成里，这个键的值。点号键既认扁平写法（特质 mods 里的 'cap.safety': 3），也认嵌套写法（技术 effects 里的 cap: { safety: 3 }）。
 // post.<维度> 还要乘上整体的 post（特质可以写 post: 1.05，对所有方向生效）；消费方读 post.<维度> 一个键就够了。
-function valuesIn(mods, key) {
-  const dot = key.indexOf('.');
-  if (dot < 0) return typeof mods[key] === 'number' ? [mods[key]] : [];
-  const group = key.slice(0, dot), dim = key.slice(dot + 1);
-  const out = [];
-  if (group === 'post' && typeof mods.post === 'number') out.push(mods.post);
-  const v = mods[key] ?? (mods[group] && typeof mods[group] === 'object' ? mods[group][dim] : undefined);
-  if (typeof v === 'number') out.push(v);
-  return out;
-}
 
 // ---------- 来源 ----------
 // fn(s) → 加成对象的数组（每个对象就是一份 mods）；sig(s) → 字符串签名，签名不变就可以直接用缓存（不给就每次都算）。
@@ -99,10 +89,18 @@ function readMod(s, c, key) {
   const hit = c.vals.get(key);
   if (hit !== undefined) return hit;
   let v = kind === 'add' ? 0 : 1;
-  for (const src of SOURCES) {
-    for (const mods of src.fn(s) || []) {
+  const dot = key.indexOf('.'), group = dot < 0 ? null : key.slice(0, dot), dim = dot < 0 ? null : key.slice(dot + 1);
+  // A signed bucket already promises that every source is unchanged. Reuse its
+  // ordered source lists for other keys; unsigned extensions still run per read.
+  const lists = c.key ? (c.sources ??= []) : null;
+  for (let i = 0; i < SOURCES.length; i++) {
+    const list = lists && i in lists ? lists[i] : SOURCES[i].fn(s) || [];
+    if (lists) lists[i] = list;
+    for (const mods of list) {
       if (!mods) continue;
-      for (const x of valuesIn(mods, key)) v = kind === 'add' ? v + x : v * x;
+      if (group === 'post' && typeof mods.post === 'number') v = kind === 'add' ? v + mods.post : v * mods.post;
+      const x = dot < 0 ? mods[key] : mods[key] ?? (mods[group] && typeof mods[group] === 'object' ? mods[group][dim] : undefined);
+      if (typeof x === 'number') v = kind === 'add' ? v + x : v * x;
     }
   }
   c.vals.set(key, v);

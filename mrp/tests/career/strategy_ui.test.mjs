@@ -140,13 +140,15 @@ describe('公司策略界面（P3.U1）：节点状态和按钮', () => {
     assert.match(text(html), /锁定/);
   });
 
-  it('点树上的节点，右侧详情栏换成它；按钮在详情栏里：可开始写“开始这项策略”，有进行中的写“换成这项”，第一次点只进确认态', () => {
+  it('点树上的节点，在附近打开详情；按钮在详情栏里：可开始写“开始这项策略”，有进行中的写“换成这项”，第一次点只进确认态', () => {
     const s = game();
     const cur = s.strategy.cur.id;
     const avail = E.strategyOptions(s).find(o => o.state === 'available' && o.id !== cur && !o.node.stance);
     assert.ok(avail);
     // 默认选中进行中的那一项；节点本身不放按钮。
     let html = strategy.render(s, freshSt());
+    assert.equal(panel(html), '', 'Details are closed until a node is selected');
+    html = strategy.render(s, freshSt({strategySel:cur}));
     assert.match(panel(html), new RegExp(`data-strategy-detail-panel="${cur}"`));
     assert.doesNotMatch(nodeTag(html, avail.id), /data-strategy-op=/);
     const pickSt = freshSt();
@@ -188,7 +190,7 @@ describe('公司策略界面（P3.U1）：节点状态和按钮', () => {
   it('进行中那一项的详情栏里有“先搁置”，点了把进度保留 30 天；自动完成的节点没有开始按钮', () => {
     const s = game();
     const cur = s.strategy.cur.id;
-    const html = strategy.render(s, freshSt());
+    const html = strategy.render(s, freshSt({strategySel:cur}));
     assert.match(panel(html), /data-strategy-op="shelve"/);
     const sota = panel(strategy.render(s, freshSt({ strategySel: 'g_sota' })));
     assert.match(sota, /自动完成，不占策略槽/);
@@ -199,97 +201,6 @@ describe('公司策略界面（P3.U1）：节点状态和按钮', () => {
     assert.equal(s.strategy.cur, null);
     assert.ok(s.strategy.shelved[cur]?.until >= s.day);
     assert.match(notes.at(-1), /保留 30 天/);
-  });
-});
-
-describe('公司策略界面（P3.U1）：桌面连线按卡片实际位置重算', () => {
-  const points = d => {
-    const n = (String(d).match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
-    const out = [];
-    for (let i = 0; i + 1 < n.length; i += 2) out.push([n[i], n[i + 1]]);
-    return out;
-  };
-  const near = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.01, `${msg}：${a} ≠ ${b}`);
-
-  it('同一行：从父卡朝向子卡的一侧出发，落在子卡顶部中点', () => {
-    const from = { x: 0, y: 0, w: 170, h: 301 };
-    const to = { x: 184, y: 0, w: 170, h: 340 };
-    const p = points(strategy.linkPath(from, to));
-    assert.equal(p.length, 3);
-    near(p[0][0], 170, '起点在父卡右侧');
-    near(p[0][1], 18, '起点在卡片上部');
-    near(p.at(-1)[0], 269, '终点在子卡顶部中点 x');
-    near(p.at(-1)[1], 0, '终点在子卡顶部中点 y');
-    // 父在右、子在左：从父卡左侧出发。
-    const left = points(strategy.linkPath(to, from));
-    near(left[0][0], 184, '起点在父卡左侧');
-    near(left.at(-1)[0], 85, '终点在子卡顶部中点 x');
-    near(left.at(-1)[1], 0, '终点在子卡顶部中点 y');
-  });
-
-  it('跨一行：父卡底部中点竖下来，在行间空隙拐弯，连到子卡顶部中点', () => {
-    const from = { x: 0, y: 0, w: 170, h: 301 };
-    const to = { x: 184, y: 315, w: 170, h: 360 };
-    const p = points(strategy.linkPath(from, to));
-    assert.equal(p.length, 4);
-    near(p[0][0], 85, '起点在父卡底部中点 x');
-    near(p[0][1], 301, '起点在父卡底部');
-    near(p.at(-1)[0], 269, '终点在子卡顶部中点 x');
-    near(p.at(-1)[1], 315, '终点在子卡顶部');
-    near(p[1][1], (301 + 315) / 2, '拐弯在两行之间');
-    near(p[2][1], (301 + 315) / 2, '横向段在两行之间');
-  });
-
-  it('跨多行：仍然从父卡底部到子卡顶部，纵向段跨过中间的行', () => {
-    const from = { x: 0, y: 0, w: 170, h: 301 };
-    const to = { x: 368, y: 630, w: 170, h: 393 };
-    const p = points(strategy.linkPath(from, to));
-    near(p[0][1], 301, '起点在父卡底部');
-    near(p.at(-1)[0], 453, '终点在子卡顶部中点 x');
-    near(p.at(-1)[1], 630, '终点在子卡顶部');
-    near(p[1][1], (301 + 630) / 2, '拐弯在两卡之间的中部');
-    near(p[2][1], (301 + 630) / 2, '横向段在两卡之间的中部');
-  });
-
-  it('子卡排在父卡上面：两头对调，从上面那张底部连到下面那张顶部，不穿过卡片', () => {
-    const upper = { x: 184, y: 0, w: 170, h: 301 };
-    const lower = { x: 0, y: 315, w: 170, h: 360 };
-    const p = points(strategy.linkPath(lower, upper));
-    near(p[0][0], 269, '起点在上面那张底部中点 x');
-    near(p[0][1], 301, '起点在上面那张底部');
-    near(p.at(-1)[0], 85, '终点在下面那张顶部中点 x');
-    near(p.at(-1)[1], 315, '终点在下面那张顶部');
-    assert.equal(strategy.linkPath(lower, upper), strategy.linkPath(upper, lower));
-  });
-
-  it('互斥线一对只画一条', () => {
-    const html = strategy.render(game(), freshSt());
-    const pairs = [...html.matchAll(/class="strategy-link strategy-link--excl" data-from="([^"]+)" data-to="([^"]+)"/g)].map(m => [m[1], m[2]].sort().join('|'));
-    assert.ok(pairs.length > 0, '通用树里有互斥线');
-    assert.equal(new Set(pairs).size, pairs.length);
-  });
-
-  it('渲染出的格子不再写死高度，SVG 也不再拉伸到网格格数坐标', () => {
-    const html = strategy.render(game(), freshSt());
-    assert.match(html, /class="strategy-links"/);
-    assert.match(html, /<path [^>]*data-from="[^"]+" data-to="[^"]+"/);
-    assert.doesNotMatch(html, /class="strategy-links"[^>]*preserveAspectRatio="none"/);
-    const cards = [...html.matchAll(/<button[^>]*data-strategy-node="[^"]+"[^>]*>/g)].map(m => m[0]);
-    assert.ok(cards.length > 0);
-    for (const tag of cards) assert.doesNotMatch(tag, /style="[^"]*(?:^|;)\s*height\s*:/);
-  });
-
-  it('CSS：行高随内容，节点卡不内部滚动', () => {
-    const css = fs.readFileSync(new URL('../../src/career/css/strategy.css', import.meta.url), 'utf8');
-    const rule = name => (css.match(new RegExp(`\\n${name.replace('.', '\\.')}\\s*\\{([^}]*)\\}`)) || [])[1] || '';
-    const node = rule('.strategy-node');
-    assert.ok(node, '找不到 .strategy-node 规则');
-    assert.doesNotMatch(node, /(?:^|;)\s*height\s*:/, '节点卡不该写死高度');
-    assert.doesNotMatch(node, /(?:^|;)\s*overflow(?:-y)?\s*:\s*auto/, '节点卡不该内部滚动');
-    const grid = rule('.strategy-grid');
-    assert.ok(grid, '找不到 .strategy-grid 规则');
-    assert.match(grid, /grid-auto-rows\s*:\s*auto/, '行高要按内容');
-    assert.doesNotMatch(grid, /grid-auto-rows\s*:[^;]*\d+px/, '行高不能用固定像素');
   });
 });
 
@@ -377,18 +288,18 @@ describe('公司策略界面（P3.U1）：导航、背景和视图登记', () =>
     assert.equal(bgFor({ kind: 'strategy', id: 'x' }), BG.strategy);
   });
 
-  it('375px：桌面网格藏起来，手机列表和详情都在一列里，路线、特质和长标题都能缩；不加悬浮按钮或底部弹层', () => {
+  it('375px：同一棵可滚动树可见，分支列表可选，路线和长标题不溢出', () => {
     const html = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
     const css = [...html.matchAll(/href="\.\/(src\/career\/css\/[\w-]+\.css)/g)].map(m => fs.readFileSync(new URL(`../../${m[1]}`, import.meta.url), 'utf8')).join('\n');
     const own = fs.readFileSync(new URL('../../src/career/css/strategy.css', import.meta.url), 'utf8');
     for (const w of [375, 390, 768]) {
-      assert.equal(cssAt(css, '.strategy-tree-card', w).display, 'none', `${w}px：桌面树要藏起来`);
+      assert.equal(cssAt(css, '.strategy-tree-card', w).display, 'block', `${w}px：窄屏同样显示可滚动树图`);
       assert.equal(cssAt(css, '.strategy-mobile', w).display, 'block', `${w}px：手机列表要显示`);
       assert.equal(cssAt(css, '.strategy-page', w)['grid-column'], '1 / -1', `${w}px：策略页占满后台一列`);
       assert.equal(cssAt(css, '.strategy-m-main', w)['min-width'], '0', `${w}px：长标题要能缩`);
     }
-    assert.equal(cssAt(css, '.strategy-grid', 1440).display, 'grid');
-    assert.equal(cssAt(css, '.strategy-mobile', 1440).display, 'none');
+    assert.equal(cssAt(css, '.strategy-grid', 1440).display, 'block');
+    assert.equal(cssAt(css, '.strategy-mobile', 1440).display, 'block');
     assert.equal(cssAt(css, '.strategy-route-line', 375)['flex-wrap'], 'wrap');
     assert.equal(cssAt(css, '.strategy-spirit-row', 375)['overflow-x'], 'auto');
     assert.doesNotMatch(own, /position:\s*fixed/, '策略页不加悬浮按钮、不用底部弹层');

@@ -6,11 +6,11 @@ import { esc } from '../fmt.js';
 import { backToTitle, restartToTitle, enterGame } from '../flow.js';
 import { toast, getWorld, setWorld, setState, getMp } from '../state.js';
 import { roomCmd, isHost } from '../net.js';
-import { safeLoadState, downloadText, saveKind, setRaw, markWorldLeave, SAVE_KEY } from '../storage.js';
+import { safeLoadState, previewWorld, preflightSoloPostPlanSave, downloadText, saveKind, setRaw, markWorldLeave, SAVE_KEY } from '../storage.js';
 
 const worldPlayer = world => {
-  const pid = world?.settings?.you || Object.values(world?.companies || {}).find(c => c.kind === 'human' && c.s)?.id;
-  return pid && world.companies?.[pid]?.s ? { pid, s: world.companies[pid].s } : null;
+  const pid = world?.settings?.you;
+  return pid && world.companies?.[pid]?.kind === 'human' && world.companies[pid].s ? { pid, s: world.companies[pid].s } : null;
 };
 
 // 联机：存档在服务器上，浏览器里不导出、不导入；房主可以让服务器马上存一份。离开房间回标题（整页重载）。
@@ -53,26 +53,38 @@ export function click(S, t, { st, draw }) {
   if (st.readOnly) return;
   if (op === 'import') return t.closest('.card').querySelector('[data-import]')?.click();
   if (op === 'import-cancel') {
-    // 世界存档的校验会当场换掉全局 Provider：取消导入时把它换回正在玩的这一局（或史实）。
-    if (st.importing?.world) {
-      const old = getWorld();
-      if (old) {
-        const back = E.migrateWorld(E.serialize(old));
-        const pid = back.ok ? worldPlayer(back.world)?.pid : null;
-        if (back.ok && pid) { setWorld(back.world); back.world.settings.you = pid; setState(back.world.companies[pid].s); }
-      } else E.migrateWorld({});
-    }
     st.importing = null;
     return draw();
   }
   if (op === 'import-confirm' && st.importing) {
     const r = st.importing;
-    if (r.notes?.length) toast(`存档里有 ${r.notes.length} 条认不出的内容，已经丢掉`);
     if (r.world) {
-      setWorld(r.world);
-      return enterGame(r.s, { persist: true });
+      // 预览已还原当前世界；确认时才正式安装候选的 Provider 和发布表。
+      const text = E.serialize(r.world), check = preflightSoloPostPlanSave(text);
+      if (!check.ok) return toast(`导入失败：${check.reason}`);
+      // 再校验也必须先隔离 Provider：损坏的当前版本候选不能切走正在玩的世界。
+      const verified = previewWorld(text);
+      if (!verified.ok) return toast(`导入失败：${verified.reason}`);
+      const loaded = E.migrateWorld(text);
+      if (!loaded.ok) return toast(`导入失败：${loaded.reason}`);
+      const p = worldPlayer(loaded.world);
+      if (!p) return toast('导入失败：这份世界存档里找不到玩家经营的公司');
+      setWorld(loaded.world);
+      return enterGame(p.s, { persist: true });
     }
-    return enterGame(r.s, { persist: true });
+    const check = preflightSoloPostPlanSave(r.s);
+    if (!check.ok) return toast(`导入失败：${check.reason}`);
+    const loaded = safeLoadState(r.s);
+    if (!loaded.ok) return toast(`导入失败：${loaded.reason}`);
+    if (loaded.s.status !== 'playing') return toast('这份存档的那一局已经打完了，不能接着玩');
+    // 选文件只预览；跨模式切换也必须等确认后再覆盖，写入失败不能刷新丢掉当前世界。
+    if (getWorld()) {
+      if (!setRaw(SAVE_KEY, JSON.stringify(loaded.s))) return toast('史实存档没有写成，请先导出当前存档，检查浏览器存储后重试');
+      markWorldLeave();
+      if (typeof globalThis.location?.reload === 'function') return globalThis.location.reload();
+      setWorld(null);
+    }
+    return enterGame(loaded.s, { persist: true });
   }
   if (op === 'abandon') { const b = t.closest('[data-op]'); if (b.dataset.confirm) return restartToTitle(); b.dataset.confirm = '1'; b.textContent = '再点一次确认放弃'; }
 }
@@ -83,12 +95,18 @@ export async function change(S, t, { st, draw }) {
   const file = t.files?.[0];
   t.value = '';
   if (!file) return;
+  // 新文件取代上一次预览；失败时不能留下可误确认的旧候选。
+  delete st.importing;
+  draw();
   let text;
   try { text = await file.text(); } catch { return toast('这个文件读不出来'); }
+  const check = preflightSoloPostPlanSave(text);
+  if (!check.ok) return toast(`导入失败：${check.reason}`);
   const kind = saveKind(text);
   if (kind === 'world') {
-    const r = E.migrateWorld(text);
+    const r = previewWorld(text);
     if (!r.ok) return toast(`导入失败：${r.reason}`);
+    if (r.world.settings?.mp) return toast('联机存档不能替换单人局，请通过原房间查看复盘；离线复盘导入尚未支持');
     const p = worldPlayer(r.world);
     if (!p) return toast('导入失败：这份世界存档里找不到玩家经营的公司');
     st.importing = { world: r.world, playerId: p.pid, s: p.s, notes: r.notes || [] };
@@ -97,12 +115,6 @@ export async function change(S, t, { st, draw }) {
   const r = safeLoadState(text);
   if (!r.ok) return toast(`导入失败：${r.reason}`);
   if (r.s.status !== 'playing') return toast('这份存档的那一局已经打完了，不能接着玩');
-  // 正在自洽世界里读一份史实存档：先把史实档写回主档，再整页重载（Provider、发布表回史实状态）。
-  if (getWorld()) {
-    setRaw(SAVE_KEY, JSON.stringify(r.s));
-    markWorldLeave();
-    if (typeof globalThis.location?.reload === 'function') return globalThis.location.reload();
-  }
   st.importing = r;
   draw();
 }

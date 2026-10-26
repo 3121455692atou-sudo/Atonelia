@@ -7,6 +7,8 @@ import fs from 'node:fs';
 import * as E from '../../src/career/engine.js';
 import { COMPANIES } from '../../src/career/data/core.js';
 import { cssAt } from '../helpers/css.mjs';
+import { restoreHistory } from '../helpers/world_provider.mjs';
+import { P } from '../../src/career/sim/provider.js';
 
 // fmt.js 在模块加载时就要读 document.baseURI，界面模块必须等替身装好再动态加载。
 globalThis.document ??= { baseURI: 'http://localhost/' };
@@ -94,7 +96,7 @@ describe('开局设置页（规格 M.2.1–M.2.3）', () => {
 
 describe('从设置页到 createWorld（规格 M.2、M.4）', () => {
   it('用设置页的参数真的开一局，跑 10 天，getState() 返回玩家那家的 s', () => {
-    const d = { ...solo.defaultSolo(false), count: 3, years: 1 };
+    const d = { ...solo.defaultSolo(false,'post'), count: 3, years: 1 };
     const r = solo.startSolo(d, 7);
     world = r.world;
     player = r.s;
@@ -185,13 +187,17 @@ describe('存档分发与报错（规格 E8 末尾）', () => {
     assert.equal(saveKind('{}'), 'unknown');
   });
 
-  it('坏世界存档返回中文原因，不抛错；读失败后单例回到史实', () => {
+  it('缺版本世界存档明确拒绝，不抛错且不替换当前 Provider', () => {
+    const provider = P(), raw = { kind: 'world' }, before = structuredClone(raw);
     let r;
-    assert.doesNotThrow(() => { r = E.migrateWorld({ kind: 'world' }); });
+    assert.doesNotThrow(() => { r = E.migrateWorld(raw); });
     assert.equal(r.ok, false);
     assert.equal(typeof r.reason, 'string');
-    assert.match(r.reason, /版本|世界状态|发布表|公司/);
-    // 失败以后换回 HistoryProvider 和原发布表：史实局照样能开。
+    assert.match(r.reason, /不支持旧版或未知世界存档.*请新开一局/);
+    assert.equal(P(), provider);
+    assert.deepEqual(raw, before);
+    // 切回史实由显式测试清理完成，不再借读档失败的副作用。
+    restoreHistory();
     const s = E.createGame('qwen', 'y2025', 3);
     assert.equal(s.charId, 'qwen');
     assert.ok(s.models.length > 0);
@@ -215,7 +221,7 @@ describe('史实模式一个像素都不变（挑 3 家公司 × 2 个剧本）'
   after(() => { state.setWorld(null); state.setState(null); });
   it('同一批页面（对手、新闻、算力、股市）的 HTML 和改动前逐字一致；不出现“同场公司”和世界标签', () => {
     // 世界跑过以后把 Provider、发布表换回史实，再拍一次。
-    E.migrateWorld({});
+    restoreHistory();
     state.setWorld(null);
     state.setState(null);
     const after = historySnap();
@@ -243,6 +249,6 @@ describe('375px 版面（F2 M1 ⑤）', () => {
     assert.match(cssAt(css, ['.solo-art-grid'], 375)['grid-template-columns'], /repeat\(3, minmax\(0, 1fr\)\)/);
     assert.equal(cssAt(css, ['.solo-rivals'], 375)['grid-template-columns'], 'minmax(0, 1fr)');
     const html = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
-    assert.match(html, /href="\.\/src\/career\/css\/solo\.css\?v=4"/);
+    assert.match(html, /href="\.\/src\/career\/css\/solo\.css\?v=8-hud"/);
   });
 });

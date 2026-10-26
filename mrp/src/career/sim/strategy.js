@@ -4,7 +4,6 @@
 //
 // 状态（A3）：s.strategy = { tree, cur, shelved, done, spirits, rights, unlocks, ex, exPending, idleSince, log }，另有两项本文件和顾问用的：
 //   snooze：玩家在顾问那里点了“先不做”的日子（下一个 IDLE_ADVICE_EVERY 周期才再提醒）；trail、hold：发布时机规则（strategy_ai.js 的 shouldHold）；
-//   intro：读旧档时记下、第一天推进时发“公司策略上线了”的提示。
 // 存档里只存 id，节点、特质的数值都来自数据。路线只能经 completeNode 里的 setStance(src 'strategy') 改（B4）。
 //
 // 特质的几个小工具（spiritDef、hasSpirit、spiritBlocks、addSpirit、removeSpirit）给 applyEffects 的 spirit 键、条件 canRaise、
@@ -21,12 +20,11 @@ import { applyEffects, describeEffects } from './effects.js';
 import { registerModSource, invalidateMods, modifier, arrayQuick } from './modifiers.js';
 import { fire, registerKind } from './queue.js';
 import { setStance, routeCooldownLeft, routeOf } from './route.js';
-import { sotaMade, ensureSota, gapOf, qOf, sotaWouldTake } from './sota.js';
+import { sotaMade, gapOf, qOf, sotaWouldTake } from './sota.js';
 import { liveModel, workingModel, taintCaps } from './model.js';
 import { log } from './log.js';
 import { pickStrategy, holdTick } from './strategy_ai.js';
 import { nodeExclusives, registerExclusiveKind } from './exclusive.js';
-import { run as migrateStrategy } from './migrations/strategy.js';
 
 // ---------- 特质 ----------
 // 特质定义：通用的在 data/spirits.js，本家的在公司文件里。
@@ -394,11 +392,6 @@ export function strategyTick(s, out) {
     s.news.unshift({ date: s.date, day: s.day, type: 'strategy', title: '公司特质：技术储备不足 → 集团出过 SOTA', detail: SPIRITS.g_sota_kin.desc });
     log(s, '公司特质：集团出过 SOTA');
   }
-  // 读旧档以后第一天：提示公司策略上线了（E8 的 strategy 特性步骤记下的）。
-  if (S.intro) {
-    delete S.intro;
-    s.queue.push({ kind: 'notice', title: '公司策略上线了', text: '后台多了「公司策略」：同一时间推进一项，几十天后完成，换来公司特质、可以争取的史实型号名，或者开源路线的改变。存档之前现实里已经发生的那些步骤，记成已经完成。现在没有进行中的策略，去后台挑一项吧。' });
-  }
   autoBypass(s);
   for (const id of Object.keys(S.shelved)) { const n = nodeOf(s, id); if (!n || permanent(s, n)) delete S.shelved[id]; }
   const c = S.cur;
@@ -431,22 +424,19 @@ export function strategyTick(s, out) {
   holdTick(s);
 }
 
-// ---------- 开局与读档 ----------
+// ---------- 新开局 ----------
 // 播种（A4 规则 7）：开局特质和国家说明特质 → 第 0 步（按 s.sota.seed：★ 以 start 完成 g_sota，○ 加“集团出过”，— 加“技术储备不足”）
-// → 史实日期早于开局（读档时早于存档日）的史实节点按日期、前置满足的前提下记为 start（互斥方随之排除，跳过架空和自动节点）
+// → 史实日期早于开局的史实节点按日期、前置满足的前提下记为 start（互斥方随之排除，跳过架空和自动节点）
 // → 开局才播种进行中的策略：开局后 SEED_WINDOW 天内最早一个前置满足的史实节点，进度按离史实日还有几天算；没有就让顾问挑一项（adaptive）。
 // startOverride 只写例外：skip 的不预完成，done 的另外预完成，cur 指定开局进行中的那一项。路线不经过播种（B6 的表才是开局路线）。
-// 开发期存档里已经有的特质（比如 g_self_reliant）保留。asOf：读档迁移时传存档日（不播种进行中的策略）。
-export function initStrategy(s, { asOf = null } = {}) {
+export function initStrategy(s) {
   registerStrategyKind();
   const t = resolvedTree(s);
   if (!t) return null;
-  const keep = s.strategy?.spirits && typeof s.strategy.spirits === 'object' && !Array.isArray(s.strategy.spirits) ? s.strategy.spirits : {};
-  // 开局当天（读档时按存档的开局月 1 日）：开局特质、第 0 步都记在这一天。
-  const st = asOf && typeof s.start === 'string' && /^\d{4}-\d{2}$/.test(s.start) ? `${s.start}-01` : s.day;
+  // 开局特质和第 0 步都记在真实开局当天，不接受存档日补种。
+  const st = s.day;
   s.strategy = { tree: t.id, cur: null, shelved: {}, done: {}, spirits: {}, rights: {}, unlocks: {}, ex: {}, exPending: [], idleSince: null, log: [] };
   const S = s.strategy;
-  for (const [id, x] of Object.entries(keep)) if (x && typeof x === 'object') S.spirits[id] = x;
   const file = companyFile(s.charId);
   for (const id of [...(file?.startSpirits || []), ...countrySpirits(s)]) if (spiritDef(s, id) && !S.spirits[id]) addSpirit(s, id, null, st);
   const seed = s.sota?.seed ?? (sotaMade(s) ? '★' : '—');
@@ -457,13 +447,13 @@ export function initStrategy(s, { asOf = null } = {}) {
   const order = new Map(t.nodes.map((n, i) => [n.id, i]));
   const byDate = (a, b) => (histDay(a) < histDay(b) ? -1 : histDay(a) > histDay(b) ? 1 : order.get(a.id) - order.get(b.id));
   const histNodes = t.nodes.filter(n => histDay(n) && !n.fiction && !n.auto).sort(byDate);
-  const cutoff = asOf ?? st;
+  const cutoff = st;
   for (const n of histNodes) {
     if (histDay(n) >= cutoff || skip.has(n.id) || isDone(s, n.id) || !prereqOk(s, n) || excludedBy(s, n)) continue;
     completeNode(s, n.id, 'start', { day: histDay(n) });
   }
   for (const id of ov.done || []) { const n = nodeOf(s, id); if (n && !isDone(s, id)) completeNode(s, id, 'start', { day: histDay(n) && histDay(n) < st ? histDay(n) : st }); }
-  if (!asOf) {
+  {
     const seedNode = histNodes.find(n => histDay(n) >= st && daysBetween(st, histDay(n)) < SEED_WINDOW && !skip.has(n.id) && !isDone(s, n.id) && prereqOk(s, n) && !excludedBy(s, n));
     const forced = ov.cur ? nodeOf(s, ov.cur) : null;
     if (forced) { S.cur = { id: forced.id, days: 0, need: forced.days, since: st, paused: null }; pushLog(s, forced.id, 'start'); }
@@ -480,15 +470,10 @@ export function initStrategy(s, { asOf = null } = {}) {
   invalidateMods(s);
   return S;
 }
-// 有了策略树才算上线（ρ 的回退判 s.strategy?.tree，D6.2）。读档特性步骤已经记成执行过、却没有策略树的开发期存档
-// （G1 以后、P2.2 以前新开的，那时 initStrategy 是空存根），第一次推进时按读旧档的办法补跑整个 strategy 特性步骤（照 ensureSota、ensureRoute）。
-// 手搭的状态（没有 s.mig）不补。→ s.strategy | null。
+// 当前结构必须有初始化的策略树；运行中不替开发期旧档补树。
 export function ensureStrategy(s) {
-  if (s?.strategy?.tree) return s.strategy;
-  if (!s?.mig?.strategy || !Array.isArray(s.models) || typeof s.day !== 'string') return null;
-  ensureSota(s);
-  migrateStrategy(s);
-  return s.strategy?.tree ? s.strategy : null;
+  if (!s?.strategy?.tree) throw Error('不支持缺少策略树的旧存档，请新开一局');
+  return s.strategy;
 }
 
 // ---------- 完成卡片（kind strategy） ----------

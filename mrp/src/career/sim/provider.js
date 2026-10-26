@@ -1,7 +1,8 @@
 // 世界接缝（规格 M.3.2）：所有“世界是什么样”的读取都从这里走。
 // 史实模式由 HistoryProvider 包住现有写死的数据；自洽模式的 SimProvider 在 M1 再写。
 // 这里只做取数，不改变任何计算顺序。
-import { TECHS, GPUS, gpuAvailable, gpuMarkup, addMonths, COMPANY_BY_ID, PLAYABLE, TIERS } from '../data/core.js';
+import { GPUS, gpuAvailable, gpuMarkup, COMPANY_BY_ID, PLAYABLE, TIERS } from '../data/core.js';
+import { historicalStartTechs } from '../data/start_methods.js';
 import { BUBBLE, FUNDING } from '../data/economy.js';
 import { FAMILIES, RELEASES, relId } from '../data/rivals.js';
 import { START_STANCE, START_SCENARIOS, parseStance } from '../data/routes.js';
@@ -239,7 +240,7 @@ export class HistoryProvider {
     return lerpYear(tab, y);
   }
   techSources(id) { return TECH_SRC[id]; }
-  startTechs(s) { return TECHS.filter(t => t.mod === s.mod && (t.start || t.from <= addMonths(s.start, -3))).map(t => t.id); }
+  startTechs(s) { return historicalStartTechs(s); }
   worldEvents(ym) { return ym ? WORLD_EVENTS.filter(w => w.date === ym) : [...WORLD_EVENTS]; }
   worldEvent(id) { return WORLD_EVENTS.find(w => w.id === id) ?? null; }
   marketDate(s) { return s.date; }

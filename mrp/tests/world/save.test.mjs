@@ -99,7 +99,7 @@ describe('世界存档（E8）', () => {
   });
 
   it('save.js 在 Node 里能导入；没有浏览器存储时 storage() 安静地退成 none', () => {
-    assert.equal(WORLD_SAVE_VERSION, 1);
+    assert.equal(WORLD_SAVE_VERSION, 2);
     assert.equal(typeof E.serialize, 'function');
     assert.equal(typeof E.deserialize, 'function');
     assert.equal(typeof E.migrateWorld, 'function');
@@ -113,7 +113,7 @@ describe('世界存档（E8）', () => {
     run(w, 5);
     const raw = E.deserialize(E.serialize(w));
     assert.equal(raw.kind, 'world');
-    assert.equal(raw.v, 1);
+    assert.equal(raw.v, 2);
     assert.equal(raw.world.ver, raw.world.rels.length);
     assert.ok(raw.world.ver > 0);
     assert.equal(raw.companies.length, 3);

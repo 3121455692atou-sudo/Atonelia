@@ -98,10 +98,10 @@ describe('cond：策略、路线、授名、事件记账（还没有 s.strategy�
 });
 
 describe('cond：模型（live、smallLive、working、model）和 ModelCond 的每个子键', () => {
-  const strong = s => ({ id: 'tm', mod: 'llm', stage: 'released', role: 'flagship', open: true, license: 'permissive', arch: 'moe', total: 671, active: 37,
+  const strong = s => ({ id: 'tm', mod: 'llm', stage: 'released', role: 'flagship', line: 'main', open: true, license: 'permissive', arch: 'moe', total: 671, active: 37,
     dims: { knowledge: 99, code: 99, math: 99, writing: 99, safety: 80, agent: 99 }, techs: ['reasoning', 'mla'], tainted: false, teacher: 'self', origin: 'distill',
     badges: ['community'], sota: { from: s.day, until: null } });
-  const weak = s => ({ ...strong(s), id: 'tw', role: 'small', open: false, license: undefined, arch: 'dense', total: 7, active: 7, dims: { knowledge: 10, code: 10, math: 10, writing: 10, safety: 10, agent: 10 },
+  const weak = s => ({ ...strong(s), id: 'tw', role: 'small', line: 'small', open: false, license: undefined, arch: 'dense', total: 7, active: 7, dims: { knowledge: 10, code: 10, math: 10, writing: 10, safety: 10, agent: 10 },
     techs: ['mla'], tainted: true, teacher: 'gpt', origin: 'pretrain', badges: [], sota: { from: s.day, until: s.day } });
   it('live、smallLive、working、model 和 exists', () => {
     const s = game();
@@ -163,7 +163,7 @@ describe('cond：模型（live、smallLive、working、model）和 ModelCond 的
     w.open = true;
     yes(s, { working: { open: false } }); no(s, { working: { license: ['permissive', 'restrictive'] } });
     // 不是试算的 model 叶子（发布钩子里的快照）、live 读模型自己的开闭。
-    yes(s, { model: { open: true } }, { model: { ...w, stage: 'released', open: true, license: 'permissive' } });
+    yes(s, { model: { open: true } }, { model: { ...w, stage: 'released', line: 'main', open: true, license: 'permissive' } });
     yes(s, { live: { open: true, license: 'restrictive' } });
   });
   it('role：有旗舰正在灰度时，working 和发布前试算跟 doRelease 一样和灰度中较强的一款比（release.js 的 releaseLine）', () => {

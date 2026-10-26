@@ -3,6 +3,7 @@
 // 名字账本、董事会目标和 botParams 在 M1b-2 接上（world/names|goals、triggers）。
 import { tickersOf, priceOf, buy, sell, short, cover, buyback, issue, listCompany } from './exchange.js';
 import { HistoryProvider, registerCompany } from '../sim/provider.js';
+import { diffusedStartTechs } from '../data/start_methods.js';
 import { RELEASES, FAMILIES, setReleases } from '../data/rivals.js';
 import { OWNER_OF } from '../data/core.js';
 import { WORLD_EVENTS } from '../data/world.js';
@@ -49,6 +50,8 @@ export class SimProvider extends HistoryProvider {
   standIns = false;          // 事件替身全关（M1 没有互动事件）
 
   restructures = true;       // 破产走重组和清算（M.5.8，world/restructure.js）
+
+  get firstAutoPost() { return this.world.autoPostVersion === 1; }
 
   constructor(world) {
     super();
@@ -116,7 +119,9 @@ export class SimProvider extends HistoryProvider {
   startTechs(s) {
     // 分岔局照史实发开局技术；从零局只给世界账本里已经到论文或开源的（M.2.2）。
     if (this.world.mode === 'fork') return super.startTechs(s);
-    return startTechs(this.world, super.startTechs(s), s.start);
+    // zero 不经过公司领跑继承；仅靠公开等级过滤不够：即使账本有 paper/open，
+    // 也不能把通用三月规则尚未纳入的私有历史例外塞进纯从零公司。
+    return startTechs(this.world, diffusedStartTechs(s), s.start);
   }
 
   // ---------- 天时（M.1 第 2 条）：只留不带 by / target 的法规类；触发器造出的大事也在这里 ----------
@@ -221,13 +226,25 @@ export class SimProvider extends HistoryProvider {
     const orgs = new Set([mine, own?.realOrg].filter(Boolean));
     const ids = new Set(orgs);
     for (const c of Object.values(this.world.companies || {})) if (c?.realOrg && orgs.has(c.realOrg)) ids.add(c.id);
+    const owners = new Set(ids); // 衍生授权不等于拥有品牌，不用于既有品牌优先权。
     // 署名衍生（M.5.3）：这一款是哪家受限开源模型的衍生，就可以用那家的品牌词开头。
     if (ctx.s && ctx.modelId) for (const org of derivOrgs(this.world, ctx.s, ctx.modelId)) ids.add(org);
     for (const b of brands) if (!ids.has(b.org) && hit(w, n, b)) return b;
-    for (const b of this.world.brandWords || []) {
+    const registered = this.world.brandWords || [];
+    for (let i = 0; i < registered.length; i++) {
+      const b = registered[i];
       if (ids.has(b.org)) continue;
       const x = { org: b.org, text: b.text, cjk: CJK.test(b.text), norm: normName(b.text), words: words(b.text) };
-      if (hit(w, n, x)) return x;
+      if (!hit(w, n, x)) continue;
+      // 自动系列词可比原品牌更宽（耐久1 -> 耐久）。它不能追溯夺走此前
+      // 已登记的显式品牌；仅豁免真正以该自有品牌开头的名称。不删除系列词，
+      // 第三方、后登记品牌、别家的显式品牌和真实品牌仍受原规则保护。
+      const priorOwnBrand = b.series === true && registered.slice(0, i).some(a => {
+        if (a.series || !owners.has(a.org)) return false;
+        const own = { org: a.org, text: a.text, cjk: CJK.test(a.text), norm: normName(a.text), words: words(a.text) };
+        return hit(own.words, own.norm, x) && hit(w, n, own);
+      });
+      if (!priorOwnBrand) return x;
     }
     return null;
   }

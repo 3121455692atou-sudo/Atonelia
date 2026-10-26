@@ -10,8 +10,7 @@ import * as E from '../../src/career/engine.js';
 import { COMPANIES, SCENARIOS } from '../../src/career/data/core.js';
 import { RELEASES } from '../../src/career/data/rivals.js';
 import { COMPANY_FILES } from '../../src/career/data/companies/index.js';
-import { reservedNames, normName, namingTick, ORG_BRANDS, hnFor, hnById, grantFits, nextHintText } from '../../src/career/sim/naming.js';
-import { run as migrateNaming } from '../../src/career/sim/migrations/naming.js';
+import { reservedNames, normName, namingTick, ensureNaming, ORG_BRANDS, hnFor, hnById, grantFits, nextHintText } from '../../src/career/sim/naming.js';
 import { newModel } from '../../src/career/sim/projects.js';
 import { DAY } from '../../src/career/sim/loop.js';
 import { finish } from '../../src/career/sim/finish.js';
@@ -217,15 +216,8 @@ describe('C1 建议名：只是建议，永远避开保留名和已用名', () =
     d.models.unshift({ ...clone(E.liveModel(d)), id: 'own_v4', name: 'DeepSeek-V4', hist: false });
     assert.equal(E.suggestName(d, 'flagship'), 'DeepSeek-V3.3');
   });
-  it('读旧档以后：旧命名留下的“日期代号 + 字母”尾巴（GPT-5-2309b）不进建议名', () => {
-    const s = fresh('gpt', 'y2024');
-    E.liveModel(s).name = 'GPT-5-2309b';
-    assert.equal(E.suggestName(s, 'flagship'), 'GPT-5.3', '同一个底座：GPT-5.1、GPT-5.2 是真实型号名');
-    assert.equal(E.suggestName(s, 'flagship', { id: 'm_new_base', role: 'flagship' }), 'GPT-6');
-    E.liveModel(s).name = 'GPT-5.1-2309c';
-    assert.equal(E.suggestName(s, 'flagship'), 'GPT-5.3');
-    // 只有日期代号、没有字母的照旧去掉；末尾不是日期代号的数字照常当版本号。
-    E.liveModel(s).name = 'GPT-5-2309';
+  it('当前名字的纯数字日期代号不参与版本迭代', () => {
+    const s = fresh('gpt', 'y2024'); E.liveModel(s).name = 'GPT-5-2309';
     assert.equal(E.suggestName(s, 'flagship'), 'GPT-5.3');
   });
   it('碰到真实型号名、历史名、本局已用的名字就继续往上加；都通过校验', () => {
@@ -310,12 +302,31 @@ describe('C1 主键一律用 modelId：published、名人堂、ms 账本、deplo
     assert.equal(s.published[id].model, live.name, '名字一样，按名字比就不会换');
     assert.equal(twin.benchmarks[id].modelId, 'twin');
   });
-  it('名人堂：结算记下最终模型的 modelId 和名字', () => {
+  it('名人堂：结算记下最终模型的 modelId 和名字', async () => {
     const s = fresh('deepseek', 'y2025');
     finish(s, 'complete');
     assert.deepEqual([s.result.modelId, s.result.model], [E.liveModel(s).id, E.liveModel(s).name]);
-    const flow = fs.readFileSync(path.join(ROOT, 'src/career/ui/flow.js'), 'utf8');
-    assert.match(flow, /hof\.unshift\(\{[^}]*modelId: S\.result\.modelId/, '名人堂条目带 modelId');
+    const state = await import('../../src/career/ui/state.js');
+    const { finishGame } = await import('../../src/career/ui/flow.js');
+    const { recordHall } = await import('../../src/career/ui/hof.js');
+    const { HOF_KEY } = await import('../../src/career/ui/storage.js');
+    const prior = { storage: globalThis.localStorage, s: state.getState(), w: state.getWorld(), mp: state.getMp(), screen: state.ui.screen };
+    const mem = new Map();
+    globalThis.localStorage = { getItem: k => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v) };
+    try {
+      state.setState(s); state.setWorld(null); state.setMp(null);
+      finishGame();
+      // 加入 finishGame 已启动的同一异步记账，不自行构造含模型字段的条目。
+      assert.equal(await recordHall(s, null, {}), true);
+      const rows = JSON.parse(mem.get(HOF_KEY));
+      assert.equal(rows.length, 1, '实际存入一条结算记录');
+      assert.deepEqual([rows[0].modelId, rows[0].model], [E.liveModel(s).id, E.liveModel(s).name], '实际名人堂保留最终型号主键和名字');
+      assert.equal(s.hofSaved, true, '异步写成后才标记已记账');
+    } finally {
+      state.setState(prior.s); state.setWorld(prior.w); state.setMp(prior.mp); state.ui.screen = prior.screen;
+      if (prior.storage === undefined) delete globalThis.localStorage;
+      else globalThis.localStorage = prior.storage;
+    }
   });
 });
 
@@ -686,69 +697,26 @@ describe('C5 旧命名机制已删除', () => {
     walk(path.join(ROOT, 'src/career'));
     for (const f of files) {
       const src = fs.readFileSync(f, 'utf8').replace(/^\s*\/\/.*$/gm, '');
-      for (const w of ['versionName', 'lineageNext', 'uniqueName', 'versionOf', 'lineName', 'verNext']) assert.ok(!new RegExp(`\\b${w}\\b`).test(src) || f.endsWith('migrations/naming.js') || f.endsWith('sim/naming.js'), `${path.relative(ROOT, f)} 还有 ${w}`);
+      for (const w of ['versionName', 'lineageNext', 'uniqueName', 'versionOf', 'lineName', 'verNext']) assert.ok(!new RegExp(`\\b${w}\\b`).test(src) || f.endsWith('sim/migrate.js') || f.endsWith('sim/naming.js'), `${path.relative(ROOT, f)} 还有 ${w}`);
       assert.ok(!/replace\([^)]*训练中/.test(src), `${path.relative(ROOT, f)} 还在剥“（训练中）”`);
     }
   });
 });
 
-describe('E8 读档特性步骤 naming 与开发期存档兜底', () => {
-  it('6 份 v3 夹具：没有“训练中”，在练模型 name = null（原名转成代号，真实型号名转成 hint），旧字段删掉，按名字补上 modelId；跑两遍结果相同', () => {
-    const dir = path.join(ROOT, 'tests/fixtures/saves');
-    const files = fs.readdirSync(dir).filter(f => f.endsWith('.json') && !f.startsWith('.'));
-    assert.equal(files.length, 6);
-    for (const f of files) {
-      const raw = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
-      assert.ok(JSON.stringify(raw).includes('（训练中）'), `${f} 原档是旧命名`);
-      const s = loadSave(raw);
-      assert.ok(!JSON.stringify(s).includes('训练中'), f);
-      assert.equal(s.verNext, undefined);
-      for (const m of s.models) {
-        for (const k of ['minor', 'ver', 'realName']) assert.ok(!(k in m), `${f} ${m.id}.${k}`);
-        assert.ok(typeof m.lineage !== 'string');
-        if (m.stage !== 'released') assert.ok(m.name === null && (m.draftName || m.hint), `${f} ${m.id}`);
-      }
-      for (const run of Object.values(s.published)) assert.ok(s.models.some(m => m.id === run.modelId), `${f} ${run.model}`);
-      const once = clone(s);
-      migrateNaming(s);
-      assert.deepEqual(s, once, `${f} 跑两遍一样`);
-      advance(s, 30);
-      assert.ok(!JSON.stringify(s).includes('训练中'), `${f} 推进 30 天以后`);
+describe('命名只接受当前结构', () => {
+  it('历史 v3 夹具明确拒绝，原始 JSON 不改写', () => {
+    const dir = new URL('../fixtures/saves/', import.meta.url);
+    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json') && !x.startsWith('.'))) {
+      const raw = JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8')), before = JSON.stringify(raw);
+      const r = E.migrateGame(raw); assert.equal(r.ok, false, f); assert.match(r.reason, /不支持|版本|旧存档/);
+      assert.equal(JSON.stringify(raw), before, f);
     }
   });
-  it('按名字反查 modelId：published、模型自己的成绩、ms 账本、只记名字的灰度、名人堂（结算）', () => {
-    const s = fresh('deepseek', 'y2025');
-    readyToRelease(s);
-    const snap = L.decide(s, 'release', {}).model;
-    finish(s, 'complete');
-    const old = asOldNaming(clone(s));
-    for (const run of Object.values(old.published)) delete run.modelId;
-    for (const m of old.models) for (const run of Object.values(m.benchmarks || {})) delete run.modelId;
-    for (const e of Object.values(old.ms)) delete e.modelId;
-    old.deploy = [{ role: 'flagship', until: old.day, name: snap.name }];
-    delete old.result.modelId;
-    migrateNaming(old);
-    for (const [k, run] of Object.entries(old.published)) assert.equal(run.modelId, s.published[k].modelId, k);
-    assert.ok(old.models.every(m => Object.values(m.benchmarks || {}).every(r => r.modelId === m.id)));
-    for (const [k, e] of Object.entries(old.ms)) if (e.who === 'me' && e.model) assert.equal(e.modelId, s.ms[k].modelId, k);
-    assert.deepEqual(old.deploy.map(d => d.id), [snap.id]);
-    assert.equal(old.result.modelId, s.result.modelId);
-  });
-  it('开发期存档（mig.naming 已记、还是旧命名）：推进一天和正常推进一致；读进来马上发布也一样', () => {
-    for (const [c, sc] of [['deepseek', 'y2025'], ['elevenlabs', 'y2024'], ['deepseek', 'y2026'], ['jev', 'y2023'], ['claude', 'y2023']]) {
-      const a = fresh(c, sc);
-      const b = asOldNaming(clone(a));
-      assert.ok(b.mig.naming && b.verNext !== undefined);
-      if (E.workingModel(b)) assert.equal(typeof E.workingModel(b).name, 'string');
-      E.tickDay(a);
-      E.tickDay(b);
-      assert.deepEqual(sorted(clone(b)), sorted(clone(a)), `${c} ${sc}`);
-      if (!E.workingModel(a)) continue;
-      const a2 = fresh(c, sc), b2 = asOldNaming(clone(a2));
-      readyToRelease(a2);
-      readyToRelease(b2);
-      assert.equal(L.decide(b2, 'release', {}).model.name, L.decide(a2, 'release', {}).model.name, `${c} ${sc}`);
-      assert.deepEqual(sorted(clone(b2)), sorted(clone(a2)), `${c} ${sc} 发布以后`);
+  it('旧命名字段直接拒绝，不能通过每日推进或读档转换', () => {
+    for (const modify of [s => s.verNext = 3, s => s.models[0].minor = 2, s => s.models[0].realName = '旧名字', s => s.models[0].lineage = '旧谱系']) {
+      const s = E.createGame('qwen', 'y2025', 1); modify(s); const before = JSON.stringify(s);
+      assert.throws(() => ensureNaming(s), /不支持|旧版/); assert.equal(JSON.stringify(s), before);
+      const r = E.migrateGame(s); assert.equal(r.ok, false); assert.equal(JSON.stringify(s), before);
     }
   });
 });

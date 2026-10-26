@@ -49,52 +49,11 @@ function asV09(s) {
   return old;
 }
 
-describe('v0.9.3 收尾：旧档迁移只带已收组的段落', () => {
-  it('旧档在途的买卡、租卡、语料、后训练数据、开源蒸馏数据：读档不改订单，各按原来的到货日交付（G1-3 不复现）', () => {
-    const old = asV09(withOrders());
-    const kinds = old.orders.map(o => o.kind).sort();
-    assert.deepEqual(kinds, ['data', 'data', 'distill', 'gpu', 'rent']);
-    const s = loadSave(clone(old));
-    assert.deepEqual(s.orders, old.orders, '迁移不碰在途订单，也不补生成进度');
-    const pending = new Map(s.orders.map(o => [key(o), o]));
-    const owned = s.gpus.owned.H100 || 0, rented = s.gpus.rented.H100 || 0;
-    const tokens = s.data.pool.tokens, post = s.data.post.chat || 0, dist = clone(s.data.distill);
-    for (let i = 0; i < 240 && pending.size; i++) {
-      resolveAll(s);
-      const out = E.tickDay(s);
-      const left = new Set(s.orders.map(key));
-      for (const [k, o] of [...pending]) {
-        if (left.has(k)) { assert.ok(o.eta > out.day, `${o.kind} 过了到货日 ${o.eta} 还没到`); continue; }
-        assert.equal(out.day, o.eta, `${o.kind} ${o.ref} 应在 ${o.eta} 到，实际 ${out.day}`);
-        pending.delete(k);
-        if (o.kind === 'gpu') assert.equal(s.gpus.owned.H100 - owned, o.n);
-        if (o.kind === 'rent') assert.equal(s.gpus.rented.H100 - rented, o.n);
-        if (o.ref === 'ds_pile') assert.ok(s.data.pool.tokens > tokens, '语料进了池子');
-        if (o.ref === 'ds_pref_human') assert.ok((s.data.post.chat || 0) > post, '后训练数据到位');
-        if (o.kind === 'distill') assert.notDeepEqual(s.data.distill, dist, '蒸馏数据到位');
-      }
-    }
-    assert.equal(pending.size, 0, '五笔订单都到了');
-  });
-
-  it('迁移不带进不收组的字段：没有反应式竞争、生成进度、蒸馏账本；capTechs 按 P1.2 的 D6.1 补上；开源蒸馏占卡原样保留，超事件积压名单丢掉，读两遍结果一样', () => {
-    const old = asV09(withOrders());
-    old.flags.superEarned = { super_sota: { day: old.day } };
-    const load = old.flags.distillLoad;
-    assert.ok(load > 0, '下了开源蒸馏单，v0.9 的占卡标记在');
-    const s = loadSave(clone(old));
-    assert.equal(s.competition, undefined);
-    assert.ok(s.orders.every(o => o.generation === undefined));
-    assert.equal(s.data.teacherSources, undefined);
-    assert.equal(s.data.teacherCapByCategory, undefined);
-    assert.ok(s.models.every(m => Array.isArray(m.capTechs)), 'P1.2 做 D6.1：底座里已经含着上限效果的技术记在 capTechs');
-    assert.equal(s.flags.distillLoad, load, '旧档带着的开源蒸馏占卡标记原样留着（P4.1 起月结不再读它）');
-    assert.equal(s.flags.superEarned, undefined);
-    assert.ok(s.models.every(m => m.structureSource), '已收的 B1：继承型号补上结构出处');
-    assert.ok(Object.values(s.published).every(r => r.modelId), '已收的 B2：已公布成绩补上 modelId');
-    assert.ok(E.validateGame(s));
-    const once = clone(s);
-    assert.deepEqual(loadSave(s), once);
+describe('旧版结构只作为拒绝样例，不再迁移', () => {
+  it('旧订单/旧命名/缺账本结构明确拒绝，订单和原文不变', () => {
+    const old=asV09(withOrders()),before=JSON.stringify(old),out=E.migrateGame(old);
+    assert.equal(out.ok,false);assert.match(out.reason,/请新开一局/);assert.equal(JSON.stringify(old),before);
+    const current=withOrders(),loaded=E.migrateGame(current);assert.equal(loaded.ok,true,loaded.reason);assert.equal(JSON.stringify(loaded.s),JSON.stringify(current));
   });
   it('P4.1（规格 F2）：createGame 不再写 data.teacherCap: {}，loop.js 的 monthClose 不再读写 flags.distillLoad（开源蒸馏早就不写它了）', () => {
     const s = E.createGame('deepseek', 'y2024', 3);
@@ -118,7 +77,7 @@ describe('v0.9.3 合并边界', () => {
     // capTechs 在 P1.2 做 D6.1 时按审查报告 C1 的建议收进来了（自己预训练的底座记 []），不再算没收的标识。
     for (const word of ['teacherSources', 'teacherCapByCategory', 'initCompetition', 'tickCompetition', 'competitionMode', 'makeGeneration', 'generationReady', 'generationGpus', 'MARKET_CUSTOMERS', 'willingnessToPay'])
       assert.ok(!all.includes(word), `src/career 里出现了 ${word}`);
-    assert.equal(all.split('superEarned').length - 1, 1, 'superEarned 只在读档时删掉，不再用');
+    assert.equal(all.split('superEarned').length - 1, 0, '旧迁移删除后不再携带superEarned转换代码');
     assert.match(readSrc('../../src/career/ui/app.js'), /REAL TIMELINE/, '标题页小字不改');
   });
 

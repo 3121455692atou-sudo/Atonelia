@@ -3,6 +3,7 @@
 // 规格 T10.2：多一栏“优先级”和“最多 N 张”，实时显示按现在的分卡约几天、占几张卡、对别的作业的影响（和底座表单同一套小函数）。
 // 工期和占卡写在“预计耗时”“算力”两行里，下面的检查几行不再重复（工期只说一次）。
 import * as E from '../../engine.js';
+import { after } from '../act.js';
 import { MODALITIES, ARCHS, PARAM_TOTALS, PARAM_ACTIVES } from '../../data/core.js';
 import { esc, usd, count, params } from '../fmt.js';
 import { optFields, optOf, optChange, checkLines, formCheck, startNew, draftField } from './project_form.js';
@@ -56,7 +57,7 @@ function distillForm(S, st) {
 export { distillForm as render };
 
 export function click(S, t, { st, guard }) {
-  if (t.closest('[data-op]')?.dataset.op === 'start-distill') guard(() => { startNew(S, { kind: 'distill', cfg: st.distill, ...optOf(st, 'distill', 'high') }); st.newJob = null; return { note: '蒸馏开始了，练完是一个待发布的小模型' }; });
+  if (t.closest('[data-op]')?.dataset.op === 'start-distill') guard(() => after(startNew(S, { kind: 'distill', cfg: st.distill, ...optOf(st, 'distill', 'high') }), () => { st.newJob = null; return { note: '蒸馏开始了，练完是一个待发布的小模型' }; }));
 }
 export function change(S, t, { st, draw }) {
   if (optChange(st, t, draw)) return;

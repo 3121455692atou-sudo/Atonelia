@@ -6,6 +6,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { specifiersIn } from '../helpers/imports.mjs';
 import * as E from '../../src/career/engine.js';
 import { companyFile } from '../../src/career/data/companies/index.js';
 import { loadSave } from '../helpers/career_util.mjs';
@@ -75,28 +76,33 @@ function renderAll(s) {
 }
 
 describe('界面模块不从 app.js 导入', () => {
-  it('ui/ 下所有模块（含 pages/、panels/）都不导入 app.js；state.js 只导入 storage.js', () => {
+  it('只有bootstrap可唯一动态导入app；其它ui模块仍不导入app，state仍只导入storage', () => {
     assert.ok(uiFiles.length >= 30, `ui/ 下只有 ${uiFiles.length} 个模块`);
     for (const f of uiFiles) {
       const src = fs.readFileSync(new URL(f, UI_DIR), 'utf8');
       const deps = [...src.matchAll(/(?:from\s+|import\(\s*)'([^']+)'/g)].map(m => m[1]);
-      assert.ok(!deps.some(d => /(^|\/)app\.js$/.test(d)), `${f} 从 app.js 导入：${deps.join(', ')}`);
+      if (f === 'bootstrap.js') {
+        const dynamicApp = /\bimport\(\s*['"]\.\/app\.js['"]\s*\)/g;
+        assert.equal([...src.matchAll(dynamicApp)].length, 1, 'bootstrap仅有一个canonical动态入口');
+        assert.deepEqual(specifiersIn(src.replace(dynamicApp, 'APP_LOADER')), ['./practice_context.js'], 'bootstrap禁止静态app导入或额外依赖');
+        assert.deepEqual(deps, ['./practice_context.js','./app.js']);
+      } else assert.ok(!deps.some(d => /(^|\/)app\.js$/.test(d)), `${f} 从 app.js 导入：${deps.join(', ')}`);
       if (f === 'state.js') assert.deepEqual(deps, ['./storage.js']);
     }
   });
-  it('后台登记 18 页（按 A11 分四组：公司策略在“公司”组第一项，“模型”组第一项是训练；公司历程已上线，显示 18 页），每页都有 render；主界面有三个选择面板和两个空子面板，旧的团队任务面板删了', () => {
-    assert.equal(PAGES.length, 19);
-    assert.deepEqual(NAV_GROUPS.map(([g, ids]) => [g, ids]), [['公司', ['strategy', 'goals', 'history', 'capital', 'finance', 'legal']], ['模型', ['train', 'model', 'data', 'tech', 'boards']], ['市场', ['service', 'compute', 'rivals', 'market', 'exchange', 'news']], ['其他', ['archive', 'settings']]]);
+  it('后台登记 20 页（按 A11 分四组：公司策略在“公司”组第一项，“模型”组第一项是训练；公司历程与托管试用已上线，显示 20 页），每页都有 render；主界面有三个选择面板和两个空子面板，旧的团队任务面板删了', () => {
+    assert.equal(PAGES.length, 20);
+    assert.deepEqual(NAV_GROUPS.map(([g, ids]) => [g, ids]), [['公司', ['strategy', 'goals', 'history', 'capital', 'finance', 'legal']], ['模型', ['train', 'model', 'data', 'tech', 'boards']], ['市场', ['service', 'compute', 'rivals', 'market', 'exchange', 'news']], ['其他', ['automation', 'archive', 'settings']]]);
     assert.deepEqual(NAV_GROUPS[1][1].slice(0, 2), ['train', 'model']);
     assert.deepEqual(PAGES.filter(([id]) => PAGE[id].hidden).map(([id]) => id), []);
-    assert.equal(PAGES.filter(([id]) => !PAGE[id].hidden).length, 19);
+    assert.equal(PAGES.filter(([id]) => !PAGE[id].hidden).length, 20);
     assert.deepEqual(Object.keys(PAGE).sort(), PAGES.map(([id]) => id).sort());
     for (const [id] of PAGES) assert.equal(typeof PAGE[id].render, 'function', id);
     for (const k of ['data', 'eval', 'release']) assert.equal(typeof PANELS[k].pick, 'function', k);
     assert.ok(!fs.existsSync(new URL('panels/train.js', UI_DIR)), '旧训练面板（panels/train.js）应该删掉');
     assert.ok(!uiFiles.some(f => /panels[\\/]train\.js$/.test(f)));
     const html = fs.readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
-    assert.match(html, /<link rel="stylesheet" href="\.\/src\/career\/css\/train\.css\?v=4" \/>/);
+    assert.match(html, /<link rel="stylesheet" href="\.\/src\/career\/css\/train\.css\?v=8-hud" \/>/);
   });
 });
 
@@ -139,14 +145,13 @@ describe('页面渲染冒烟', () => {
     assert.match(PAGE.compute.render(c, freshSt()), /灰色渠道/);
   });
 
-  it('6 份 v3 旧档读进来后也都能渲染', () => {
+  it('6份v3旧档明确拒绝，不进入渲染或安装状态', () => {
     const dir = new URL('../fixtures/saves/', import.meta.url);
     const files = fs.readdirSync(dir).filter(f => f.endsWith('.json') && !f.startsWith('._'));
     assert.equal(files.length, 6);
     for (const f of files) {
-      const s = loadSave(JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8')));
-      assert.ok(s && E.validateGame(s), f);
-      renderAll(s);
+      const raw=JSON.parse(fs.readFileSync(new URL(f,dir),'utf8')),before=JSON.stringify(raw),result=E.migrateGame(raw);
+      assert.equal(result.ok,false,f);assert.match(result.reason,/请新开一局/);assert.equal(JSON.stringify(raw),before);assert.equal(result.s,undefined);
     }
   });
 });
@@ -180,7 +185,7 @@ describe('G1 遗留 B：界面上看得到的文案和模拟同一口径', () =>
     assert.ok(E.workingModel(s) && !s.techs.includes('func_call'));
     assert.equal(E.dimUnlocked(s, 'llm', 'agent'), false);
     const home = homeHtml(s);
-    assert.match(home, /<div class="dim locked" data-dim="agent"><span class="dim-l">Agent<\/span><span class="dim-bar"><\/span><b>—<\/b><small>学会「函数调用」后出现<\/small>/);
+    assert.match(home, /<div class="dim locked" data-dim="agent"><span class="dim-l" title="Agent">Agent<\/span><span class="dim-bar"><\/span><b>—<\/b><small>学会「函数调用」后出现<\/small>/);
     assert.ok(PAGE.model.render(s, freshSt()).includes(`Agent <small>${LOCK}</small>`));
     assert.ok(projectForm.render(s, freshSt()).includes(`Agent <small>${LOCK}</small>`));
     s.techs.push('func_call');
@@ -681,11 +686,11 @@ describe('训练界面（P2.4b）：操作（训练页的点击和改动、首�
     const b = E.baseJob(s, 'main');
     assert.ok(b, c.errors.join(' | '));
     const lines = () => { const out = new Set(); for (let i = 0; i < 24; i++) { uiState.lineIdx = i; out.add(homeLine(s)); } uiState.lineIdx = 0; return [...out]; };
-    assert.ok(lines().some(l => /^底座预训练进度 \d+%，大概还要 \d+ 天。$/.test(l)), lines().join(' | '));
+    assert.ok(lines().some(l => /^预训练进度 \d+% · 预计 \d+ 天完成。$/.test(l)), lines().join(' | '));
     PAGE.train.click(s, target({ jobOp: 'pause', id: b.id, on: '1' }), c);
     const paused = lines();
-    assert.ok(paused.some(l => /^底座预训练暂停中，进度 \d+% 保留着。想接着练，就去「训练」里点“继续”。$/.test(l)), paused.join(' | '));
-    assert.ok(!paused.some(l => /排队等算力/.test(l)), paused.join(' | '));
+    assert.ok(paused.some(l => /^预训练已暂停 · 进度 \d+%（checkpoint 已保存），可在「训练」恢复。$/.test(l)), paused.join(' | '));
+    assert.ok(!paused.some(l => /排队等待算力/.test(l)), paused.join(' | '));
     assert.deepEqual(c.errors, []);
   });
 
@@ -793,7 +798,7 @@ describe('训练界面（P2.4b）：评完自动发布，时钟循环播发布�
     }
     const app = fs.readFileSync(new URL('app.js', UI_DIR), 'utf8');
     const step = app.slice(app.indexOf('async function stepDay()'), app.indexOf('function startGame('));
-    assert.match(step, /if \(out\?\.releases\?\.length\) \{[\s\S]*clock\.busy = true;[\s\S]*await playReleases\(out\.releases\);[\s\S]*clock\.busy = false;/);
+    assert.match(step, /if \(out\?\.releases\?\.length && !E\.isPostOnly\(S\)\) \{[\s\S]*clock\.busy = true;[\s\S]*await playReleases\(out\.releases\);[\s\S]*clock\.busy = false;/);
     assert.ok(step.indexOf('playReleases') < step.indexOf('runQueue'), '先播发布结果，再放事件');
   });
 });

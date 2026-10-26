@@ -1,4 +1,4 @@
-// 主流程 ui/app.js 在页面替身上跑一遍（P0.4）：启动读档、标题页（读档失败卡、旧版键提示、继续）、Esc、结算页回看后台。
+// 主流程 ui/app.js 在页面替身上跑一遍（P0.4）：启动读档、标题页（读档失败卡、旧 schema 拒绝、继续）、Esc、结算页回看后台。
 // app.js 一导入就会启动，所以每个场景用不同的查询串导入一份新的 app.js（状态、弹层模块是共用的那一份）。
 // 浏览器里的真实点击、版面和 375px 宽度由主会话在浏览器里复核。
 import { describe, it, beforeEach } from 'node:test';
@@ -16,7 +16,7 @@ function fakeEl() {
 function makeOverlay(html) {
   const handlers = {};
   const classes = (html.match(/class="overlay ([^"]*)"/)?.[1] || '').split(/\s+/);
-  return { handlers, office: { innerHTML: '' }, classList: { contains: c => classes.includes(c) }, addEventListener(t, fn) { (handlers[t] ||= []).push(fn); }, removeEventListener() {}, querySelector(sel) { return sel === '.office' ? this.office : null; }, querySelectorAll: () => [] };
+  return { handlers, office: { innerHTML: '' }, get isConnected() { return overlayRoot.overlay === this; }, classList: { contains: c => classes.includes(c) }, addEventListener(t, fn) { (handlers[t] ||= []).push(fn); }, removeEventListener() {}, querySelector(sel) { return sel === '.office' ? this.office : null; }, querySelectorAll: () => [] };
 }
 const overlayRoot = {
   _html: '', overlay: null,
@@ -33,13 +33,14 @@ globalThis.document = {
   addEventListener: (t, fn) => docHandlers.push([t, fn]),
 };
 globalThis.window = { scrollTo() {} };
+globalThis.CSS ??= { escape: value => String(value) };
 const mem = new Map();
 globalThis.localStorage = { getItem: k => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => { mem.set(k, String(v)); }, removeItem: k => { mem.delete(k); } };
 
 const FIXTURES = new URL('../fixtures/saves/', import.meta.url);
 const v3Files = fs.readdirSync(FIXTURES).filter(f => f.endsWith('.json') && !f.startsWith('._'));
 const { getState, setState, ui, clock } = await import('../../src/career/ui/state.js');
-const { SAVE_KEY, BAK_KEY, LEGACY_SEEN_KEY } = await import('../../src/career/ui/storage.js');
+const { SAVE_KEY } = await import('../../src/career/ui/storage.js');
 let n = 0;
 async function startApp() {
   docHandlers.length = 0;
@@ -53,12 +54,56 @@ const btns = new Map();
 const click = (el, act, id) => {
   if (!btns.has(act)) btns.set(act, { dataset: { act, id }, disabled: false, textContent: '', innerHTML: '', parentElement: { open: false } });
   const b = btns.get(act);
+  b.dataset.id = id;
   el.handlers.click.forEach(fn => fn({ target: { closest: sel => (sel === '[data-act]' ? b : null) } }));
+};
+const setupClick = (el, setupAction, setupValue) => {
+  const b = {dataset:{act:'play-setup',setupAction,setupValue},disabled:false};
+  el.handlers.click.forEach(fn=>fn({target:{closest:sel=>sel==='[data-act]'?b:null}}));
 };
 
 beforeEach(() => {
   toasts.length = 0; downloads.length = 0; mem.clear(); btns.clear(); overlayRoot.innerHTML = '';
   setState(null); ui.screen = 'title'; clock.speed = 0; clock.busy = false;
+});
+
+describe('公司介绍内直接设置并开局', () => {
+  for (const [mode,preset] of [['post','auto'],['full','auto'],['full','manual']]) {
+    it(`${mode}/${preset}：选公司后原地选玩法，直接开始，保存采用的设置`, async () => {
+      const {el}=await startApp();
+      click(el,'new');click(el,'pick','deepseek');
+      const launch=el.innerHTML.slice(el.innerHTML.indexOf('<footer class="select-detail__launch">'));
+      assert.match(launch,/data-setup-action="mode" data-setup-value="post"/);
+      assert.match(launch,/data-setup-action="mode" data-setup-value="full"/);
+      assert.match(launch,/data-act="start" data-id="deepseek" disabled/);
+      // An unselected mode cannot accidentally overwrite the current save.
+      click(el,'start','deepseek');
+      assert.equal(getState(),null);assert.equal(mem.has(SAVE_KEY),false);
+      setupClick(el,'mode',mode);
+      if(mode==='full')setupClick(el,'preset',preset);
+      assert.equal(ui.screen,'select');assert.equal(ui.pick,'deepseek');
+      assert.doesNotMatch(el.innerHTML,/data-act="start"[^>]*disabled/);
+      assert.equal(mem.has(SAVE_KEY),false);
+      click(el,'start','deepseek');await tick();
+      assert.equal(ui.screen,'home');assert.equal(getState().charId,'deepseek');
+      assert.equal(E.isPostOnly(getState()),mode==='post');
+      assert.ok(Object.values(getState().automation.modules).every(m=>m.mode===preset));
+      assert.equal(JSON.parse(mem.get(SAVE_KEY)).charId,'deepseek');
+    });
+  }
+  it('切换公司或剧本保留自动化选择，逐项设置只修改对应模块', async () => {
+    const {el}=await startApp();click(el,'new');click(el,'pick','deepseek');
+    setupClick(el,'mode','full');setupClick(el,'preset','manual');setupClick(el,'toggle','data');
+    const settings=structuredClone(ui.playSetup.modes);
+    click(el,'unpick');click(el,'scenario','y2025');click(el,'pick','qwen');
+    assert.equal(ui.pick,'qwen');assert.equal(ui.scenario,'y2025');
+    assert.deepEqual(ui.playSetup.modes,settings);
+    assert.equal(settings.data,'auto');assert.equal(settings.research,'manual');
+    assert.doesNotMatch(el.innerHTML,/data-act="start"[^>]*disabled/);
+    click(el,'start','qwen');await tick();
+    assert.equal(getState().charId,'qwen');assert.equal(getState().automation.modules.data.mode,'auto');
+    assert.equal(getState().automation.modules.research.mode,'manual');
+  });
 });
 
 describe('启动和标题页', () => {
@@ -71,12 +116,13 @@ describe('启动和标题页', () => {
   });
 
   it('有可玩的存档：启动直接进主界面，时间是暂停的', async () => {
-    const S = E.createGame('deepseek', 'y2024', 5); S.queue.length = 0;
+    const S = E.createSinglePlayerGame('deepseek', 'y2024', 5); S.queue.length = 0;
     mem.set(SAVE_KEY, JSON.stringify(S));
     clock.speed = 4;
     const { el } = await startApp();
     assert.equal(ui.screen, 'home');
     assert.equal(getState().charId, 'deepseek');
+    assert.deepEqual(getState().postPlanSessions, S.postPlanSessions);
     assert.equal(clock.speed, 0);
     assert.match(el.className, /app--home/);
   });
@@ -106,18 +152,37 @@ describe('启动和标题页', () => {
     const { el } = await startApp();
     assert.equal(ui.screen, 'title');
     assert.match(el.innerHTML, /不是有效的 JSON/);
+    assert.equal(getState(), null);
+    assert.equal(mem.get(SAVE_KEY), 'garbage<<<');
+    assert.equal(mem.has('mrp.sim.v2.bak'), false);
   });
 
-  it('v3 旧档：启动时读进来并备份原文到 mrp.sim.v2.bak；回标题把速度拨高，再点“继续”，时间归零回主界面', async () => {
+  it('v3 旧档：明确拒绝不支持的格式，不迁移、不覆盖原档或已有备份，仍可导出', async () => {
     const raw = JSON.parse(fs.readFileSync(new URL(v3Files[0], FIXTURES), 'utf8'));
     raw.queue = []; raw.scheduled = [];
     const text = JSON.stringify(raw);
     mem.set(SAVE_KEY, text);
+    mem.set('mrp.sim.v2.bak', '原有备份');
+    const { el } = await startApp();
+    assert.equal(mem.get('mrp.sim.v2.bak'), '原有备份', '拒绝旧档不能覆盖已有备份');
+    assert.equal(mem.get(SAVE_KEY), text, '拒绝旧档不能改原文');
+    assert.equal(ui.screen, 'title');
+    assert.equal(getState(), null, '不能偷偷迁移并安装旧档');
+    assert.match(el.innerHTML, /不支持旧版.*请新开一局/);
+    assert.doesNotMatch(el.innerHTML, /data-act="continue"/);
+    click(el, 'save-export');
+    assert.equal(downloads.length, 1);
+    assert.equal(mem.get(SAVE_KEY), text);
+  });
+
+  it('当前格式存档：回标题把速度拨高，再点“继续”，时间归零且卡牌账本不变', async () => {
+    const S = E.createSinglePlayerGame('deepseek', 'y2025', 7); S.queue.length = 0;
+    const opened = E.applyCommand(S, { name: 'postPlan.open', args: { modelId: S.working, expectedModelToken: null } });
+    assert.equal(opened.ok, true, opened.err);
+    const text = JSON.stringify(S);
+    mem.set(SAVE_KEY, text);
     const { app, el } = await startApp();
-    assert.equal(mem.get(BAK_KEY), text, '迁移前没备份原文');
-    assert.equal(mem.get(SAVE_KEY), text, '读档不该改存档');
     assert.equal(ui.screen, 'home');
-    assert.equal(getState().v, E.SAVE_VERSION);
     ui.screen = 'title'; clock.speed = 5; overlayRoot.innerHTML = '';
     app.render();
     assert.match(el.innerHTML, /data-act="continue"/);
@@ -125,22 +190,23 @@ describe('启动和标题页', () => {
     await tick();
     assert.equal(ui.screen, 'home');
     assert.equal(clock.speed, 0);
-    assert.equal(getState().charId, raw.charId);
+    assert.equal(getState().charId, S.charId);
+    assert.deepEqual(getState().postPlanSessions, S.postPlanSessions);
+    assert.equal(mem.get(SAVE_KEY), text);
+    assert.equal(mem.has('mrp.sim.v2.bak'), false, '当前格式不能走旧档迁移备份');
   });
 
-  it('旧版存档键：标题页提示一次，点“知道了”以后不再出；旧版数据不动', async () => {
+  it('旧版存储键不再扫描提示，也不写入已读标记；原有数据不动', async () => {
     mem.set('mrp.v0.1.0.save', '{"v":"0.1.0"}');
     mem.set('mrp.v0.1.0.byok', '{"key":"x"}');
+    const before = new Map(mem);
     const { el, app } = await startApp();
-    assert.match(el.innerHTML, /旧版（回合制）游戏的存档或设置/);
-    assert.match(el.innerHTML, /data-act="legacy-ok"/);
-    click(el, 'legacy-ok');
-    assert.doesNotMatch(el.innerHTML, /旧版（回合制）游戏的存档或设置/);
-    assert.equal(mem.get(LEGACY_SEEN_KEY), '1');
+    assert.equal(ui.screen, 'title');
+    assert.doesNotMatch(el.innerHTML, /旧版（回合制）游戏的存档或设置|data-act="legacy-ok"/);
+    assert.doesNotMatch(el.innerHTML, /data-act="continue"/);
     app.render();
-    assert.doesNotMatch(el.innerHTML, /旧版（回合制）游戏的存档或设置/);
-    assert.equal(mem.get('mrp.v0.1.0.save'), '{"v":"0.1.0"}');
-    assert.equal(mem.get('mrp.v0.1.0.byok'), '{"key":"x"}');
+    assert.deepEqual(mem, before);
+    assert.equal(mem.has('mrp.sim.legacy-seen'), false);
   });
 });
 
@@ -187,4 +253,41 @@ describe('Esc 和结算页回看后台', () => {
     assert.equal(overlayRoot.innerHTML, '');
     assert.equal(ui.screen, 'result');
   });
+});
+
+
+describe('自洽开局输入错误恢复', () => {
+  it('合法→非法→合法和空值会更新错误与开始按钮；忽略其他字段；输入不触发开局', async () => {
+    const { el } = await startApp();
+    const { defaultSolo, soloClick, renderSolo } = await import('../../src/career/ui/pages/solo_setup.js');
+    ui.screen = 'solo'; ui.solo = defaultSolo(false,'post');
+    const boxes = { name: {textContent:''}, brand: {textContent:''} };
+    const start = { disabled:false };
+    el.querySelector = sel => sel === '[data-act="solo-start"]' ? start : boxes[sel.match(/data-error="(name|brand)"/)?.[1]] || null;
+    const input = (key, value, isComposing=false) => el.handlers.input.forEach(fn => fn({target:{dataset:{solo:key},value},isComposing}));
+    for (const [key, valid, invalid] of [['brand','Aurora','Aurora 7'],['name','星河测试','A']]) {
+      input(key,valid); assert.equal(boxes[key].textContent,''); assert.equal(start.disabled,false);
+      input(key,invalid); assert.ok(boxes[key].textContent); assert.equal(start.disabled,true);
+      input(key,valid); assert.equal(boxes[key].textContent,''); assert.equal(start.disabled,false);
+      input(key,''); assert.ok(boxes[key].textContent); assert.equal(start.disabled,true);
+      input(key,valid,true); assert.equal(boxes[key].textContent,''); assert.equal(start.disabled,false);
+      assert.equal(ui.screen,'solo','合成输入只更新草稿，不自动开局');
+    }
+    const before=JSON.stringify(ui.solo); start.disabled=true; boxes.brand.textContent='保留提示';
+    input('count','3'); assert.equal(JSON.stringify(ui.solo),before); assert.equal(start.disabled,true); assert.equal(boxes.brand.textContent,'保留提示');
+    input('brand','Aurora');
+    soloClick(ui.solo,{dataset:{act:'solo-set',key:'country',value:'US'}});
+    const html=renderSolo(ui.solo);
+    assert.match(html,/美国：市场最大/); assert.doesNotMatch(html,/data-act="solo-start" disabled/);
+  });
+});
+
+
+it('自洽终局再来一局走标题离开路径，不裸刷新重入终局', async () => {
+  const {el}=await startApp();
+  const {setWorld}=await import('../../src/career/ui/state.js');
+  const world={result:{kind:'world'},companies:{}};
+  setWorld(world);ui.screen='result';
+  try { click(el,'new'); assert.equal(ui.screen,'title'); }
+  finally { setWorld(null); }
 });

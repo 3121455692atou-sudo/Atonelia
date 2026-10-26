@@ -41,13 +41,25 @@ describe('电脑公司（M.3.12）', () => {
   it('被动档不立项、不送评；产品照开', () => {
     const w = world(['passive'], 3, 120);
     const before = w.companies[Object.keys(w.companies)[0]].s.models.length;
-    run(w, 120);
+    // 先验证截止前的被动行为，再验证最后一天仍保持被动并正确结算。
+    run(w, 119);
     const s = Object.values(w.companies)[0].s;
     assert.equal(s.jobs.list.length, 0, '被动档不应立项目');
     assert.equal(s.evals.length, 0, '被动档不应送评');
     assert.equal(s.models.length, before, '被动档不应有新模型');
     // 产品照开、续买数据、生成订单由 freeOps 负责；没有在线模型时产品开不起来，这里只要求不报错。
     assert.equal(s.status, 'playing');
+    assert.equal(w.day, w.end, '最后一天尚未日结');
+    assert.equal(w.result, undefined);
+    run(w, 1);
+    assert.equal(s.jobs.list.length, 0, '最后一天也不立项目');
+    assert.equal(s.evals.length, 0, '最后一天也不送评');
+    assert.equal(s.models.length, before, '最后一天也不产生新模型');
+    assert.equal(s.status, 'ended', '完成全部 120 天后必须结算');
+    assert.equal(s.result.kind, 'world');
+    assert.equal(w.result.settledThrough, w.end);
+    assert.equal(w.tickNo, 120);
+    assert.deepEqual(w.errors, [], '被动档正常运行到期，不是崩溃退出');
   });
 
   it('困难档照顾问 advise() 的第一条建议做', () => {

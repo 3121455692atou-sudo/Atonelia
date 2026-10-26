@@ -39,7 +39,17 @@ const directTempAnchor = (s, { day = s.day, mod = s.mod } = {}) => {
   }
   return best ?? (first ? qOf(first.mod, first.dims) : 0);
 };
-const directStartTechs = s => TECHS.filter(t => t.mod === s.mod && (t.start || t.from <= addMonths(s.start, -3))).map(t => t.id);
+// Independent rule oracle: explicit fictional-world exceptions, not the implementation/table under test.
+const LEADER_REF = [
+  ['deepseek', 'y2025', '2025-01', 'llm', ['fp8', 'mtp']],
+  ['claude', 'y2025', '2025-01', 'llm', ['mcp']],
+  ['mistral', 'y2024', '2024-01', 'llm', ['moe']],
+];
+const directStartTechs = s => {
+  const base = TECHS.filter(t => t.mod === s.mod && !t.internalPractice && (t.start || t.from <= addMonths(s.start, -3))).map(t => t.id);
+  const extra = LEADER_REF.find(([id, sc, start, mod]) => s.charId === id && s.scenario === sc && s.start === start && s.mod === mod)?.[4] || [];
+  return [...new Set([...base, ...extra])];
+};
 const directLegacy = (s, m) => !m?.releasedDay && RELEASES.some(r => r.name === m?.name && r.date <= s.start);
 const directPrice = (id, date) => {
   const t = TICKERS.find(x => x.id === id);

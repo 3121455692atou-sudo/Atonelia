@@ -18,7 +18,6 @@ import { addDays, dayInMonth } from '../../src/career/sim/clock.js';
 import { releaseEntry } from '../../src/career/sim/loop.js';
 import { advance, resolveAll } from '../helpers/career_bot.mjs';
 import { clone, loadSave } from '../helpers/career_util.mjs';
-import { run as runSotaStep } from '../../src/career/sim/migrations/sota.js';
 import * as L from '../helpers/legacy_jobs.mjs';
 
 const DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/saves');
@@ -586,160 +585,27 @@ describe('D6.2 的锚点（P1.2 读）', () => {
   });
 });
 
-describe('E8：读旧档的 sota 特性步骤', () => {
-  const FIX = fs.readdirSync(DIR).filter(f => f.endsWith('.json') && !f.startsWith('._')).sort();
-  it('6 份 v3 夹具：已发布模型都补了 releasedDay、line、origin，继承的记 hist；s.sota 齐全；读两遍结果不变', () => {
-    for (const f of FIX) {
-      const s = loadSave(JSON.parse(fs.readFileSync(path.join(DIR, f), 'utf8')));
-      for (const m of s.models) {
-        assert.ok(['pretrain', 'distill'].includes(m.origin), `${f} ${m.name}`);
-        if (m.stage === 'released') assert.ok(m.releasedDay && m.releasedDay <= s.day && ['main', 'side'].includes(m.line), `${f} ${m.name}`);
-      }
-      // 开局继承的型号：带真实型号名、开局前发布、不是自研的。
-      for (const m of s.models.filter(x => x.stage === 'released' && !x.ver && RELEASES.some(r => r.name === x.name && r.date <= s.start))) assert.equal(m.hist, true, `${f} ${m.name}`);
-      assert.ok(Array.isArray(s.sota.field) && Array.isArray(s.sota.log) && ['★', '○', '—'].includes(s.sota.seed), f);
-      for (const r of RELEASES.filter(x => x.mod === s.mod && x.day <= s.day && !isMine(s, x.family))) assert.ok(s.world.adj[r.id] !== undefined, `${f} ${r.name} 没冻结钳制量`);
-      assert.ok(Object.values(s.ms).filter(e => e.who === 'me' && e.model).every(e => e.modelId), `${f} 里程碑账本补 modelId`);
-      assert.deepEqual(loadSave(clone(s)), s, `${f} 读两遍结果不变`);
-      // 上一条经过 s.mig 标记，第二遍不会再跑特性步骤；这里对迁移结果直接再跑一遍 sota 步骤，JSON 必须完全相同（E8：要求幂等）。
-      const again = clone(s);
-      runSotaStep(again);
-      assert.equal(JSON.stringify(again), JSON.stringify(s), `${f} sota 特性步骤跑两遍结果相同`);
-      // 本月对手发布的新闻只发一次：已经发过的不再排带新闻的条目。
-      const told = new Set(s.news.filter(n => n.type === 'release').map(n => n.title));
-      assert.ok(s.scheduled.every(x => !x.news || x.news.type !== 'release' || !told.has(x.news.title)), `${f} 发过的新闻不再排期`);
+describe('SOTA 账本不再迁移旧结构', () => {
+  it('历史 v3 夹具明确拒绝，原始 JSON 不改写', () => {
+    const dir = new URL('../fixtures/saves/', import.meta.url);
+    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json') && !x.startsWith('.'))) {
+      const raw = JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8')), before = JSON.stringify(raw);
+      const r = E.migrateGame(raw); assert.equal(r.ok, false, f); assert.match(r.reason, /不支持|版本|旧存档/);
+      assert.equal(JSON.stringify(raw), before, f);
     }
   });
-  it('旧档没排过的本月发布（数据新加的行、原来被 sibling 挡掉的同公司别的模态）补上新闻；发过新闻的只排 rel', () => {
-    const s = loadSave(JSON.parse(fs.readFileSync(path.join(DIR, 'gpt_y2023_open.json'), 'utf8')));
-    assert.ok(s.scheduled.some(x => x.rel === 'DALL·E 3' && x.news), 'GPT 玩家看得到 DALL·E 3 的新闻');
-    const k = loadSave(JSON.parse(fs.readFileSync(path.join(DIR, 'kimi_y2026.json'), 'utf8')));
-    for (const name of ['Claude Fable 5', 'GLM-5.2', 'Claude Sonnet 5']) {
-      const x = k.scheduled.find(y => y.rel === name);
-      assert.ok(x && !x.news, `${name} 新闻已经发过，只排 rel`);
-      assert.equal(k.news.filter(n => n.type === 'release' && n.title.endsWith(` 发布 ${name}`)).length, 1, name);
-    }
+  it('旧 SOTA：拒绝缺失结构且不补写原对象', () => {
+    const s = E.createGame('qwen', 'y2025', 1); delete s.sota;
+    const before = JSON.stringify(s); assert.throws(() => ensureSota(s), /不支持|旧存档/);
+    assert.equal(JSON.stringify(s), before);
+    const r = E.migrateGame(s); assert.equal(r.ok, false); assert.equal(JSON.stringify(s), before);
   });
-  it('迁移得到的 holder、log、made、before 和“开局 initSota，再按日把对手发布和玩家快照逐条过一遍”一致', () => {
-    for (const f of FIX) {
-      const s = loadSave(JSON.parse(fs.readFileSync(path.join(DIR, f), 'utf8')));
-      const g = clone(s);
-      delete g.sota;
-      g.world = {};
-      for (const m of g.models) delete m.sota;
-      const save = g.day;
-      g.day = `${g.start}-01`;
-      initSota(g);
-      const evs = [];
-      for (const r of RELEASES.filter(x => x.mod === g.mod && x.day >= `${g.start}-01` && x.day <= save && !isMine(g, x.family))) evs.push([r.day, 0, -q(r), r]);
-      for (const m of g.models.filter(x => x.stage === 'released' && x.releasedDay > `${g.start}-01`)) evs.push([m.releasedDay, 1, 0, m]);
-      evs.sort((a, b) => a[0].localeCompare(b[0]) || a[1] - b[1] || a[2] - b[2]);
-      for (const [d, t, , x] of evs) { g.day = d; if (t) labelOnRelease(g, x); else labelOnRival(g, x); }
-      for (const k of ['holder', 'log', 'made', 'before', 'field', 'seed']) assert.deepEqual(g.sota[k], s.sota[k], `${f} ${k}`);
-      assert.deepEqual(g.models.map(m => m.sota ?? null), s.models.map(m => m.sota ?? null), `${f} m.sota`);
-    }
-  });
-  it('兜底：P0.3a 到 P1.1 之间新开的 v4 存档（mig.sota 已记、没有 s.sota），推进第一天时按读旧档的办法补建 s.sota', () => {
-    const s = E.createGame('gemini', 'y2023', 1);
-    resolveAll(s);
-    advance(s, 330);
-    // 对照：同一局照常推进一天（开局 initSota、之后逐日过标签）。
-    const want = clone(s);
-    E.tickDay(want);
-    delete s.sota;
-    for (const m of s.models) delete m.sota;
-    s.world.adj = {};
-    assert.equal(s.mig.sota, true);
-    E.tickDay(s);
-    assert.ok(s.sota, '推进一天以后有 s.sota');
-    for (const k of ['holder', 'log', 'made', 'before', 'field', 'seed', 'kin']) assert.deepEqual(s.sota[k], want.sota[k], k);
-    assert.deepEqual(s.world.adj, want.world.adj, '钳制量也补冻结了');
-    assert.deepEqual(s.models.map(m => m.sota ?? null), want.models.map(m => m.sota ?? null));
-    assert.ok(s.sota.log.length > 0 && s.sota.kin === '2023-11-16', '这局走到了 2023 年 11 月底，标签换过手、kin 已有');
-    const fresh = E.createGame('gemini', 'y2023', 1);
-    delete fresh.mig;
-    delete fresh.sota;
-    assert.equal(ensureSota(fresh), null, '没记 mig.sota 的不归这里管（读档时走特性步骤）');
-  });
-  // P0.3a 到 P1.1 之间开的存档：那时 initSota 是空存根，继承型号也还没有 hist、releasedDay、line、origin（P1.1 才在开局写），
-  // 对手发布按月内散列日排期；特性步骤却已经记成执行过（stampFeatures）。
-  const asDevSave = s => {
-    const g = clone(s);
-    delete g.sota;
-    g.world.adj = {};
-    for (const m of g.models) for (const k of ['sota', 'hist', 'releasedDay', 'line', 'origin']) delete m[k];
-    return g;
-  };
-  it('兜底跑的是完整的 sota 特性步骤：24 家 × 4 剧本的开发期存档推进一天，继承型号补回 hist、真实发布日、line、origin，不记进 made，s.sota 和正常推进一致', () => {
+  it('96 个当前新开局都有完整标签账本且继承型号仍带真实史实信息', () => {
     let inherited = 0;
     for (const c of COMPANIES) for (const sc of SCS) {
-      const s = E.createGame(c.id, sc, 1);
-      resolveAll(s);
-      const dev = asDevSave(s);
-      assert.equal(dev.mig.sota, true);
-      assert.ok(E.tickDay(s) && E.tickDay(dev), `${c.id} ${sc} 推进了一天`);
-      const at = `${c.id} ${sc}`;
-      for (const k of ['holder', 'log', 'made', 'before', 'field', 'seed', 'kin']) assert.deepEqual(dev.sota[k], s.sota[k], `${at} ${k}`);
-      assert.deepEqual(dev.sota.made, [], `${at}：继承型号不算开局后炼出`);
-      assert.deepEqual(dev.world.adj, s.world.adj, at);
-      for (const k of ['hist', 'releasedDay', 'line', 'origin', 'sota']) assert.deepEqual(dev.models.map(m => m[k] ?? null), s.models.map(m => m[k] ?? null), `${at} m.${k}`);
-      inherited += s.models.filter(m => m.hist).length;
+      const s = E.createGame(c.id, sc, 1); assert.equal(ensureSota(s), s.sota);
+      for (const m of s.models.filter(x => x.hist)) { assert.ok(m.releasedDay && m.line && m.origin); inherited++; }
     }
-    assert.ok(inherited >= 60, `继承型号只有 ${inherited} 个`);
-    // 点名：GPT y2023 继承的 GPT-3.5 按真实发布日 2022-11-30，只设 before（原来回放按 2022-11-15，还记进了 made）。
-    const g0 = E.createGame('gpt', 'y2023', 1);
-    resolveAll(g0);
-    const g = asDevSave(g0);
-    assert.ok(E.tickDay(g));
-    const gpt35 = g.models.find(m => m.name === 'GPT-3.5（ChatGPT）' && m.stage === 'released');
-    assert.deepEqual([gpt35.hist, gpt35.releasedDay, gpt35.line, gpt35.origin], [true, '2022-11-30', 'main', 'pretrain']);
-    assert.deepEqual([g.sota.before, g.sota.made.length, g.sota.holder.name], [true, 0, 'GPT-3.5（ChatGPT）']);
-  });
-  it('兜底也改本月排期：旧散列日已经放过、真实发布日还没到的对手发布（GPT y2023 的 Bard（LaMDA），旧日子 03-15、真实 03-21）改排到 r.day，到日子照常过标签规则，新闻不重发', () => {
-    const want = E.createGame('gpt', 'y2023', 1);
-    resolveAll(want);
-    advance(want, 74);
-    assert.equal(want.day, '2023-03-16');
-    const bard = rel('Bard（LaMDA）');
-    assert.deepEqual([dayInMonth(bard.date, bard.name), bard.day], ['2023-03-15', '2023-03-21']);
-    const dev = asDevSave(want);
-    // 开发期存档：Bard（LaMDA）按旧日子 03-15 已经放出（新闻在），排期里没有它了。
-    dev.scheduled = dev.scheduled.filter(x => x.rel !== bard.name);
-    dev.news.unshift({ ...releaseEntry(bard).news, day: '2023-03-15' });
-    advance(dev, 1);
-    assert.ok(dev.scheduled.some(x => x.rel === bard.name && x.at === '2023-03-21' && !x.news), '只排 rel，新闻已经放过');
-    advance(want, 1);
-    advance(dev, 8);
-    advance(want, 8);
-    assert.ok(want.world.adj[bard.id] !== undefined && dev.world.adj[bard.id] !== undefined, '03-21 变为可见，过了标签规则');
-    for (const k of ['holder', 'log', 'made', 'before', 'field']) assert.deepEqual(dev.sota[k], want.sota[k], k);
-    assert.deepEqual(dev.world.adj, want.world.adj);
-    assert.equal(dev.news.filter(n => n.type === 'release' && n.title.endsWith(` 发布 ${bard.name}`)).length, 1, '新闻只有旧日子那一条');
-  });
-  it('kin 按存档日补：Gemini y2023 的旧档存在 2024 年，kin 是 2023-11-16', () => {
-    const s = E.createGame('gemini', 'y2023', 1);
-    const old = clone(s);
-    old.v = 3;
-    delete old.sota;
-    delete old.world;
-    delete old.mig;
-    Object.assign(old, { date: '2024-02', day: '2024-02-10' });
-    const g = loadSave(old);
-    assert.equal(g.sota.kin, '2023-11-16');
-  });
-  it('本月对手发布重排的先后和 startOfMonth 一样：同一天按综合分从高到低（千问 y2025 存在 01-05，01-20 有 R1、Kimi k1.5、R1-Distill-Qwen-32B）', () => {
-    const s = E.createGame('qwen', 'y2025', 1);
-    resolveAll(s);
-    advance(s, 4);
-    assert.equal(s.day, '2025-01-05');
-    const old = clone(s);
-    old.v = 3;
-    delete old.sota;
-    delete old.world;
-    delete old.mig;
-    const g = loadSave(old);
-    const on = (x, day) => x.scheduled.filter(e => e.at === day).map(e => e.rel ?? e.world ?? e.techsrc?.[0] ?? e.item?.id);
-    assert.deepEqual(on(s, '2025-01-20').filter(n => RELEASES.some(r => r.name === n)), ['DeepSeek-R1', 'Kimi k1.5', 'R1-Distill-Qwen-32B']);
-    for (const day of [...new Set(s.scheduled.map(e => e.at))]) assert.deepEqual(on(g, day), on(s, day), day);
+    assert.ok(inherited >= 60);
   });
 });

@@ -137,7 +137,7 @@ describe('出租显卡按实有卡数算', () => {
     }
   });
 
-  it('存档里写坏的出租张数（负数、超额、NaN）不会把训练算力放大，读档时归位', () => {
+  it('写坏的出租张数不会放大训练算力；旧存档明确拒绝且不归位', () => {
     const s = fresh();
     const train = E.trainFlops(s);
     s.products.gpu_lease.gpus = -1e6;
@@ -150,10 +150,13 @@ describe('出租显卡按实有卡数算', () => {
     old.v = 3;
     old.products.gpu_lease.gpus = -5;
     old.inferShare = null;
-    const m = loadSave(old);
-    assert.equal(m.products.gpu_lease.gpus, 0);
-    assert.equal(m.inferShare, 0.3);
-    assert.ok(Number.isFinite(E.trainFlops(m)));
+    const before = clone(old), rejected = E.migrateGame(old);
+    assert.equal(rejected.ok, false);
+    assert.match(rejected.reason, /不支持旧版或未知存档/);
+    assert.deepEqual(old, before, '不补造出租张数或推理比例');
+    const current = fresh(), loaded = loadSave(clone(current));
+    assert.deepEqual(clone(loaded), clone(current));
+    assert.ok(Number.isFinite(E.trainFlops(loaded)));
   });
 
   it('卖掉显卡以后，超出的旧出租配置不再收租金；一张卡都没有就没有租金', () => {
@@ -225,7 +228,7 @@ describe('走私卡记账', () => {
     assert.ok(outcomes.has(0), '有被扣的局');
   });
 
-  it('旧档：下单时已记成持有的在途走私卡，读档时扣回来，到货后只记一次', () => {
+  it('旧走私账不迁移；当前在途账原样存读，到货后只记一次', () => {
     const s = fresh('deepseek', 'y2025', 2);
     E.buySmuggled(s, 'H100', 64);
     const old = clone(s);
@@ -234,13 +237,18 @@ describe('走私卡记账', () => {
     old.gray.owned.H100 = 128;
     old.gpus.owned.H100 = 64;
     delete old.orders.find(o => o.kind === 'smuggle').held;
-    const m = loadSave(old);
-    assert.equal(m.gray.owned.H100, 64, '在途的 64 张扣回去');
-    assert.equal(m.orders.find(o => o.kind === 'smuggle').held, false);
-    assert.equal(loadSave(clone(m)).gray.owned.H100, 64, '再读一次不会重复扣');
+    const before = clone(old), rejected = E.migrateGame(old);
+    assert.equal(rejected.ok, false);
+    assert.match(rejected.reason, /不支持旧版或未知存档/);
+    assert.deepEqual(old, before, '拒绝旧档不重算持有量或补订单标记');
+    const m = loadSave(clone(s)), initialOwned = m.gpus.owned.H100 || 0;
+    assert.deepEqual(clone(m), clone(s));
+    assert.equal(m.gray.owned.H100 || 0, 0, '当前档在途卡不算持有');
+    assert.deepEqual(clone(loadSave(clone(m))), clone(m), '重复读档不改变走私账');
     settle(m, m.orders.find(o => o.kind === 'smuggle'));
-    assert.ok([64, 128].includes(m.gray.owned.H100), `到货后 ${m.gray.owned.H100}（重复记账会是 192）`);
-    assert.equal(m.gray.owned.H100, m.gpus.owned.H100, '持有的走私卡就是手里的这些');
+    const arrived = (m.gpus.owned.H100 || 0) - initialOwned;
+    assert.ok([0, 64].includes(arrived), `到货后增加 ${arrived}（重复记账会是 128）`);
+    assert.equal(m.gray.owned.H100 || 0, arrived, '持有的走私卡就是实际到手的');
   });
 
   it('机房失火烧掉的卡里有走私卡时，走私账跟着减少', () => {
@@ -271,7 +279,7 @@ describe('文案与主屏', () => {
     assert.match(flow, /宽限后还没达成，记一次警告。警告攒到三次，董事会就会更换管理层/);
   });
 
-  it('主屏芯片条和新闻条顺着排；样式表版本号 v=4，背景图预加载还在', () => {
+  it('主屏芯片条和新闻条顺着排；样式表采用明确缓存版本，背景图预加载还在', () => {
     const css = readSrc('../../src/career/css/home.css');
     const rule = sel => css.match(new RegExp(`^${sel.replace('.', '\\.')} \\{([^}]*)\\}`, 'm'))[1];
     for (const sel of ['.stage-chips', '.ticker']) {
@@ -279,9 +287,35 @@ describe('文案与主屏', () => {
       assert.doesNotMatch(rule(sel), /absolute|top:/, sel);
     }
     const html = readSrc('../../index.html');
-    // 样式拆成 src/career/css/ 下的几个文件，每个链接都带 v=4。
+    // 2026-10-25 UI/UX 重做：基线 18 张样式加上玩法、教程与最后加载的响应式样式；改动旧表升级缓存版本。
     const sheets = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(m => m[1]);
-    assert.ok(sheets.length >= 9 && sheets.every(h => /^\.\/src\/career\/css\/[\w-]+\.css\?v=4$/.test(h)), sheets.join(' '));
+    const expectedVersions = {
+      base: '8-hud',
+      layout: '8-hud',
+      topbar: '8-hud',
+      home: '8-hud',
+      office: '9-uiux',
+      overlay: '8-hud',
+      picker: '8-hud',
+      panels: '9-compact',
+      mobile: '8-hud',
+      strategy: '9-uiux',
+      naming: '8-hud',
+      history: '8-hud',
+      archive: '8-hud',
+      train: '8-hud',
+      post_plan: '9-uiux',
+      post_plan_feedback: '8-hud',
+      solo: '8-hud',
+      mp: '8-hud',
+      play_setup: '1',
+      practice_coach: '2-viewport',
+      responsive_fit: '12-compact',
+    };
+    const expectedSheets = Object.entries(expectedVersions).map(([name, version]) => `./src/career/css/${name}.css?v=${version}`);
+    assert.deepEqual(sheets, expectedSheets, '样式链接、加载顺序与缓存版本必须逐项匹配');
+    assert.ok(sheets.includes('./src/career/css/post_plan.css?v=9-uiux'), '后训练卡牌样式也要带当前缓存版本');
+    for (const sheet of sheets) assert.ok(readSrc(`../../${sheet.split('?')[0]}`).trim(), `样式文件必须存在且非空：${sheet}`);
     assert.match(html, /<link rel="preload" as="image" href="\.\/assets\/thumbs\/bg-sunlit-atelier\.webp" \/>/);
   });
 

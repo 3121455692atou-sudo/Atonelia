@@ -1,0 +1,24 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';
+import {startServer,stopServer,api,Client,waitFor,tmpDir} from '../helpers/mp_server.mjs';
+import {rebuild} from '../../server/store.mjs';import * as E from '../../src/career/engine.js';
+const ok=r=>{assert.equal(r.status,200,r.text);assert.equal(r.json.ok,true,r.text);return r.json;};
+test('real fork keep6: frozen targets rejected before WAL; active NPC list and takeover preserve state',async t=>{
+ const data=tmpDir(),srv=await startServer({data,args:['--tick-ms','10000','--max-rooms','1']}),clients=[];t.after(async()=>{clients.forEach(c=>c.close());await stopServer(srv);});
+ const post=(p,b,cookie)=>api(srv.base,p,{method:'POST',body:b,cookie});
+ const made=await post('/api/rooms',{lobby:true,settings:{mode:'fork',start:'2025-01',humans:2,years:1,keep:6,seed:11}}),room=ok(made).room,dir=path.join(data,room);
+ const host=new Client(srv.base,room,made.cookie);clients.push(host);await host.connect();
+ const join=await post(`/api/r/${room}/join`,{seat:1}),member=ok(join).member,peer=new Client(srv.base,room,join.cookie);clients.push(peer);await peer.connect();
+ ok(await host.roomCmd('approveSeat',{member,seat:1}));ok(await host.roomCmd('ready',{name:'深度求索',brand:'深度',country:'CN',pick:'deepseek'}));ok(await peer.roomCmd('ready',{name:'千问',brand:'千问',country:'CN',pick:'qwen'}));ok(await host.roomCmd('start'));await waitFor(()=>host.s&&peer.s,15000);ok(await host.roomCmd('pause'));
+ const {world}=rebuild(dir,{fromStart:true,repair:false}),frozen=Object.values(world.companies).find(c=>c.frozen===true),active=Object.values(world.companies).find(c=>c.kind==='bot'&&c.s?.status==='playing');assert(frozen);assert(active);
+ const pending=await post(`/api/r/${room}/join`,{}),pendingMember=ok(pending).member;
+ const state=async()=>ok(await api(srv.base,`/api/r/${room}/status`));
+ const before=await state(),wal=fs.readFileSync(path.join(dir,'log.ndjson'));
+ assert.equal((await post(`/api/r/${room}/join`,{companyId:frozen.id})).status,400);
+ assert.equal((await host.roomCmd('approveSeat',{member:pendingMember,companyId:frozen.id})).status,400);
+ assert.equal((await state()).hash,before.hash);assert.deepEqual(fs.readFileSync(path.join(dir,'log.ndjson')),wal);
+ const lastLobby=host.events.filter(e=>e.type==='lobby').at(-1).data;assert.equal(lastLobby.seats.length,6);assert(!lastLobby.seats.some(c=>c.id===frozen.id));
+ const saved=E.serialize(world);const fake=world.companies[active.id];fake.frozen=true;const blocked=E.serialize(world);assert.throws(()=>E.takeover(world,fake.id));assert.equal(E.serialize(world),blocked);fake.frozen=false;assert.equal(E.serialize(world),saved);
+ const companyBefore=structuredClone(active.s);ok(await host.roomCmd('approveSeat',{member:pendingMember,companyId:active.id}));const after=rebuild(dir,{fromStart:true,repair:false}).world.companies[active.id];assert.equal(after.kind,'human');
+ delete companyBefore.automation;const companyAfter=structuredClone(after.s);delete companyAfter.automation;assert.deepEqual(companyAfter,companyBefore,'takeover preserves operating company; only new automation config allowed');
+ console.log(JSON.stringify({data,room,frozen:frozen.id,active:active.id,activeCount:lastLobby.seats.length,hashBefore:before.hash}));
+});

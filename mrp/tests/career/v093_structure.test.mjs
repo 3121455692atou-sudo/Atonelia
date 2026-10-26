@@ -1,4 +1,4 @@
-// v0.9.3 合并 M3：模型结构统一解析（审查 B1），开局继承和旧档迁移共用 data/model_structure.js。
+// v0.9.3 合并 M3：模型结构统一解析（审查 B1），开局继承使用 data/model_structure.js；旧档不再迁移。
 // 前两条迁自外部 v0.9.2 改动包：test_rank_integrity.mjs 的“Mixtral 不再把单个专家当总参数”、test_scaling_balance.mjs 的“开局能力有限且非负”
 // （去掉了“上限不低于已学能力”：开局继承模型的知识上限比已学能力低 1，是审查 C1 的知识余量问题，留给 D6）。
 // 其余按审查 B1 的先修（G1-5）、G2-7 点名的结构和 2026-10-21 决定第 3 项（前沿单列、大档 >100B）补写。
@@ -14,12 +14,11 @@ import { RELEASES } from '../../src/career/data/rivals.js';
 import { deployDays } from '../../src/career/data/supply.js';
 import { structureForRelease } from '../../src/career/data/model_structure.js';
 import { resolveAll } from '../helpers/career_bot.mjs';
-import * as L from '../helpers/legacy_jobs.mjs';
 
 const clone = v => JSON.parse(JSON.stringify(v));
 const byName = name => RELEASES.find(r => r.name === name);
 const shape = st => [st.total, st.active, st.arch, st.cls];
-// sim/ 下所有的 .js（含 migrations/ 这类子目录）。
+// sim/ 下所有的 .js（含子目录）。
 const simFiles = (dir = fileURLToPath(new URL('../../src/career/sim/', import.meta.url))) =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => (e.isDirectory() ? simFiles(path.join(dir, e.name)) : e.name.endsWith('.js') ? [path.join(dir, e.name)] : []));
 const fresh = (char, scenario, seed = 7) => { const s = E.createGame(char, scenario, seed); resolveAll(s); return s; };
@@ -117,7 +116,7 @@ describe('统一结构解析', () => {
   });
 
   it('结构只在 data/model_structure.js 解析一次；开局模型都记了结构出处', () => {
-    // game.js 拆分后，开局继承和旧档重算结构分在 sim/ 的几个文件里：整个 sim/ 都不该有自己的一份。
+    // game.js 拆分后，开局继承分在 sim/ 的几个文件里：整个 sim/ 都不该有自己的一份。
     for (const f of simFiles()) {
       const src = fs.readFileSync(f, 'utf8');
       assert.ok(!src.includes('KNOWN_STRUCTURE') && !/B-A\(/.test(src), `${path.basename(f)} 里不该再有自己的一份结构表或型号名正则`);
@@ -127,55 +126,61 @@ describe('统一结构解析', () => {
   });
 });
 
-describe('旧档迁移：结构重算，已公布成绩的量级跟着改（G1-5）', () => {
-  it('v0.9 的 Mistral 2024 旧档：Mixtral 改成 46.7B/12.9B MoE 中型，成绩也记中型，“小”量级榜上不再有我方', () => {
+describe('结构存档边界：旧版拒绝，当前结构原样保留', () => {
+  const rejectedUnchanged = old => {
+    const before = clone(old), result = E.migrateGame(old);
+    assert.equal(result.ok, false);
+    assert.match(result.reason, /不支持旧版或未知存档/);
+    assert.deepEqual(old, before, '旧档结构、量级及成绩不能被重算');
+  };
+
+  it('v0.9 Mistral 小型结构旧档拒绝；当前 Mixtral 是 46.7B/12.9B MoE 中型', () => {
     const s = fresh('mistral', 'y2024');
-    let old = asV09(s, m => (m.name === 'Mixtral 8x7B' ? { total: 7, active: 7, arch: 'dense', cls: 'small' } : {}), 'small');
-    assert.equal(mineIn(old, 'small')?.rank, 1, 'v0.9 的旧档里 Mixtral 在“小”量级榜排第一（问题复现）');
-    old = loadSave(old);
-    for (const m of old.models.filter(x => x.name === 'Mixtral 8x7B')) {
-      assert.deepEqual([m.total, m.active, m.arch, E.clsOf(m), m.structureSource], [46.7, 12.9, 'moe', 'mid', 'catalog']);
-    }
-    assert.ok(Object.values(old.published).every(r => r.cls === 'mid'));
-    assert.equal(mineIn(old, 'small'), null);
-    assert.equal(mineIn(old, 'mid')?.rank, mineIn(s, 'mid')?.rank, '迁移后的名次和新开一局一样');
-    assert.ok(E.validateGame(old));
+    const old = asV09(s, m => (m.name === 'Mixtral 8x7B' ? { total: 7, active: 7, arch: 'dense', cls: 'small' } : {}), 'small');
+    rejectedUnchanged(old);
+    assert.deepEqual(shape(structureForRelease('llm', byName('Mixtral 8x7B'))), [46.7, 12.9, 'moe', 'mid']);
+    const current = loadSave(clone(s));
+    assert.deepEqual(clone(current), clone(s));
+    assert.equal(mineIn(current, 'small'), null);
+    assert.equal(mineIn(current, 'mid')?.rank, mineIn(s, 'mid')?.rank);
+    assert.ok(E.validateGame(current));
   });
 
-  it('v0.9 的 GPT 2023 旧档：继承的 GPT-3.5、GPT-4 从“大”回到前沿，成绩一起改；读两遍结果不变', () => {
-    const old = loadSave(asV09(fresh('gpt', 'y2023'), () => ({ cls: 'large' }), 'large'));
-    for (const m of old.models) assert.equal(E.clsOf(m), 'frontier', m.name);
-    assert.ok(Object.values(old.published).every(r => r.cls === 'frontier'));
-    const once = clone(old);
-    assert.deepEqual(loadSave(old), once);
+  it('v0.9 GPT 大型量级旧档拒绝；当前继承模型和成绩始终是前沿', () => {
+    const s = fresh('gpt', 'y2023');
+    rejectedUnchanged(asV09(s, () => ({ cls: 'large' }), 'large'));
+    const current = loadSave(clone(s));
+    for (const m of current.models) assert.equal(E.clsOf(m), 'frontier', m.name);
+    assert.ok(Object.values(current.published).every(r => r.cls === 'frontier'));
+    assert.deepEqual(clone(current), clone(s));
+    assert.deepEqual(clone(loadSave(clone(current))), clone(current));
   });
 
-  it('旧档里 2023 年在训模型的 Agent −3 读档归 0；RWKV、千问 A22B、发布过的版本都改成正确结构', () => {
-    const glm = loadSave(asV09(E.createGame('glm', 'y2023', 1), m => ({ dims: { ...m.dims, agent: -3 } })));
+  it('旧版负能力和错误架构不修补；新局能力、RWKV 架构与 A22B 结构正确', () => {
+    const glm = E.createGame('glm', 'y2023', 1);
+    rejectedUnchanged(asV09(glm, m => ({ dims: { ...m.dims, agent: -3 } })));
     assert.equal(E.workingModel(glm).dims.agent, 0);
-    const rwkv = loadSave(asV09(fresh('rwkv', 'y2024'), () => ({ arch: 'dense' })));
+    const rwkv = fresh('rwkv', 'y2024');
+    rejectedUnchanged(asV09(rwkv, () => ({ arch: 'dense' })));
     assert.ok(rwkv.models.every(m => m.arch === 'rnn'));
     const qwen = fresh('qwen', 'y2025');
-    // 开局在训的已不是 Qwen3-235B-A22B（窗口里多了 QwQ-32B），这里把在训版本标成它，测的是旧档读档时按型号名重算结构。
-    // P2.1 起在练模型没有名字、只带 hint；v0.9 的旧档里它叫“Qwen3-235B-A22B（训练中）”，第一次发布用的就是真实型号名（asV09 改回旧命名）。
-    E.workingModel(qwen).hint = { realName: 'Qwen3-235B-A22B', hn: null };
-    E.workingModel(qwen).postDays = 20;
-    L.decide(qwen, 'release');
-    qwen.models.at(-1).name = 'Qwen3-235B-A22B';
-    const old = loadSave(asV09(qwen, m => (m.lineage?.startsWith('Qwen3-235B') || m.realName === 'Qwen3-235B-A22B' ? { active: 235, arch: 'dense' } : {})));
-    const line = old.models.filter(m => m.realName === 'Qwen3-235B-A22B');
-    assert.ok(line.length >= 2, '在训版本和发布出去的版本都在');
-    for (const m of line) assert.deepEqual([m.total, m.active, m.arch], [235, 22, 'moe'], m.name);
+    rejectedUnchanged(asV09(qwen, () => ({ total: 235, active: 235, arch: 'dense' })));
+    const structure = structureForRelease('llm', byName('Qwen3-235B-A22B'));
+    assert.deepEqual([structure.total, structure.active, structure.arch], [235, 22, 'moe']);
+    for (const current of [glm, rwkv, qwen]) assert.deepEqual(clone(loadSave(clone(current))), clone(current));
   });
 
-  it('自研模型不动：和史实型号同名的自研“文心 5.0”保留玩家自己定的结构和成绩量级', () => {
+  it('同名自研模型旧档仍拒绝；当前自研文心 5.0 保留玩家结构与成绩量级', () => {
     const s = fresh('ernie', 'y2025');
-    const own = { ...clone(E.liveModel(s)), id: 'own50', name: '文心 5.0', ver: 5, lineage: undefined, realName: undefined, total: 70, active: 70, arch: 'dense', cls: 'mid', stage: 'released' };
+    const own = { ...clone(E.liveModel(s)), id: 'own50', name: '文心 5.0', gen: 5, hist: false, total: 70, active: 70, arch: 'dense', cls: 'mid', stage: 'released' };
+    delete own.lineage; delete own.realName; delete own.structureSource;
     s.models.push(own);
-    s.published.mmlu = { ...s.published.mmlu, model: '文心 5.0', cls: 'mid' };
-    const old = loadSave(asV09(s));
-    const m = old.models.find(x => x.id === 'own50');
+    s.published.mmlu = { ...s.published.mmlu, model: '文心 5.0', modelId: own.id, cls: 'mid' };
+    rejectedUnchanged(asV09(s));
+    const current = loadSave(clone(s));
+    const m = current.models.find(x => x.id === 'own50');
     assert.deepEqual([m.total, m.active, m.arch, E.clsOf(m), m.structureSource], [70, 70, 'dense', 'mid', undefined]);
-    assert.equal(old.published.mmlu.cls, 'mid');
+    assert.equal(current.published.mmlu.cls, 'mid');
+    assert.deepEqual(clone(current), clone(s));
   });
 });

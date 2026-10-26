@@ -14,7 +14,6 @@ import { initExpect, judgeRelease, judgeDeferred, expectPreview } from '../../sr
 import { pickStrategy, wantsDistill, shouldHold, scoreNode } from '../../src/career/sim/strategy_ai.js';
 import { sotaWouldTake, labelOnRival } from '../../src/career/sim/sota.js';
 import { registerKind, knownQueueItem, fire, milestoneFire } from '../../src/career/sim/queue.js';
-import { FEATURES, FEATURE_STEPS } from '../../src/career/sim/migrations/index.js';
 import { SAVE_VERSION } from '../../src/career/sim/migrate.js';
 import { CAREER, jsFiles, careerRel } from '../helpers/imports.mjs';
 import { playGame, resolveAll } from '../helpers/career_bot.mjs';
@@ -34,9 +33,9 @@ function inOrder(src, names, where) {
 const body = (src, head) => { const i = src.indexOf(head); assert.ok(i >= 0, head); const j = src.indexOf('\nexport ', i + head.length); return src.slice(i, j < 0 ? undefined : j); };
 
 describe('钩子：位置和顺序（规格 F2 的 P0.3a 行）', () => {
-  it('createGame：开局阵容之后 initSota → initExpect（ensureExpect）→ initRoute → initMilestones → initStrategy → initNaming', () => {
+  it('createGame：开局阵容之后 initSota → initExpect→ initRoute → initMilestones → initStrategy → initNaming', () => {
     const src = body(read('sim/game.js'), 'export function createGame(');
-    inOrder(src, ['startLineup(company', 'initSota(s)', 'ensureExpect(s)', 'initRoute(s)', 'initMilestones(s)', 'initStrategy(s)', 'initNaming(s)'], 'createGame');
+    inOrder(src, ['startLineup(company', 'initSota(s)', 's.expect = initExpect()', 'initRoute(s)', 'initMilestones(s)', 'initStrategy(s)', 'initNaming(s)'], 'createGame');
   });
   it('releaseNow（P2.4a 起的发布流程）：起名 → 建快照 → labelOnRelease → judgeRelease → afterRelease（里程碑、专属事件），小模型和旗舰两条路径都是；评完发布和跳过评测都走它', () => {
     const src = body(read('sim/release.js'), 'export function releaseNow(');
@@ -64,7 +63,7 @@ describe('钩子：位置和顺序（规格 F2 的 P0.3a 行）', () => {
     assert.equal(s.strategy?.tree, 'deepseek', '开局就有策略树（P3.D 起 DeepSeek 用自己的史实树）');
     assert.ok(s.sota && s.world?.adj, '开局就有 s.sota 和 s.world.adj');
     assert.deepEqual(s.route, { stance: 'open_restricted', license: 'restrictive', since: s.day, by: 'start' });
-    assert.deepEqual(s.mig, Object.fromEntries(FEATURES.map(k => [k, true])));
+    assert.equal(Object.hasOwn(s,'mig'), false, '新局不再携带迁移标记');
     const { s: end } = playGame('suno', 'y2023', 2);
     assert.ok(end.expect, '整局后有 s.expect');
     assert.ok(end.models.filter(m => m.hist).every(m => !('expect' in m) && !('badges' in m)), '开局继承的型号不评');
@@ -93,8 +92,8 @@ describe('钩子：位置和顺序（规格 F2 的 P0.3a 行）', () => {
 });
 
 describe('路线只有一条写入口 setStance', () => {
-  it('静态：只有 sim/strategy.js、sim/game.js、sim/migrations/route.js 能调用 setStance（定义在 sim/route.js），别处也不能直接写 s.route.stance', () => {
-    const ALLOWED = new Set(['sim/route.js', 'sim/strategy.js', 'sim/game.js', 'sim/migrations/route.js']);
+  it('静态：只有 sim/strategy.js、sim/game.js 能调用 setStance（定义在 sim/route.js），别处也不能直接写 s.route.stance', () => {
+    const ALLOWED = new Set(['sim/route.js', 'sim/strategy.js', 'sim/game.js']);
     const files = jsFiles(CAREER);
     assert.ok(files.length > 80, `只扫到 ${files.length} 个文件`);
     const bad = [];
@@ -134,17 +133,18 @@ describe('data/balance.js 按规格 §1.3 一次写全', () => {
 });
 
 describe('读档框架（规格 E8）', () => {
-  it('migrateGame 返回 { ok, s, notes }，原档不动；6 份 v3 夹具都能读', () => {
+  it('migrateGame 拒绝全部 6 份 v3 夹具，原档不动', () => {
     const dir = new URL('../fixtures/saves/', import.meta.url);
     const files = fs.readdirSync(dir).filter(f => f.endsWith('.json') && !f.startsWith('.'));
     assert.equal(files.length, 6);
     for (const f of files) {
       const raw = JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8')), before = JSON.stringify(raw);
       const r = E.migrateGame(raw);
-      assert.equal(r.ok, true, `${f}：${r.reason}`);
-      assert.ok(Array.isArray(r.notes) && E.validateGame(r.s));
+      assert.equal(r.ok, false, f);
+      assert.match(r.reason, /不支持旧版.*请新开一局/);
+      assert.deepEqual(r.notes, []);
       assert.equal(JSON.stringify(raw), before, `${f}：原档被改了`);
-      assert.notEqual(r.s, raw);
+      assert.equal(r.s, undefined);
     }
   });
   it('永不抛错：500 份随机垃圾都返回 ok:false 和原因', () => {
@@ -173,36 +173,25 @@ describe('读档框架（规格 E8）', () => {
     }
     assert.ok(ok < 500);
   });
-  it('版本：没写版本的按 v3；比游戏新的读不了；P0.3b 起结构版本是 4，v3 升上来以后特性步骤都执行过、记进 s.mig', () => {
-    assert.equal(SAVE_VERSION, 4);
-    const s = clone(E.createGame('glm', 'y2024', 1));
-    delete s.v;
-    delete s.mig;
-    const r = E.migrateGame(s);
-    assert.equal(r.ok, true);
-    assert.equal(r.s.v, 4);
-    assert.deepEqual(r.s.mig, Object.fromEntries(FEATURES.map(k => [k, true])));
-    assert.match(E.migrateGame({ ...s, v: 9 }).reason, /v9/);
-    assert.equal(E.migrateGame({ ...s, v: 2 }).ok, false);
+  it('当前 v5 精确版本；缺失、旧版与未知版本均不迁移', () => {
+    assert.equal(SAVE_VERSION, 5);
+    const s=E.createGame('glm','y2024',1);
+    for(const v of [undefined,0,2,3,4,6,'5',null]) {
+      const raw=JSON.parse(JSON.stringify(s)); if(v===undefined)delete raw.v;else raw.v=v;
+      const before=JSON.stringify(raw),r=E.migrateGame(raw);
+      assert.equal(r.ok,false);assert.match(r.reason,/请新开一局/);assert.equal(JSON.stringify(raw),before);
+    }
+    const r=E.migrateGame(s);assert.equal(r.ok,true,r.reason);assert.deepEqual(r.s,s);
   });
-  it('特性步骤登记：6 项，顺序固定，各有一个幂等的 run', () => {
-    assert.deepEqual(FEATURES, ['sota', 'distill', 'route', 'milestones', 'naming', 'strategy', 'jobs']);
-    assert.deepEqual(E.FEATURES, FEATURES);
-    for (const k of FEATURES) assert.equal(typeof FEATURE_STEPS[k], 'function', k);
-    for (const k of FEATURES) assert.ok(fs.existsSync(path.join(CAREER, `sim/migrations/${k}.js`)), k);
-    assert.ok(fs.existsSync(path.join(CAREER, 'sim/migrations/v4_structure.js')));
+  it('生产源没有结构升级/特性步骤目录，新局没有迁移标记', () => {
+    assert.equal(fs.existsSync(path.join(CAREER,'sim/migrations')),false);
+    assert.equal(Object.hasOwn(E.createGame('gpt','y2024',1),'mig'),false);
   });
-  it('清理队列：种类或 id 认不出的项丢掉并写进 notes，认得的原样保留', () => {
-    const s = E.createGame('claude', 'y2024', 1);
-    resolveAll(s);
-    s.queue.push({ kind: 'event', id: 'no_such_event' }, { kind: 'mystery', id: 'x' }, { kind: 'notice', title: '留着', text: '' });
-    s.scheduled.push({ at: s.day, item: { kind: 'super', id: 'super_nope' } }, { at: s.day, world: 'w_nope' }, { at: s.day, news: { title: '新闻照留' } });
-    const r = E.migrateGame(s);
-    assert.equal(r.ok, true);
-    assert.deepEqual(r.s.queue.map(q => q.kind), ['notice']);
-    assert.ok(r.s.scheduled.some(x => x.news?.title === '新闻照留'));
-    assert.ok(!r.s.scheduled.some(x => x.item?.id === 'super_nope' || x.world === 'w_nope'));
-    assert.equal(r.notes.length, 4, r.notes.join(' / '));
+  it('未知队列/排期拒绝整份档，不静默删除内容', () => {
+    for(const corrupt of [s=>s.queue.push({kind:'mystery',id:'x'}),s=>s.scheduled.push({at:s.day,world:'w_nope'})]) {
+      const s=E.createGame('claude','y2024',1);corrupt(s);const before=JSON.stringify(s),r=E.migrateGame(s);
+      assert.equal(r.ok,false);assert.match(r.reason,/未知|损坏/);assert.equal(JSON.stringify(s),before);assert.deepEqual(r.notes,[]);
+    }
   });
 });
 
@@ -247,14 +236,16 @@ describe('登记表：公司文件、主干、事件视图', () => {
     for (const [mod, f] of Object.entries(GENERIC_FILES)) assert.equal(f.tree.extends, `core_${mod}`);
     assert.deepEqual(Object.keys(CORE_TREES).sort(), ['core_image', 'core_llm', 'core_music', 'core_speech']);
   });
-  it('事件视图：strategy 用 P3.U1 的完成卡演出，别的种类还走对话演出；drainQueue 按种类找视图', async () => {
+  it('事件视图：strategy 用完成卡，经营事件可加IPO确认，其余种类仍走对话；drainQueue 按种类找视图', async () => {
     globalThis.document ??= { baseURI: 'http://localhost/' };
     const { viewFor } = await import('../../src/career/ui/views/index.js');
     const { playEvent } = await import('../../src/career/ui/vn.js');
     const { play } = await import('../../src/career/ui/views/strategy.js');
     assert.equal(viewFor('strategy'), play);
     assert.notEqual(viewFor('strategy'), playEvent);
-    assert.equal(viewFor('event'), playEvent);
+    assert.notEqual(viewFor('event'), playEvent, '经营事件包装器只为IPO增加独立确认');
+    assert.equal(viewFor('notice'), playEvent);
+    assert.equal(viewFor('unknown'), playEvent);
     assert.match(read('ui/views/index.js'), /strategy/);
     assert.match(read('ui/views/strategy.js'), /export async function play/);
     assert.match(read('ui/flow.js'), /viewFor\(view\.kind\)\(S, view\)/);

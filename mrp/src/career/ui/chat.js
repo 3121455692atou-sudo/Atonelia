@@ -1,3 +1,4 @@
+import { practiceKind } from './practice_context.js';
 // 图鉴里的 BYOK 对话（规格 E10）。只做三件事：把名册里的人设拼成 system prompt、按 OpenAI 兼容格式发一次请求、
 // 把回复清洗成 { text, emotion }。不读写游戏状态，不调用引擎的写操作，也不碰存档。
 //
@@ -173,6 +174,7 @@ export const _resetThrottle = () => { lastSentAt = -Infinity; };
 
 // 只发一次 POST {base}/chat/completions。超时用 AbortController；网络错误、超时、非 2xx 都变成中文原因，不往外抛。
 export async function requestChat({ base, model, key, messages, timeoutMs = TIMEOUT_MS, fetchImpl } = {}) {
+  if (practiceKind()) return { ok: false, reason: '练习中不发送联网对话。' };
   const v = validateBaseUrl(base);
   if (!v.ok) return v;
   const f = fetchImpl || globalThis.fetch;
@@ -216,6 +218,7 @@ export async function askCharacter(characterId, userText, opts = {}) {
   const key = 'key' in opts ? opts.key : getChatKey();
   if (!base || !key) return { ok: true, offline: true, text: c.quote, emotion: DEFAULT_EMOTION };
 
+  if (practiceKind()) return { ok: false, reason: '练习中不发送联网对话。' };
   const v = validateBaseUrl(base);
   if (!v.ok) return { ok: false, reason: v.reason };
   if (!model) return { ok: false, reason: '还没有填模型名。' };

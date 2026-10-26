@@ -1,10 +1,10 @@
+import { riskPost, inheritPostTeachers, initializeExposure } from './post_exposure.js';
 // 训练项目：预训练、蒸馏和续训的立项检查、载荷（作业的 pj）、炼完出模型、中止和取消。按天推进在 jobs.js（规格 T 章）。
 import { TECH_BY_ID, ARCHS, dimKeys, fmtDate } from '../data/core.js';
-import { FAMILIES } from '../data/rivals.js';
 import { structureForRelease } from '../data/model_structure.js';
 import { SYNTH_TAINT, DISTILL_GAP, JOBS } from '../data/balance.js';
 import { clamp, round1 } from './util.js';
-import { scaleById, clsOf, poolStats, llmBase, nonLlmBase, previewDistill, distillTeachers, DISTILL_MIN_DAYS, pretrainRepeat, pretrainCredit, MAX_EPOCHS, liveModel, workingModel, gpuCount, costPerMillion, knowledgeCap, birthClamp, licenseOf, taintCaps, lowerQTo, studentGap } from './model.js';
+import { scaleById, clsOf, poolStats, llmBase, nonLlmBase, previewDistill, distillTeachers, DISTILL_MIN_DAYS, pretrainCredit, MAX_EPOCHS, liveModel, workingModel, gpuCount, costPerMillion, knowledgeCap, birthClamp, licenseOf, taintCaps, lowerQTo } from './model.js';
 import { qOf, isMine, relDims } from './sota.js';
 import { recordTeacher } from './data_ops.js';
 import { log } from './log.js';
@@ -12,18 +12,18 @@ import { draftNameOf, draftNameError } from './naming.js';
 import { P } from './provider.js';
 import { noticeOf } from './queue.js';
 import { addDays } from './clock.js';
-import { ensureJobs, hasBaseJob, smallLineCount, jobsLog } from './jobs.js';
+import { ensureJobs, hasBaseJob, smallLineCount, jobsLog, mainPostJob, jobCheck, startJob } from './jobs.js';
 import { refModel, applyLabDims } from './lab.js';
 
 // 深拷贝：模型和快照里只有能存进 JSON 的数据。开局、发布、蒸馏立项都用它。
 export const structuredCloneSafe = x => JSON.parse(JSON.stringify(x));
 
 export function newModel(s, st, extra = {}) {
-  // 编号按模型表长度取；读档时清掉过孤儿副本的存档，表变短了，顺延到没人用过的编号。
+  // 编号按模型表长度取；模型可能在正常玩法中退役，顺延到没人用过的编号。
   let n = s.models.length + 1;
   while (s.models.some(m => m.id === `m${n}_${s.date}`)) n += 1;
   const stage = extra.stage || 'post';
-  return {
+  const model = {
     // 名字只在发布时起（C1）：没发布的模型 name = null，界面显示代号 draftName 或“第 N 代底座”（naming.js 的 displayName）。
     id: `m${n}_${s.date}`, name: extra.name ?? null, ...(extra.draftName ? { draftName: extra.draftName } : {}), mod: s.mod, role: extra.role || 'flagship',
     // 出身（规格 D1）：预训练（含续训）出来的记 pretrain，蒸馏出来的小模型记 distill；role 只表示它在哪条流水线上。
@@ -31,15 +31,17 @@ export function newModel(s, st, extra = {}) {
     total: st.total, active: st.active, arch: st.arch || 'dense', cls: clsOf({ mod: s.mod, total: st.total, active: st.active, cls: st.cls, scaleId: st.scaleId }), scaleId: st.scaleId || null,
     // 开不开源只在发布时定（B7 第 5 条：按路线和发布角色，release.js 的 beforeRelease 写进快照）：没发布的模型不写 open。
     ...(stage === 'released' ? { open: extra.open ?? false } : {}), base: {}, dims: {}, kcap: null, cn: 0, stage, released: null, postMonths: 0, gen: s.gen, boost: {},
-    structureSource: st.source || 'player-design', // 继承的历史型号记结构出处；旧档没有这个字段，读档时按型号重新解析
+    structureSource: st.source || 'player-design', // 继承的历史型号记真实结构出处，新模型记玩家设计
     ...(extra.teacher ? { teacher: extra.teacher } : {}), // 蒸馏出来的小模型记老师：'self' 或别家的家族 id（里程碑“从零训练”“站在开源模型的肩膀上”看它）
     // 规格 D7 / C2 的几项记录：底座完成时的技术快照 techs；底座里已经体现了上限效果的技术 capTechs（自己预训练的底座在 finishPretrain 改成 []）；
     // 炸炉次数 train；各方向连续干净训练的天数 cleanStreak；按 Q 加权累计的涨幅 post（自有 / 蒸馏 / 各位老师）；污染 tainted。
     techs: [...(s.techs || [])], capTechs: [...(s.techs || [])], train: { minor: 0, severe: 0 }, cleanStreak: {}, post: { own: 0, dist: 0, teachers: {} }, tainted: false,
   };
+  if(s.postCards?.version === 1 || s.postRandom?.version === 1) initializeExposure(model);
+  return model;
 }
 
-// 立项时记下的配置不带 open：开闭在发布时按路线定（B7 第 5 条），立项表单、顾问传进来的 open 一律不留（和读档迁移 migrations/route.js 一样删掉）。
+// 立项时记下的配置不带 open：开闭在发布时按路线定（B7 第 5 条），立项表单、顾问传进来的 open 一律不留。
 // 代号（cfg.draftName，选填，C1）记在项目上，练完写进模型的 draftName。
 const planCfg = ({ open, draftName, ...cfg }) => cfg;
 const withDraft = (pj, cfg) => { const d = draftNameOf(cfg?.draftName); if (d) pj.draftName = d; return pj; };
@@ -47,7 +49,7 @@ const withDraft = (pj, cfg) => { const d = draftNameOf(cfg?.draftName); if (d) p
 // 参数量必须是像样的有限数（字符串、NaN、负数都不行），再看架构、年代和显存。env.gpus：算好的 gpuCount(s)。
 function structureCheck(s, cfg, env) {
   if (!Number.isFinite(cfg.total) || !Number.isFinite(cfg.active) || cfg.total < 0.5 || cfg.active < 0.5) return { ok: false, reason: '总参数和激活参数必须是至少 0.5B 的数' };
-  const arch = ARCHS[cfg.arch];
+  const arch = typeof cfg.arch === 'string' && Object.hasOwn(ARCHS, cfg.arch) ? ARCHS[cfg.arch] : null;
   if (!arch) return { ok: false, reason: '未知架构' };
   if (arch.only && !arch.only.includes(s.charId)) return { ok: false, reason: '这是 RWKV 的专属架构' };
   if (arch.needTech && !s.techs.includes(arch.needTech)) return { ok: false, reason: `需要先研究：${TECH_BY_ID[arch.needTech].name}` };
@@ -145,17 +147,18 @@ export function rescaleTrainingAcc(acc, factor) {
   for (const k of ['w', 'q', 'effectiveQ', 'repeat', 'cn']) acc[k] *= factor;
   for (const k of Object.keys(acc.mix)) acc.mix[k] *= factor;
 }
-// 旧档的项目没有分段的重复记录：已练的部分按读档时的池子估一次，权重对齐到实际进度；之后的新工作照常分段记。
-export function upgradeTrainingAcc(s, pj) {
-  if (pj?.type !== 'pretrain' || !pj.acc || Number.isFinite(pj.acc.effectiveQ)) return;
-  const repeat = pretrainRepeat(s, poolStats(s).tokens, pj.tokens);
-  pj.acc.effectiveQ = pj.acc.q * repeat;
-  pj.acc.repeat = pj.acc.w * repeat;
-  if (pj.acc.w > 0) rescaleTrainingAcc(pj.acc, clamp(pj.done / pj.need, 0, 1) / pj.acc.w);
+// 当前项目从立项起就有完整分段账；缺字段时拒绝，不按当前数据池重算已经完成的训练。
+export function validateTrainingAcc(pj) {
+  if (pj?.type !== 'pretrain') return;
+  const a = pj.acc;
+  if (!a || !['w','q','effectiveQ','repeat','cn'].every(k => Number.isFinite(a[k]) && a[k] >= 0)
+      || !a.mix || typeof a.mix !== 'object' || Array.isArray(a.mix) || !Object.values(a.mix).every(v => Number.isFinite(v) && v >= 0))
+    throw Error('不支持缺少分段训练账的旧存档，请新开一局');
 }
 // 炼完：按作业的种类和线出模型（作业从作业表里摘掉）。
 export function finishJob(s, job, report) {
-  ensureJobs(s).list = s.jobs.list.filter(j => j !== job);
+  ensureJobs(s); // 先验证当前快照，不能先移除坏项目再报错。
+  s.jobs.list = s.jobs.list.filter(j => j !== job);
   if (job.kind === 'distill') return finishDistill(s, job, report);
   if (job.kind === 'finetune') return finishFinetune(s, job, report);
   if (job.line === 'small') return finishSmallBase(s, job, report);
@@ -202,8 +205,8 @@ function synthTaint(s, m) {
   const pool = s.data.pool;
   if (pool.tokens > 0 && (pool.taintW || 0) / pool.tokens >= SYNTH_TAINT) {
     m.tainted = true;
-    const from = Object.keys(pool.taintTeachers || {}).length ? pool.taintTeachers : liveModel(s)?.post?.teachers || {};
-    m.post.teachers = { ...from };
+    const from = Object.keys(pool.taintTeachers || {}).length ? pool.taintTeachers : riskPost(liveModel(s))?.teachers || {};
+    inheritPostTeachers(s, m, from);
   }
 }
 // 主线底座练完（T7）：新模型成为在练模型，s.gen + 1；旧在练模型还有没发布的进步、或者有候选在评测，就进“上一代收尾”60 天；原来的上一代归档。
@@ -227,8 +230,21 @@ function finishPretrain(s, job, report) {
   // 出生护栏（D6.5）：新底座出生在最强之下 BIRTH_GAP 处，单科不超过世界包络 + DIM_SLACK。base、kcap 不动。
   birthClamp(s, m);
   if (m.tainted) taintBirthClamp(s, m);
+  if (!old && P().firstAutoPost !== false) startFirstPost(s, report);
   report.notes.push('底座训练完成，进入后训练。');
   pushDraftNotice(s, 'first_release_hint', 'model', m.draftName, '新一代');
+}
+// 首次有了主线底座才默认接上后训练（T2.4）；换代沿用已有作业，不撤销玩家停工/研究的选择。
+function startFirstPost(s, report) {
+  if (mainPostJob(s) || Array.isArray(ensureJobs(s).focusPause)) return;
+  const spec = { kind: 'post', target: 'main', dir: 'auto', until: 'none' };
+  const check = jobCheck(s, spec);
+  if (check.ok) startJob(s, spec);
+  else {
+    const text = `默认后训练未开工：${check.reason}，腾出作业位后可手动开工`;
+    jobsLog(s, text);
+    report.notes.push(`${text}。`);
+  }
 }
 // 旧在练模型交班（T7）：还有没发布的进步（postDays > relDays），或者有候选在评测，就进上一代收尾；原来已有的上一代直接归档。
 function handOver(s, old, report) {
@@ -278,26 +294,25 @@ function shelveSmall(s, m) {
 }
 function finishDistill(s, job, report) {
   const pj = job.pj;
-  // 成品按立项时冻结的快照出，老师中途更新或掉出名单都不影响（修掉 v0.9 练出空能力的问题）。旧档读档时已经补好快照。
-  const pv = pj.preview || previewDistill(s, pj.cfg);
-  if (!pv) { cancelDistill(s, report, job); return; }
+  // 成品只按立项时冻结的快照出，老师中途更新或掉出名单都不影响。
+  const pv = pj.preview;
   const small = newModel(s, pj.structure, { role: 'small', stage: 'post', teacher: pj.teacher, draftName: pj.draftName });
   small.dims = { ...pv.dims };
   small.base = { ...pv.dims };
   small.kcap = pv.kcap;
   // 学生差距 gapQ（D7）：蒸馏出身的模型后训练上限按它钳（T2.4）。
-  small.distillation = { teacher: structuredCloneSafe(pv.teacher), tokens: pv.tokens, gap: Number.isFinite(pv.gap) ? pv.gap : studentGap(pj.structure.total, pj.structure.active, pv.tokens) };
+  small.distillation = { teacher: structuredCloneSafe(pv.teacher), tokens: pv.tokens, gap: pv.gap };
   small.postMonths = 1;
   small.train = blowupsOf(pj);
   // 污染（D7）：别家老师蒸出来的学生被污染；自蒸馏看老师干不干净，被污染的老师（含续训来的）把污染和老师们一起传下去；
   // 老师带续训谱系的，学生带上同一个谱系（拿不到“开源最强”，D11.2）。
   const t = pv.teacher || {};
   if (pj.teacher === 'self' || t.own) {
-    if (t.tainted) { small.tainted = true; small.post.teachers = { ...(t.teachers || {}) }; }
+    if (t.tainted) { small.tainted = true; inheritPostTeachers(s, small, t.teachers || {}); }
     if (t.lineage?.kind === 'finetune') small.lineage = { ...t.lineage };
   } else {
     small.tainted = true;
-    small.post.teachers = { [pj.teacher]: 1 };
+    inheritPostTeachers(s, small, { [pj.teacher]: 1 });
     recordTeacher(s, pj.teacher, { relId: t.relId ?? null, name: t.name, day: s.day, dims: { ...(t.dims || {}) }, q: qOf(s.mod, t.dims || {}), kind: 'weights', license: t.license ?? null });
     if (t.license === 'LR' || t.license === 'LN') s.data.risky[`license_${pj.teacher}`] = true;
   }
@@ -327,19 +342,6 @@ function pushDraftNotice(s, id, key, draft, word, params = {}) {
   if (seen[id]) { s.news.unshift({ date: s.date, day: s.day, type: 'notice', title: n.title, detail: n.text }); return; }
   seen[id] = s.day;
   s.queue.push(n);
-}
-
-// 找不到老师快照的蒸馏项目只能取消：提示写明“已取消”和作废了多少进度，已有模型不受影响。
-// job 给了就摘掉这项作业；读 v3 旧档打补丁时（还没有作业表）传 null，清掉原始存档里的 project。
-export function cancelDistill(s, report = null, job = null) {
-  const pj = job ? job.pj : s.project;
-  const who = pj.teacher === 'self' ? '自家在线旗舰' : `${FAMILIES[pj.teacher]?.company || pj.teacher} 的开源模型`;
-  const pct = Math.round(clamp(pj.done / pj.need, 0, 1) * 100);
-  if (job) { if (s.jobs?.list) s.jobs.list = s.jobs.list.filter(j => j !== job); }
-  else { s.project = null; if (s.flags) s.flags.push = false; }
-  log(s, `蒸馏项目已取消：找不到老师（${who}），${pct}% 进度作废`);
-  report?.notes.push(`蒸馏项目已取消：找不到老师（${who}）。`);
-  s.queue.push({ kind: 'notice', title: '蒸馏项目已取消', text: `这个蒸馏项目没有记下老师是哪一款，历史目录里也找不到${who}，只能取消，已经跑完的 ${pct}% 作废。已有的模型不受影响，可以重新选老师立项。` });
 }
 
 // ---------- 在开源底座上续训（规格 D7，需要公司策略的解锁项 adopt_open_base） ----------
@@ -377,7 +379,7 @@ function finishFinetune(s, job, report) {
   m.kcap = s.mod === 'llm' ? Math.max((src.knowledge ?? 0) + 4, knowledgeCap(m.total, 1.2)) : null;
   m.lineage = { kind: 'finetune', relId: pj.relId, fam: pj.fam };
   m.tainted = true;
-  m.post.teachers = { [pj.fam]: 1 };
+  inheritPostTeachers(s, m, { [pj.fam]: 1 });
   m.train = blowupsOf(pj);
   recordTeacher(s, pj.fam, { relId: pj.relId, name: pj.relName, day: s.day, dims: { ...src }, q: qOf(s.mod, src), kind: 'weights', license: pj.license ?? null });
   if (pj.license === 'LR') s.data.risky[`license_${pj.fam}`] = true;
@@ -387,6 +389,7 @@ function finishFinetune(s, job, report) {
   s.working = m.id;
   s.gen += 1;
   birthClamp(s, m);
+  if (!old && P().firstAutoPost !== false) startFirstPost(s, report);
   report.notes.push(`在 ${pj.relName} 上续训完成，进入后训练。`);
   log(s, `续训完成：${pj.relName}`);
 }

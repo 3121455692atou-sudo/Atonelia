@@ -93,24 +93,27 @@ describe('玩家：每款已发布模型各自保留成绩', () => {
     assert.equal(row.open, true);
   });
 
-  it('旧档：已公布的成绩只有型号名，读档时补上 modelId；模型身上没有成绩记录也照样上榜', () => {
+  it('旧版无 modelId 成绩明确拒绝且不补造；当前模型成绩原样存读', () => {
     const s = E.createGame('qwen', 'y2025', 7);
     resolveAll(s);
-    let old = clone(s);
+    const old = clone(s);
     old.v = 3;
     for (const m of old.models) delete m.benchmarks;
     for (const run of Object.values(old.published)) delete run.modelId;
-    const before = E.leaderboard(old, 'arena').rows.find(r => r.mine && r.role === 'flagship');
-    assert.ok(before && before.modelId === null, '没补之前只有名字');
-    old = loadSave(old);
-    const live = E.liveModel(old);
-    assert.ok(Object.values(old.published).filter(r => r.role !== 'small').every(r => r.modelId === live.id));
-    const small = E.smallLive(old);
-    if (small) assert.ok(Object.values(old.published).filter(r => r.role === 'small').every(r => r.modelId === small.id));
-    const after = E.leaderboard(old, 'arena').rows.find(r => r.mine && r.role === 'flagship');
-    assert.deepEqual([after.name, after.score, after.modelId, after.rank], [before.name, before.score, live.id, before.rank]);
-    const once = clone(old);
-    assert.deepEqual(loadSave(old), once, '读两遍结果不变');
+    const before = clone(old), rejected = E.migrateGame(old);
+    assert.equal(rejected.ok, false);
+    assert.match(rejected.reason, /不支持旧版或未知存档/);
+    assert.deepEqual(old, before, '拒绝旧档不能补 modelId 或模型成绩');
+    const current = loadSave(clone(s));
+    assert.deepEqual(clone(current), clone(s), '当前存档无需重建成绩');
+    const live = E.liveModel(current);
+    assert.ok(Object.values(current.published).filter(r => r.role !== 'small').every(r => r.modelId === live.id));
+    const small = E.smallLive(current);
+    if (small) assert.ok(Object.values(current.published).filter(r => r.role === 'small').every(r => r.modelId === small.id));
+    const row = E.leaderboard(current, 'arena').rows.find(r => r.mine && r.role === 'flagship');
+    const original = E.leaderboard(s, 'arena').rows.find(r => r.mine && r.role === 'flagship');
+    assert.deepEqual([row.name, row.score, row.modelId, row.rank], [original.name, original.score, live.id, original.rank]);
+    assert.deepEqual(clone(loadSave(clone(current))), clone(current), '当前档重复读取不改变成绩');
   });
 
   it('竞技场刷榜被曝光后认错撤回：旗舰的竞技场成绩从榜上撤下，模型身上的记录也撤', () => {

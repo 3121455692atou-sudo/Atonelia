@@ -2,7 +2,7 @@
 // app.js 要导入它们，它们再导入 app.js 就成了循环，也没法在 Node 里单独加载某一页来测。
 // render、scheduleTick、setSpeed 的做法在 app.js（屏幕切换和时钟），启动时用 bind() 登记进来。
 // 自洽世界（M1d）另存一份 world：getState() 仍然是玩家那家公司的 s，现有页面一行都不用改。
-import { store, SAVE_KEY, saveWorld, dropWorld, markWorldLeave, markLastKind } from './storage.js';
+import { practiceKind, exitPractice, store, SAVE_KEY, saveWorld, dropWorld, markWorldLeave, markLastKind } from './storage.js';
 
 let S = null;
 let W = null;
@@ -18,6 +18,7 @@ Object.defineProperty(uiState, 'screen', {
   enumerable: true,
   get: () => screen,
   set(v) {
+    if(v === 'title' && practiceKind()) { exitPractice(); return; }
     screen = v;
     if (v !== 'title' || typeof globalThis.location === 'undefined' || typeof globalThis.location.reload !== 'function') return;
     if (MP) { leaveMp(); return; }
@@ -56,13 +57,24 @@ let leaving = false;
 function leaveSolo() {
   if (leaving) return;
   leaving = true;
-  markWorldLeave();
+  // 保存期间停住时间；失败要留在内存中的原局，不能用刷新把唯一的新进度丢掉。
+  clearTimeout(clock.timer);
+  clock.speed = 0;
   const abandoned = !S;
   const p = abandoned ? dropWorld() : saveWorld(W);
+  const stay = reason => {
+    leaving = false;
+    screen = W?.result ? 'result' : 'home';
+    toast(`${reason}。当前进度还在，请导出存档或检查存储后重试`);
+    render();
+  };
   Promise.resolve(p)
-    .then(r => { if (r && r.ok === false) toast(r.reason); })
-    .catch(e => toast(`离开自洽世界时存档失败：${e?.message || e}`))
-    .finally(() => { globalThis.location.reload(); });
+    .then(r => {
+      if (r && r.ok === false) return stay(r.reason);
+      markWorldLeave();
+      globalThis.location.reload();
+    })
+    .catch(e => stay(`离开自洽世界时存档失败：${e?.message || e}`));
 }
 
 // 离开联机房间：断开、忘掉房间，整页重载（镜像装进去的发布表、公司登记、Provider 都要回到史实状态）。
@@ -70,6 +82,15 @@ function leaveMp() {
   try { MP.es?.close(); } catch { /* 已经断了 */ }
   try { globalThis.localStorage?.removeItem('mrp.mp.room'); } catch { /* 隐私模式 */ }
   globalThis.location.reload();
+}
+
+// 联机只读面板订阅权威更新；取消订阅后不再持有已关闭的弹窗。
+const remoteViews = new Set();
+export function onRemoteState(fn) { remoteViews.add(fn); return () => remoteViews.delete(fn); }
+export function notifyRemoteState(type) {
+  for (const fn of [...remoteViews]) {
+    try { fn(type); } catch (e) { console.error('联机面板刷新失败', e); }
+  }
 }
 
 export const render = () => hooks.render();

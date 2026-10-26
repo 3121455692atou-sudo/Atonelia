@@ -1,8 +1,7 @@
 // 后台“模型”页的版面（G1 界面修补）：三四张模型卡并排时，每张卡右边的信息栏不能被挤成竖排（“671B / 激活 37B”一个字一行）。
 // 浏览器由主会话看；这里在 Node 里锁两样：样式表里模型卡的写法（窄了就换成雷达图在上、信息在下，信息栏有最小宽度），
 // 以及按样式表里的数字（抽屉宽度、导航栏、内边距、卡片最小宽度）算出来的每张卡里信息栏实际多宽，从 320 到 1920 扫一遍。
-// 卡片宽度算上 .grid2 的 minmax(300px, 1fr) 下限：正文比 300px 还窄时（窗口 320–335px）卡片照样是 300px，会比正文宽几像素，
-// 这是改动前就有的已知例外（规格只要求 375px）；“卡不比页面宽”只从 375px 起断言。
+// 列下限使用 min(100%, 300px)：320px 起也不能比正文宽。此处是 CSS 数值模型，不是浏览器像素验收。
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -31,7 +30,7 @@ const sheetCss = new Map();
 function cssNumbers(vw) {
   if (sheetCss.has(vw)) return sheetCss.get(vw);
   const g2 = cssAt(css, '.grid2', vw), body = cssAt(css, '.mcard-body', vw), office = cssAt(css, '.office', vw)['grid-template-columns'];
-  const min2 = Number(g2['grid-template-columns'].match(/^repeat\(auto-fit, minmax\((\d+)px, 1fr\)\)$/)?.[1]);
+  const min2 = Number(g2['grid-template-columns'].match(/^repeat\(auto-fit,\s*minmax\(min\(100%,\s*(\d+)px\),\s*1fr\)\)$/)?.[1]);
   assert.ok(min2 > 0, `.grid2 的列写法变了：${g2['grid-template-columns']}`);
   const min = Number(body['grid-template-columns'].match(/^repeat\(auto-fit, minmax\(min\(100%, (\d+)px\), 1fr\)\)$/)?.[1]);
   assert.ok(min > 0, `.mcard-body 的列写法变了：${body['grid-template-columns']}`);
@@ -52,8 +51,8 @@ function modelCard(vw, cards) {
   const c = cssNumbers(vw);
   const bodyW = c.sheet - c.nav - 2 * c.bodyPad - SCROLLBAR;
   const perRow = Math.min(cards, Math.max(1, Math.floor((bodyW + c.gap2) / (c.min2 + c.gap2))));
-  // .grid2 的列最窄是 min2（minmax(300px, 1fr)），正文再窄卡片也不会更窄。
-  const cardW = Math.max(c.min2, (bodyW - (perRow - 1) * c.gap2) / perRow);
+  // min(100%, min2) allows a single card to fit a narrow content surface.
+  const cardW = Math.max(Math.min(bodyW,c.min2), (bodyW - (perRow - 1) * c.gap2) / perRow);
   const inner = cardW - 2 * c.cardPad - 2;
   const trackMin = Math.min(inner, c.min);
   const cols = Math.min(2, Math.max(1, Math.floor((inner + c.gap) / (trackMin + c.gap))));
@@ -89,24 +88,20 @@ describe('后台“模型”页：模型卡的版面', () => {
     for (const n of [2, 3, 4]) assert.ok(modelCard(1280, n).infoW >= MIN_INFO, `${n} 张卡`);
   });
 
-  it('从 320 到 1920 扫一遍窗口宽度、1 到 4 张卡：信息栏任何时候不窄于 160px；375px 起卡不比页面宽（320–335px 是已知例外：.grid2 的列最窄 300px）', () => {
+  it('从 320 到 1920 扫一遍窗口宽度、1 到 4 张卡：信息栏任何时候不窄于 160px；320px 起卡不比页面宽', () => {
     let n = 0, stacked = 0, side = 0;
-    const narrow = new Set();
     for (let vw = 320; vw <= 1920; vw += 5) {
       for (let cards = 1; cards <= 4; cards++) {
         const r = modelCard(vw, cards);
         assert.ok(r.infoW >= MIN_INFO, JSON.stringify(r));
         assert.ok(r.bodyW <= vw, JSON.stringify(r));
-        if (vw >= 375) assert.ok(r.cardW <= r.bodyW + 1e-6, JSON.stringify(r));
-        else if (r.cardW > r.bodyW + 1e-6) narrow.add(vw);
+        assert.ok(r.cardW <= r.bodyW + 1e-6, JSON.stringify(r));
         assert.ok(r.radarW <= r.inner + 1e-6, JSON.stringify(r));
         n++;
         if (r.cols === 1) stacked++; else side++;
       }
     }
     assert.ok(stacked > 100 && side > 100, `上下叠 ${stacked} 种、并排 ${side} 种：两种版面都要出现过`);
-    // 已知例外只在 375px 以下（正文窄于 300px 的那几档），不会蔓延到规格要求的 375px。
-    assert.ok([...narrow].every(v => v < 340), `卡比页面宽的窗口宽度：${[...narrow].join('、')}`);
     const phone = modelCard(375, 4);
     assert.equal(phone.perRow, 1);
     assert.equal(phone.cols, 1, '手机上雷达图在上、信息在下');

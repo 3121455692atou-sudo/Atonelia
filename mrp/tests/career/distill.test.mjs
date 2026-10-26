@@ -16,7 +16,7 @@ import {
   workingModel, liveModel, smallWorking, postPreview, applyGains, computeCaps, effectiveCaps, taintCaps, hardness, previewDistill, distillBaseline, knowledgeCap,
   gpuAllocation, trainFlops, genPlan, HEADROOM, isTainted, teacherRec, distillLevels,
 } from '../../src/career/sim/model.js';
-import { applyDistill, dropDistill } from '../../src/career/sim/data_ops.js';
+import { applyDistill, dropDistill, normalizeDistill } from '../../src/career/sim/data_ops.js';
 import { genProgress as genFrac, dailyOrders } from '../../src/career/sim/orders.js';
 import { newModel } from '../../src/career/sim/projects.js';
 import { playerMatch } from '../../src/career/sim/milestones.js';
@@ -39,7 +39,7 @@ const lic = r => (r.tags || []).find(t => ['LP', 'LR', 'LN'].includes(t)) || nul
 function receive(s, name, levels) {
   const r = rel(name);
   applyDistill(s, { kind: 'distill', ref: `distill:${r.family}`, name: `蒸馏 ${r.name}`, teacher: r.family, open: r.open, posts: { ...levels },
-    teacherDims: { ...relDims(s, r) }, teacherName: r.name, relId: r.id, license: r.open ? lic(r) : null });
+    teacherDims: { ...relDims(s, r) }, gen: { mode: r.open ? 'gpu' : 'api' }, teacherName: r.name, relId: r.id, license: r.open ? lic(r) : null });
   return r;
 }
 // 在练模型的上限抬高一截（不让自研上限先卡住，才看得到老师的天花板）。
@@ -492,7 +492,7 @@ describe('D9 第 14 条：自蒸馏继承污染', () => {
     const s = fresh('qwen', 'y2025');
     if (baseJob(s)) E.cancelJob(s, baseJob(s).id);
     s.gpus.owned = { H100: 20000 };
-    s.strategy = { unlocks: { adopt_open_base: s.day } };
+    s.strategy.unlocks.adopt_open_base = s.day;
     const r = rel('Llama 3.1 405B');
     L.decide(s, 'maintain');
     startFinetune(s, { relId: r.id });
@@ -724,80 +724,14 @@ describe('D9 第 13 条：蒸馏工期与生成订单', () => {
     assert.ok(s.orders.some(x => x.ref === opt.id), '同一老师可以重新下单');
   });
 
-  it('旧档在途订单按原到货日交付：BASE 的蒸馏订单、已删除的“R1 开源推理链”、改成蒸馏通道的“调用 GPT-4 生成合成数据”', () => {
-    const s = fresh('mistral', 'y2025');
-    advance(s, 25);
-    // P2.2 起机器人按 wantsDistill 在 R1 发布那天自己下了一单蒸馏（规格 A10）；这里只看下面手放的三笔旧订单。
-    s.orders = s.orders.filter(o => o.kind !== 'distill');
-    const old = clone(s);
-    old.v = 3;
-    delete old.mig;
-    delete old.computeLedger;
-    for (const m of old.models) { delete m.structureSource; delete m.benchmarks; for (const k of ['techs', 'capTechs', 'train', 'cleanStreak', 'post', 'tainted']) delete m[k]; }
-    for (const r of Object.values(old.published)) delete r.modelId;
-    delete old.data.teachers;
-    // BASE 的写法：代码类蒸馏等级 1.5 高过自有的 1，这一类后训练真用了蒸馏；数学 0.5 低于自有的 1，没用。
-    old.data.distill = { math: 0.5, code: 1.5 };
-    old.data.teacherCap = { knowledge: 80, code: 75, math: 70, writing: 75, safety: 60, agent: 40 };
-    const eta = d => addDays(old.day, d);
-    old.orders.push(
-      { placed: old.day, kind: 'distill', ref: 'distill:deepseek_pro', eta: eta(9), name: '蒸馏 DeepSeek-R1', teacher: 'deepseek_pro', open: true, posts: { math: 1.2, code: 1.2, chat: 0.6 }, teacherDims: { ...rel('DeepSeek-R1').dims } },
-      { placed: old.day, kind: 'data', ref: 'ds_r1_traces', eta: eta(4), name: 'R1 开源推理链' },
-      { placed: old.day, kind: 'data', ref: 'ds_gpt4_distill', eta: eta(6), name: '调用 GPT-4 生成合成数据' },
-    );
-    old.orders.sort((a, b) => a.eta.localeCompare(b.eta));
-    old.flags.distillLoad = 300;
-    const g = loadSave(old);
-    assert.equal(old.data.post.code, 1);
-    assert.equal(g.data.teacherCap, undefined);
-    assert.deepEqual(g.data.distill, { math: { legacy: 0.5 }, code: { legacy: 1.5 } });
-    assert.equal(g.data.teachers.legacy.q, Math.min(qOf('llm', old.data.teacherCap), worldSota(g).q));
-    assert.ok(qOf('llm', workingModel(g).dims) < g.data.teachers.legacy.q - APPROACH);
-    assert.ok(workingModel(g).tainted, '在练模型当时用着蒸馏数据，记为被污染');
-    const pending = g.orders.filter(o => o.kind === 'distill');
-    assert.equal(pending.length, 3, '三笔都是蒸馏订单');
-    assert.ok(pending.every(o => !o.gen), '旧订单不补生成进度');
-    const due = new Map(pending.map(o => [o.ref, o.eta]));
-    for (let i = 0; i < 12; i++) {
-      const out = E.tickDay(g);
-      g.queue = [];
-      for (const [ref, at] of [...due]) if (!g.orders.some(o => o.ref === ref)) { assert.equal(out.day, at, `${ref} 应在 ${at} 到`); due.delete(ref); }
+  it('旧平铺等级、teacherCap 和非生成蒸馏订单被拒绝，原状态不改', () => {
+    for (const change of [s => s.data.distill = { code: 1.5 }, s => s.data.teacherCap = { code: 80 }, s => s.data.teachers = { legacy: { q: 80 } }]) {
+      const s = fresh('qwen', 'y2025'); change(s); const before = JSON.stringify(s);
+      assert.throws(() => normalizeDistill(s), /不支持|旧版/); assert.equal(JSON.stringify(s), before);
+      assert.equal(E.migrateGame(s).ok, false); assert.equal(JSON.stringify(s), before);
     }
-    assert.equal(due.size, 0);
-    assert.ok(g.data.distill.math.deepseek_pro > 0 && g.data.distill.math.gpt > 0);
-    // 两种不记污染的情形：BASE 下各类自有数据都不低于蒸馏（没真用蒸馏）；模型已经在 legacy 的上限之上（旧数据本来就没卡住它）。
-    const unused = clone(old);
-    unused.data.distill = { math: 0.5, code: 1 };
-    assert.equal(workingModel(loadSave(unused)).tainted, false, '没真用蒸馏');
-    const above = clone(old);
-    above.data.teacherCap = { knowledge: 60, code: 60, math: 60, writing: 60, safety: 60, agent: 30 };
-    const ga = loadSave(above);
-    assert.ok(qOf('llm', workingModel(ga).dims) >= ga.data.teachers.legacy.q - APPROACH);
-    assert.equal(workingModel(ga).tainted, false, '已经在 legacy 的上限之上');
-    assert.equal(g.data.post.math, s.data.post.math, 'R1 推理链和 GPT-4 合成数据都按蒸馏数据入库，不算自有数据');
-    assert.ok(teacherRec(g, 'gpt') && teacherRec(g, 'deepseek_pro'));
-  });
-
-  it('6 份 v3 夹具迁移：只有 BASE 下真用了蒸馏、又在 legacy 上限以下的在练模型记污染；迁移后推进 30 天，在练模型都能涨分（不会一读档就被钳死）', () => {
-    const dir = path.join(ROOT, 'tests/fixtures/saves');
-    let n = 0;
-    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json') && !x.startsWith('.'))) {
-      let raw = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
-      if (raw.state) raw = raw.state;
-      const used = Object.entries(raw.data?.distill || {}).some(([c, v]) => Number.isFinite(v) && v > (raw.data.post?.[c] || 0));
-      const s = loadSave(raw);
-      resolveAll(s);
-      const w = workingModel(s);
-      if (!w || w.stage !== 'post') continue;
-      const q0 = qOf(s.mod, w.dims);
-      if (!used) assert.equal(w.tainted, false, `${f}：BASE 下没用蒸馏`);
-      if (isTainted(w)) assert.ok(q0 < taintCaps(s, w).qCap, `${f}：记了污染就一定在上限以下`);
-      trainDays(s, 30);
-      if (workingModel(s) !== w) continue;
-      assert.ok(qOf(s.mod, w.dims) > q0, `${f}：30 天 ${q0} → ${qOf(s.mod, w.dims)}`);
-      n++;
-    }
-    assert.ok(n >= 5, `${n} 份`);
+    const s = fresh('qwen', 'y2025'); s.orders.push({kind:'distill',ref:'old',eta:s.day,teacher:'gpt'}); const before = JSON.stringify(s);
+    assert.throws(() => dailyOrders(s, {notes:[]}), /不支持|旧版/); assert.equal(JSON.stringify(s), before);
   });
 });
 
@@ -816,7 +750,7 @@ describe('审计 §3.4：其余复现用例', () => {
     assert.equal(E.datasetAvailable(fresh('gpt', 'y2024'), DATASETS.find(d => d.id === 'ds_gpt4_distill')).ok, false, 'OpenAI 自己不能买');
   });
 
-  it('调 API 的那份数据（id 仍是 ds_gpt4_distill，存档兼容）：标题不写死型号，说明按下单当天 OpenAI 最强的一款写（2025 年初是 o1）', () => {
+  it('调 API 的那份数据（当前数据集 id 是 ds_gpt4_distill）：标题不写死型号，说明按下单当天 OpenAI 最强的一款写（2025 年初是 o1）', () => {
     const ds = DATASETS.find(d => d.id === 'ds_gpt4_distill');
     assert.equal(ds.name, '调用 OpenAI 的模型生成合成数据');
     const pick = (c, sc) => E.dataOptions(E.createGame(c, sc, 1)).find(o => o.id === 'ds_gpt4_distill');
@@ -933,11 +867,11 @@ describe('审计 §3.4：其余复现用例', () => {
     assert.equal(out.notes.length, 2);
     for (const n of out.notes) assert.match(n, /推理卡放不下老师（至少要 \d+ 张 H100 的显存）/);
     assert.deepEqual([run.gen.stalled, queued.gen.stalled], ['nofit', 'nofit']);
-    // 旧档里的 stalled: true 按“放不下”算，不重复提醒。
+    // 旧布尔等待标记不能被悄悄解释成当前等待原因。
     queued.gen.stalled = true;
-    out = { notes: [] };
-    dailyOrders(s, out);
-    assert.deepEqual(out.notes, []);
+    out = { notes: [] }; const before = JSON.stringify(s);
+    assert.throws(() => dailyOrders(s, out), /不支持|旧版/);
+    assert.equal(JSON.stringify(s), before); assert.deepEqual(out.notes, []);
   });
 
   it('distill_ban 承认：dropDistill 只丢那一家的数据，合法的开源蒸馏数据留着', () => {

@@ -32,7 +32,7 @@ export function playBench(run, lb, rank, classRank, isGoal = false) {
     const cnt = root.querySelector('.bench-count');
     const sc = root.querySelector('.bench-score');
     const tick = root.querySelector('.bench-ticker');
-    // 预先决定每道题的对错，保证最后的数和成绩一致。
+    // 题格与题数仅按连续成绩折算演示；四舍五入后的题数不是官方成绩。
     const total = b.kind === 'elo' ? b.items : b.items;
     const target = b.kind === 'pct' || b.kind === 'lower' ? (run.solved ?? Math.round(run.score / 100 * total)) : null;
     const order = Array.from({ length: Math.min(total, 80) }, (_, i) => i).sort(() => Math.random() - 0.5);
@@ -48,9 +48,10 @@ export function playBench(run, lb, rank, classRank, isGoal = false) {
       else if (bar) bar.style.width = `${t * 100}%`;
       if (b.kind === 'elo') { cnt.textContent = `对战 ${count(n)} / ${count(total)}`; sc.textContent = `${Math.round(1000 + (run.score - 1000) * Math.min(1, t * 1.2))}`; }
       else if (target !== null) {
-        const done = small ? cells.slice(0, n).filter(c => c.className === 'ok').length : Math.round(n * target / total);
-        cnt.textContent = `已完成 ${count(n)} / ${count(total)} 题`;
-        sc.textContent = n ? `${b.kind === 'lower' ? '违规 ' : '正确 '}${(b.kind === 'lower' ? (n - done) : done)} · ${(((b.kind === 'lower' ? n - done : done) / Math.max(1, n)) * 100).toFixed(1)}%` : '';
+        // lower 的 target 是按指标折算的演示单位；仅小格把绿色低指标格反算为红色单位。
+        const done = small ? cells.slice(0, n).filter(c => c.className === (b.kind === 'lower' ? 'ng' : 'ok')).length : Math.round(n * target / total);
+        cnt.textContent = `已演示 ${count(n)} / ${count(total)} ${b.kind === 'lower' ? '单位' : '题'}`;
+        sc.textContent = n ? (b.kind === 'lower' ? `演示折算约 ${done} 单位（非成绩）` : `演示正确约 ${done} 题（非成绩）`) : '';
       } else { cnt.textContent = `已完成 ${count(n)} / ${count(total)}`; sc.textContent = t > 0.2 ? fmtScore(b, run.score) : ''; }
       if (b.sample && Math.random() < 0.08) tick.textContent = `正在跑：${b.sample[Math.floor(Math.random() * b.sample.length)]}`;
       if (t < 1) requestAnimationFrame(frame); else end();
@@ -60,9 +61,13 @@ export function playBench(run, lb, rank, classRank, isGoal = false) {
       finished = true;
       if (small) cells.forEach(c => { if (!c.className) c.className = 'ng'; });
       const card = root.querySelector('.bench-card');
-      card.innerHTML = `<div class="bench-head"><span class="ev-tag">${esc(b.name)}</span><h3>${fmtScore(b, run.score)}</h3></div>
-        <p class="bench-rank">${rankText(rank, classRank, run.cls) || (lb.rows.find(r => r.mine) ? `第 <b>${lb.rows.find(r => r.mine).rank}</b> / ${lb.rows.length}` : '')}</p>
-        ${run.solved !== null && run.solved !== undefined ? `<p class="muted">${b.kind === 'lower' ? `${b.items} 次攻击中成功 ${run.solved} 次` : `${b.items} 题做对 ${run.solved} 题`} · 评测花费约 ${usd(run.cost)}</p>` : `<p class="muted">评测花费约 ${usd(run.cost)}</p>`}
+      // 本次实测与当前题库内的上榜最佳是两个口径；不把较差的重跑成绩冒充为新纪录。
+      const best = lb.rows.find(r => r.mine && r.modelId === run.modelId);
+      const ranks = rankText(rank, classRank, run.cls) || (best ? `第 <b>${best.rank}</b> / ${lb.rows.length}` : '');
+      card.innerHTML = `<div class="bench-head"><span class="ev-tag">${esc(b.name)} · 本次成绩</span><h3>${fmtScore(b, run.score)}</h3></div>
+        <p class="bench-rank">${ranks ? `最佳成绩排名：${ranks}` : ''}</p>
+        ${run.solved !== null && run.solved !== undefined ? `<p class="muted">${b.kind === 'lower' ? `按得分折算约 ${run.solved} / ${b.items} 个演示单位（非实测次数；成绩以 ${fmtScore(b, run.score)} 为准）` : `按得分折算约 ${run.solved} / ${b.items} 题（成绩以 ${fmtScore(b, run.score)} 为准）`} · 评测花费约 ${usd(run.cost)}</p>` : `<p class="muted">评测花费约 ${usd(run.cost)}</p>`}
+        <p class="muted">当前题库最佳成绩榜${best ? ` · 本模型最佳 ${fmtScore(b, best.score)}` : ''}</p>
         <div class="bench-board">${board(b, lb)}</div>
         <button class="btn btn--primary btn--xl" data-done>继续</button>`;
       waitFor(root, '[data-done]').then(() => { closeLayer(); resolve(); });

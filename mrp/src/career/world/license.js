@@ -1,3 +1,4 @@
+import { riskPost } from '../sim/post_exposure.js';
 // 受限开源条款（规格 M.5.3）：open_restricted 路线（以及 delayed、open_family 放出来的受限许可旧模型）发布开源权重时勾的条款，默认全勾。
 // - 署名：衍生模型的名字以发布方的品牌词开头（命名 C1 第 5 条对它放行）。每出一款 API 份额 ≥ 0.5% 的署名衍生，发布方品牌 ×1.01，每家累计最多 ×1.10；
 //   真实发生的署名衍生给发布方发新闻（取代史实模式里 license_fork 那个随机替身）。
@@ -56,7 +57,7 @@ export function lrLinks(world, s, m) {
     out.push({ fam, pub, relId: relId ?? rec?.relId ?? null, kind });
   };
   if (m.lineage?.kind === 'finetune') add(m.lineage.fam, 'finetune', m.lineage.relId);
-  for (const [fam, x] of Object.entries(m.post?.teachers || {})) if (x > 0) add(fam, 'distill');
+  for (const [fam, x] of Object.entries(riskPost(m)?.teachers || {})) if (x > 0) add(fam, 'distill');
   if (m.distillation?.teacher?.id) add(m.distillation.teacher.id, 'distill', m.distillation.teacher.relId);
   return out;
 }

@@ -33,7 +33,6 @@ function v09Distill(s, c, frac) {
   const o = { ...clone(s), v: 3 };
   // P2.4a 以前的存档：项目在 s.project、团队任务在 s.focus，没有作业表。
   for (const k of ['jobs', 'evals', 'prevWorking', 'smallShelf']) delete o[k];
-  delete o.mig.jobs;
   o.focus = { kind: 'research', since: s.day };
   o.project = { type: 'distill', cfg: { ...c }, structure: { total: c.total, active: c.active, arch: c.arch }, tokens: c.tokens, open: c.open, need, done: need * frac, start: s.date, teacher: c.teacher };
   return o;
@@ -182,48 +181,56 @@ describe('蒸馏立项冻结老师快照（审查 B3）', () => {
   });
 });
 
-describe('先修 G1-4：旧档里进行中的蒸馏项目', () => {
-  it('老师不在新名单里：按老师家族从历史目录补快照，31% 进度原样保留，完工时能力完整', () => {
-    // 按日可见、固定权重以后，2025-01-01 的前六家开源老师里有混元，没有 Cohere：换成 Cohere 测“不在名单里”的情形。
+describe('进行中蒸馏只接受当前冻结快照，不迁移旧项目', () => {
+  const rejectsUnchanged = raw => {
+    const before = JSON.stringify(raw), r = E.migrateGame(raw);
+    assert.equal(r.ok, false); assert.match(r.reason, /请新开一局/);
+    assert.equal(JSON.stringify(raw), before, '不能补快照、取消项目或改动原存档');
+  };
+  it('名单外老师的旧项目明确拒绝，不从历史目录补快照或转换 31% 进度', () => {
     const s = fresh('jev', 'y2025', 7);
-    assert.ok(!E.distillTeachers(s).some(t => t.id === 'cohere'), 'Cohere 不在新名单的前六');
-    const save = v09Distill(s, cfg('cohere', 32), 0.31);
-    const g = loadSave(save);
-    const pj = baseJob(g).pj;
-    assert.equal(pj.preview.teacher.name, 'Command R+');
-    assert.deepEqual([pj.preview.teacher.total, pj.preview.teacher.active], [104, 104]);
-    assert.deepEqual([pj.need, pj.done, pj.minDays], [save.project.need, save.project.done, 7], '进度和算力需求不动');
-    assert.ok(!g.queue.some(q => q.kind === 'notice'), '没有取消、也没有“暂停”提示');
-    assert.deepEqual(loadSave(clone(g)), g, '已有快照的项目再读一遍不变');
-    finish(g, 120);
-    const m = E.smallWorking(g);
-    assert.equal(m.teacher, 'cohere');
-    assert.deepEqual(m.dims, pj.preview.dims);
-    assert.ok(m.dims.knowledge > 60 && Object.values(m.dims).every(Number.isFinite), 'v0.9 在这里会练出空能力');
+    assert.ok(!E.distillTeachers(s).some(t => t.id === 'cohere'), 'Cohere 不在当前名单的前六');
+    const raw = v09Distill(s, cfg('cohere', 32), 0.31);
+    assert.equal(raw.project.done, raw.project.need * 0.31);
+    assert.ok(Math.abs(raw.project.done / raw.project.need - 0.31) < 1e-12);
+    rejectsUnchanged(raw);
+    raw.v = s.v; rejectsUnchanged(raw); // 只改版本号也不能把旧结构冒充当前结构。
   });
-
-  it('自家老师的旧项目：用在线旗舰补快照', () => {
+  it('自家老师的旧项目也拒绝，不用在线旗舰补写已经丢失的立项快照', () => {
     const s = fresh('deepseek', 'y2025', 9);
-    const g = loadSave(v09Distill(s, cfg('self', 14), 0.5));
-    const pj = baseJob(g).pj;
-    assert.deepEqual([pj.preview.teacher.own, pj.preview.teacher.name, pj.preview.teacher.modelId], [true, 'DeepSeek-V3', E.liveModel(g).id]);
-    assert.equal(pj.done / pj.need, 0.5);
+    rejectsUnchanged(v09Distill(s, cfg('self', 14), 0.5));
+    // 同版本项目丢失冻结快照同样拒绝，不能借当前在线老师重算。
+    E.startJob(s, {kind:'distill',cfg:cfg('self',14)});
+    const raw=clone(s); delete baseJob(raw).pj.preview;
+    rejectsUnchanged(raw);
   });
-
-  it('实在找不到老师才取消：提示写“已取消”和作废了多少进度，已有模型不受影响', () => {
-    // Claude 从没放过开源权重，历史目录里找不到可下载的一款；另一个是不存在的家族。
+  it('找不到老师的旧项目只拒绝，不取消项目、不作废进度、不改已有模型与队列', () => {
     for (const teacher of ['claude', 'gone_family']) {
-      const s = fresh('jev', 'y2025', 7);
-      const models = clone(s.models);
-      const g = loadSave(v09Distill(s, cfg(teacher, 8), 0.31));
-      assert.equal(E.hasBaseJob(g), false, teacher);
-      const note = g.queue.find(q => q.kind === 'notice');
-      assert.equal(note.title, '蒸馏项目已取消');
-      assert.match(note.text, /已经跑完的 31% 作废/);
-      assert.doesNotMatch(`${note.title}${note.text}`, /暂停/);
-      assert.deepEqual(g.models, models);
-      assert.match(g.log.at(-1).text, /蒸馏项目已取消/);
-      assert.ok(E.validateGame(g));
+      const s = fresh('jev', 'y2025', 7), raw=v09Distill(s,cfg(teacher,8),0.31);
+      const models=clone(raw.models), queue=clone(raw.queue), project=clone(raw.project);
+      rejectsUnchanged(raw);
+      assert.deepEqual(raw.models,models); assert.deepEqual(raw.queue,queue); assert.deepEqual(raw.project,project);
+    }
+  });
+  it('同版进行中蒸馏 31% 往返保留进度与冻结快照；继续完工能力完整且不重算老师', () => {
+    for (const [company,teacher,total] of [['gpt','self',3],['rwkv','llama',3]]) {
+      const s=fresh(company,'y2025',312);
+      E.setRepair(s,true);
+      const job=E.startJob(s,{kind:'distill',cfg:cfg(teacher,total,.3)}), pj=job.pj;
+      pj.done=pj.need*.31; pj.elapsedDays=3;
+      const original=clone(pj), before=JSON.stringify(s);
+      const g=loadSave(clone(s));
+      assert.equal(JSON.stringify(s),before,'load 不改原对象');
+      assert.deepEqual(g,s,'同版本完整状态往返不变');
+      assert.deepEqual(baseJob(g).pj,original,'进度、需求、老师与成品快照完全不变');
+      assert.equal(baseJob(g).pj.done/baseJob(g).pj.need,.31);
+      assert.ok(Math.abs(E.projectProgress(baseJob(g).pj)-.31)<1e-12,'实际显示进度为 31%');
+      assert.deepEqual(loadSave(clone(g)),g,'再次往返不变');
+      const days=finish(g,120), m=E.smallWorking(g);
+      assert.ok(days>=4,'保留 7 天流程下限，而不是 load 后立即完工');
+      assert.equal(m.teacher,teacher); assert.deepEqual(m.dims,original.preview.dims);
+      assert.deepEqual(m.distillation.teacher,original.preview.teacher);
+      assert.ok(Object.keys(m.dims).length>=5 && Object.values(m.dims).every(Number.isFinite),'成品能力完整');
     }
   });
 });

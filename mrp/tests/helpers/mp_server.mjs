@@ -58,9 +58,9 @@ export class Client {
   connect(lastId = null) {
     this.closed = false; this.streamClosed = false; this.buf = '';
     return new Promise((resolve, reject) => {
-      const u = new URL(`${this.base}/api/r/${this.room}/events`);
+      const u = new URL(`${this.base}/api/r/${this.room}/events?v=${PROTOCOL_V}`);
       const headers = { cookie: this.cookie, ...(lastId !== null ? { 'last-event-id': String(lastId) } : {}) };
-      this.req = http.get({ hostname: u.hostname, port: u.port, path: u.pathname, headers }, res => {
+      this.req = http.get({ hostname: u.hostname, port: u.port, path: u.pathname + u.search, headers }, res => {
         if (res.statusCode !== 200) { res.resume(); reject(new Error(`SSE ${res.statusCode}`)); return; }
         res.setEncoding('utf8');
         res.on('data', chunk => {
@@ -117,3 +117,9 @@ export const roomSettings = ({ humans = 6, bots = 2, days = 730, seed = 7 } = {}
     name: `${name}智能`, brand: name, country: ['CN', 'US', 'EU'][i % 3], tier: 'specialist', kind: i < humans ? 'human' : 'bot', bot: 'normal',
   })),
 });
+
+// SSE不同连接没有同步到达保证；同一有界期限内观察所有席位推进。
+export async function waitForClientDays(clients, day, timeout = 30000, extra = () => true) {
+  try { await waitFor(() => clients.every(c => c.day && c.day > day) && extra(), timeout); }
+  catch (error) { throw new Error(`客户端日期未在期限内推进：目标>${day}，实际${JSON.stringify(clients.map(c => c.day ?? null))}`, { cause: error }); }
+}

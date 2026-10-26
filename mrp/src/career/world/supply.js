@@ -1,3 +1,5 @@
+import { quarterCap, quarterCapView } from './supply_state.js';
+export { assertSupplyBasis, assertSupplyState, quarterCap, quarterCapView } from './supply_state.js';
 // 算力共用供给池（规格 M.3.8 第 3 条）：全世界每季度共用一份配额、季末统一价、租卡池。
 // - 总供给 = Σ 在场公司开局档的原配额（QUOTA）× SUPPLY_SELF.MULT；新卡头两个季度减半沿用 quotaFor。
 // - 下单按目录价预扣，交期照 LEAD；季末按 需求/供给 算全季统一价，多退少补。
@@ -7,7 +9,7 @@
 // - 出口管制只读 world.flags.export（开局状态算前人遗产，触发在 M1b-2）。
 import { GPUS, RENT_FACTOR, gpuMarkup, gpuAvailable as histGpuAvailable } from '../data/core.js';
 import { BUBBLE, FUNDING } from '../data/economy.js';
-import { quotaFor, quarterOf, RENT_QUOTA } from '../data/supply.js';
+import { quarterOf, RENT_QUOTA } from '../data/supply.js';
 import { SUPPLY_SELF } from '../data/selfplay.js';
 import { addDays } from '../sim/clock.js';
 import { leaseGpus } from '../sim/model.js';
@@ -23,35 +25,6 @@ function nextQuarter(day) {
   if (m <= 6) return `${y}-07-01`;
   if (m <= 9) return `${y}-10-01`;
   return `${y + 1}-01-01`;
-}
-
-// 每季度每种卡的世界总供给（M.3.8 第 3 条）。
-export function quarterCap(world, day = world.day) {
-  // 联机客户端的镜像（world/mirror.js）没有别家的状态：配额读服务器给的公开汇总。
-  if (world.mirror) return world.supply.cap || {};
-  const q = quarterOf(day);
-  if (world.supply.capQ === q && world.supply.cap) return world.supply.cap;
-  const cap = capOf(world, day);
-  world.supply.capQ = q;
-  world.supply.cap = cap;
-  world.supply.quarter = q;
-  return cap;
-}
-// 只读版（公开视图用）：不写缓存，算一份当季配额。视图每天都会算，写缓存会让世界和重放对不上。
-export function quarterCapView(world, day = world.day) {
-  const q = quarterOf(day);
-  return world.supply.capQ === q && world.supply.cap ? world.supply.cap : capOf(world, day);
-}
-function capOf(world, day) {
-  const cap = {};
-  for (const id of Object.keys(GPUS)) {
-    const g = GPUS[id];
-    if (day < g.from || (g.to && day > g.to)) { cap[id] = 0; continue; }
-    let n = 0;
-    for (const c of active(world)) n += quotaFor(c.tier0, id, day);
-    cap[id] = Math.round(n * SUPPLY_SELF.MULT);
-  }
-  return cap;
 }
 
 // ---------- 订单账本 ----------
@@ -245,7 +218,8 @@ export function averageRentOf(world, s) {
 
 // ---------- 口子 ----------
 export function gpuQuotaOf(world, s, id) {
-  return quarterCap(world, s.day)[id] || 0;
+  // 共享供给以权威世界日期为准，出局/暂停公司的本地日期可能落后。
+  return quarterCapView(world, world.day)[id] || 0;
 }
 
 export function gpuPriceOf(world, s, id) {

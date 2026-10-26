@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { startServer, stopServer, api, Client, waitFor, replayHash, tmpDir } from '../helpers/mp_server.mjs';
-import { readLog } from '../../server/store.mjs';
+import { readLog, readSnap, listSnaps } from '../../server/store.mjs';
 import { BOT_COMPANIES } from '../../src/career/data/selfplay.js';
 
 const ok = r => { assert.equal(r.status, 200, r.text); assert.equal(r.json?.ok, true, r.text); return r.json; };
@@ -33,9 +33,9 @@ async function openLobby(settings, companies) {
   await waitFor(() => host.s && guest.s, 20000);
   return { room, host, guest, dir: path.join(data, room) };
 }
-// 全员暂停（全员同意不限时），再拿现场哈希和从头重放比。
+// 房主暂停（持续到主动恢复），再拿现场哈希和从头重放比。
 async function pauseAndReplay(room, dir, members) {
-  for (const c of members) ok(await c.roomCmd('pause'));
+  ok(await members[0].roomCmd('pause'));
   const st = await status(room);
   assert.equal(st.paused, true);
   assert.equal(replayHash(dir), `${st.day} ${st.hash}`, '从开局快照重放的哈希等于现场');
@@ -58,6 +58,8 @@ describe('联机大厅接真引擎（M3b）', () => {
     assert.equal(init.seats.filter(x => x.kind === 'human').length, 2);
     const bot = init.seats.find(x => x.kind === 'bot');
     await waitFor(async () => (await status(room)).day >= '2024-01-20', 20000);
+    ok(await host.roomCmd('pause'));ok(await host.roomCmd('save'));
+    const beforeCompany=JSON.parse(readSnap(dir,listSnaps(dir).at(-1)).text).companies.find(c=>c.spec.id===bot.id).s;
     // 中途加入：申请接管一家电脑公司，房主批准，已经连着的 SSE 收到 init。
     const joined = await post(`/api/r/${room}/join`, { companyId: bot.id });
     const member = ok(joined).member;
@@ -67,7 +69,20 @@ describe('联机大厅接真引擎（M3b）', () => {
     await waitFor(() => third.s, 20000);
     assert.equal(third.company, bot.id);
     assert.equal(third.seat, 2);
-    // 掉线：先全局保护暂停，到点转托管（时间接着走），回来交还。
+    ok(await host.roomCmd('save'));
+    const afterCompany=JSON.parse(readSnap(dir,listSnaps(dir).at(-1)).text).companies.find(c=>c.spec.id===bot.id).s;
+    // NPC首次接管只增加明确的真人托管设置，全部经营状态必须逐字段保留。
+    assert.equal(beforeCompany.automation, undefined);
+    const { automation, ...afterBusinessState } = afterCompany;
+    assert.deepEqual(afterBusinessState,beforeCompany,'接管不重置完整公司资产、模型、作业、研究');
+    assert.deepEqual(automation, {
+      version:6, plannerVersion:6, activatedAt:afterCompany.day, rev:0,
+      pretraining:{receipts:[],hold:null,trials:[]}, evaluation:{receipts:[]},
+      modules:{evaluation:{mode:'auto',preset:'balanced'},pretraining:{mode:'auto',preset:'balanced'},companyStrategy:{mode:'auto',preset:'balanced'},data:{mode:'auto',preset:'balanced'},research:{mode:'auto',preset:'balanced'},computeAllocation:{mode:'auto',preset:'balanced',lastSuccessDay:null}},
+      lastDay:null, cursor:0, window:null, receipts:[], recent:[],
+    }, '只初始化一次新版本真人默认托管，不创建订单或重置经营资产');
+    ok(await host.roomCmd('resume'));
+    // 单席掉线不暂停全局，到期转托管，重连交还。
     guest.close();
     await waitFor(async () => (await status(room)).players.find(p => p.seat === 1).hosted, 20000);
     await guest.connect();
@@ -75,7 +90,8 @@ describe('联机大厅接真引擎（M3b）', () => {
     await waitFor(async () => (await status(room)).day >= '2024-02-20', 30000);
     await pauseAndReplay(room, dir, [host, guest, third]);
     const log = readLog(dir);
-    for (const name of ['sys.takeover', 'sys.host', 'sys.unhost', 'sys.dropPause']) assert.ok(log.some(e => e.name === name), name);
+    for (const name of ['sys.takeover', 'sys.host', 'sys.unhost']) assert.ok(log.some(e => e.name === name), name);
+    assert.ok(!log.some(e=>e.name==='sys.dropPause'),'普通掉线不能停世界');
     // 规则开关真的进了世界：重放出来的世界设置里有 short:false、distill:false、protect:60。
     const { rebuild } = await import('../../server/store.mjs');
     const { world } = rebuild(dir, { fromStart: true });

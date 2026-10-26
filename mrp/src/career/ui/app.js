@@ -1,20 +1,25 @@
+import {resumePostOnlyFromHome} from './post_only_recovery.js';
+import {openHomePostTraining} from './home_training.js';
 // 主流程：标题 → 剧本与公司 → 按天推进（可暂停、五档速度）→ 事件 / 跑分 → 结算。
 // 这里管启动、屏幕切换和时钟；主界面在 home.js，后台在 office.js，选择面板和事件在 flow.js，共用的状态和弹层在 state.js。
 // 别的界面模块都不从这里导入（会成循环）；下面转出的几个名字是给 scripts/ui_smoke.mjs 这类外部脚本用的。
 import * as E from '../engine.js';
+import {defaultPlaySetup,playSetupReady,renderPlaySetup,playSetupAction,applyPlaySetup,validatePlaySetup} from './panels/play_setup.js';
 import { SCENARIOS, PLAYABLE, START_RESOURCES, TIERS, GPUS, fmtDate, END, monthsBetween, personaPlate } from '../data/core.js';
 import { START_STANCE, routeLabel } from '../data/routes.js';
 import { esc, usd, count, art, face, icon, BG, MOD_LABEL, COUNTRY, hasEmotion } from './fmt.js';
 import { getState, setWorld, getWorld, getMp, ui, clock, bind, save, toast, openLayer, closeLayer } from './state.js';
-import { load, drop, getRaw, readSaved, downloadText, legacyKeysFound, markLegacySeen, SAVE_KEY, HOF_KEY, readWorldMeta, takeWorldLeave, loadWorld, lastKind } from './storage.js';
-import { renderHome, homeLine, monthReport, followAdvice, toggleNowRow } from './home.js';
+import { load, drop, getRaw, readSaved, downloadText, SAVE_KEY, HOF_KEY, readWorldMeta, takeWorldLeave, loadWorld, lastKind } from './storage.js';
+import { renderHome, homeLine, monthReport, followAdvice, toggleNowRow, selectHomeModel } from './home.js';
 import { openOffice } from './office.js';
-import { runQueue, finishGame, openPicker, enterGame, doDecision, playReleases } from './flow.js';
+import { runQueue, presentPostOnly, finishGame, openPicker, enterGame, doDecision, playReleases } from './flow.js';
 import { defaultSolo, renderSolo, soloClick, soloInput, soloChange, startSolo, validDraft } from './pages/solo_setup.js';
 import { renderLobby, lobbyClick, lobbyChange } from './pages/lobby.js';
 import { renderReplay } from './pages/replay.js';
 import { openCard } from './inbox.js';
-import { roomCmd } from './net.js';
+import { practiceKind, practiceURL } from './practice_context.js';
+import { startPracticeTutorial } from './practice_tutorial.js';
+import { roomCmd, isHost } from './net.js';
 
 export { getState, save, toast, openLayer, closeLayer };
 export { waitFor } from './state.js';
@@ -65,7 +70,6 @@ function renderTitle() {
   const canContinue = !!saved && saved.status === 'playing';
   const worldMeta = readWorldMeta();
   const broken = !r.ok && !r.empty;
-  const legacy = ui.legacySeen ? [] : legacyKeysFound();
   const hof = load(HOF_KEY) || [];
   app.className = 'app app--title';
   app.innerHTML = `
@@ -79,6 +83,8 @@ function renderTitle() {
         ${canContinue ? `<button class="btn ${worldMeta ? 'btn--ghost' : 'btn--primary'} btn--xl" data-act="continue">继续：${esc(personaPlate(PLAYABLE.find(p => p.id === saved.charId), saved.date).name)} · ${fmtDate(saved.date)}</button>` : ''}
         ${worldMeta ? `<button class="btn ${canContinue ? 'btn--ghost' : 'btn--primary'} btn--xl" data-act="continue-world">继续：自洽世界 · ${esc(worldMeta.company)} · ${fmtDate(worldMeta.dateMonth || worldMeta.date)}</button>` : ''}
         <button class="btn ${canContinue || worldMeta ? 'btn--ghost' : 'btn--primary'} btn--xl" data-act="new">开始新的一局</button>
+        <button class="btn btn--ghost btn--xl" data-act="tutorial-basic">新手引导</button>
+        <button class="btn btn--ghost" data-act="tutorial-advanced">经营操作引导</button>
         <button class="btn btn--ghost btn--xl" data-act="solo">单人 · 自洽世界</button>
         <button class="btn btn--ghost btn--xl" data-act="mp">联机</button>
         ${hof.length ? `<button class="btn btn--ghost" data-act="hof">名人堂 · ${hof.length}</button>` : ''}
@@ -86,8 +92,6 @@ function renderTitle() {
       ${ui.worldError ? `<p class="title-note"><b>自洽世界存档读不了：</b>${esc(ui.worldError)}。它还留在原处没动；想留着请先在设置里导出。</p>` : ''}
       ${broken ? `<p class="title-note"><b>浏览器里有一份存档，但读不了：</b>${esc(r.reason)}。它还留在原处没动；点「开始新的一局」会把它覆盖掉，想留着请先导出。</p>
         <div class="title-actions"><button class="btn btn--ghost" data-act="save-export">导出原始存档</button><button class="btn btn--ghost" data-act="save-drop">丢弃这份存档</button></div>` : ''}
-      ${legacy.length ? `<p class="title-note">这个浏览器里还留着旧版（回合制）游戏的存档或设置。新版读不了它们，也不会改动或删除它们。</p>
-        <div class="title-actions"><button class="btn btn--ghost" data-act="legacy-ok">知道了</button></div>` : ''}
     </div>
     <footer class="title-foot"><span>角色美术 · ZipZipPipe 等原作者</span><span>真实事件与模型名称仅作背景，数值为游戏模拟</span></footer>
   </section>`;
@@ -96,6 +100,7 @@ function renderTitle() {
 function renderSelect() {
   const sc = SCENARIOS.find(x => x.id === ui.scenario);
   const sel = ui.pick ? PLAYABLE.find(p => p.id === ui.pick) : null;
+  ui.playSetup ||= defaultPlaySetup();
   app.className = 'app app--select';
   app.innerHTML = `
   <section class="select-screen">
@@ -130,11 +135,12 @@ function selectDetail(p, sc) {
   const hard = p.country === 'CN' ? '算力受出口管制限制，但独占国内市场、安全诉讼压力较小' : p.tier === 'frontier' ? '资源最多，但树大招风：安全稍差就会官司缠身' : '';
   return `
   <aside class="select-detail">
-    <button class="icon-btn select-detail__close" data-act="unpick" aria-label="关闭">${icon('close')}</button>
+    <button class="icon-btn select-detail__close" data-act="unpick" aria-label="返回公司列表">${icon('close')}</button>
+    <div class="select-detail__scroll" tabindex="0" aria-label="公司资料">
     <div class="select-detail__art" style="--bg:url('${BG.lab}')"><img src="${art(p.artId, 'stage')}" alt="${esc(plate.name)}" />${p.smallArtId ? `<img class="second" src="${art(p.smallArtId, 'stage')}" alt="" />` : ''}</div>
     <div class="select-detail__info">
       <span class="eyebrow">${esc(p.company)}</span>
-      <h3>${esc(plate.name)} ${plate.label ? `<small>${esc(plate.label)}</small>` : ''}</h3>
+      <h3 tabindex="-1">${esc(plate.name)} ${plate.label ? `<small>${esc(plate.label)}</small>` : ''}</h3>
       <ul class="facts">
         <li><b>类型</b>${MOD_LABEL[p.modality]} · ${TIERS[p.tier].label} · ${COUNTRY[p.country]}</li>
         <li><b>开源路线</b>${esc(routeLabel(START_STANCE[p.id]?.[sc.id]))}</li>
@@ -143,10 +149,30 @@ function selectDetail(p, sc) {
         ${hard ? `<li><b>处境</b>${hard}</li>` : ''}
         ${p.note ? `<li><b>说明</b>${esc(p.note)}</li>` : ''}
       </ul>
-      <button class="btn btn--primary btn--xl" data-act="start" data-id="${p.id}">从 ${fmtDate(sc.start)} 开始</button>
       <a class="credit" href="${esc(p.source_url)}" target="_blank" rel="noopener">角色美术 · ${esc(p.credit || '原作者')} ↗</a>
     </div>
+    </div>
+    <footer class="select-detail__launch">${selectLaunch(p,sc)}</footer>
   </aside>`;
+}
+
+function selectLaunch(p,sc) {
+  return `<div class="select-detail__settings">${renderPlaySetup(ui.playSetup,{compact:true})}</div>
+    <button class="btn btn--primary btn--xl" data-act="start" data-id="${p.id}" ${playSetupReady(ui.playSetup)?'':'disabled'}>${playSetupReady(ui.playSetup)?`开始游戏 · ${fmtDate(sc.start)}`:'先选择上方玩法'}</button>`;
+}
+function updateSelectSetup(el) {
+  if(ui.screen!=='select'||!playSetupAction(ui.playSetup,el.dataset.setupAction,el.dataset.setupValue))return;
+  const launch=app.querySelector('.select-detail__launch');
+  const p=PLAYABLE.find(x=>x.id===ui.pick),sc=SCENARIOS.find(x=>x.id===ui.scenario);
+  if(!launch||!p)return render();
+  const expanded=launch.querySelector('.play-setup-tuning')?.open;
+  const scrollTop=launch.querySelector('.select-detail__settings')?.scrollTop||0;
+  // Repaint only the controls: preserve the company artwork, reading position and focus.
+  launch.innerHTML=selectLaunch(p,sc);
+  const tuning=launch.querySelector('.play-setup-tuning');
+  if(tuning)tuning.open=!!expanded;
+  launch.querySelector('.select-detail__settings').scrollTop=scrollTop;
+  launch.querySelector(`[data-setup-action="${CSS.escape(el.dataset.setupAction)}"][data-setup-value="${CSS.escape(el.dataset.setupValue||'')}"]`)?.focus({preventScroll:true});
 }
 
 // ---------- 时间（像钢铁雄心：可以暂停、五档速度；弹窗、后台打开时自动停） ----------
@@ -220,6 +246,7 @@ async function stepWorldDay(world) {
     if (S?.status === 'ended') return finishGame();
     render();
   }
+  await presentPostOnly(S);
   scheduleTick();
 }
 async function stepDay() {
@@ -231,12 +258,12 @@ async function stepDay() {
   const out = E.tickDay(S);
   if (out) {
     for (const n of out.notes.slice(0, 3)) toast(n);
-    if (out.report) { save(); monthReport(out.report); }
+    if (out.report) { save(); if(!E.isPostOnly(S))monthReport(out.report); }
   }
   if (S.status === 'ended') return finishGame();
   render();
   // 候选评完那天（规格 T6.2、T10.1）：时钟停下，播发布结果卡（和点“发布”一样），播完再走。
-  if (out?.releases?.length) {
+  if (out?.releases?.length && !E.isPostOnly(S)) {
     save();
     clock.busy = true;
     try { await playReleases(out.releases); } finally { clock.busy = false; }
@@ -248,16 +275,23 @@ async function stepDay() {
     if (S.status === 'ended') return finishGame();
     render();
   }
+  await presentPostOnly(S);
   scheduleTick();
 }
 
 function startGame(id) {
+  if(ui.screen!=='select')return;
   // 史实局和自洽世界的模块单例不能混：从自洽世界开史实局一律先整页重载。
   if (getWorld()) {
     try { globalThis.location?.reload?.(); } catch { /* 没有 location 的测试环境 */ }
     return;
   }
-  enterGame(E.createGame(id, ui.scenario, (Date.now() ^ (Math.random() * 1e9)) >>> 0), { persist: true });
+  if(!playSetupReady(ui.playSetup)){toast('请先选择「只后训练」或「完整玩法」');return;}
+  try{validatePlaySetup(ui.playSetup);}catch(e){toast(e.message);return;}
+  const s = E.createSinglePlayerGame(id, ui.scenario, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
+  E.enableAutomation(s);
+  applyPlaySetup(s,ui.playSetup);
+  enterGame(s, { persist: true });
 }
 // 进入自洽世界：getState() 返回玩家那家的 s，世界另外放在 state.js 里。
 function enterSolo(world, { persist = true } = {}) {
@@ -273,9 +307,22 @@ function enterSolo(world, { persist = true } = {}) {
   if (persist) save();
   return true;
 }
+function renderWorldResult(S, r) {
+  const rows = getWorld()?.result?.standings || [];
+  app.className = 'app app--result';
+  app.innerHTML = `<section class="result-screen" style="--bg:url('${BG.gala}')"><div class="result-card">
+    <h2>自洽世界 · 终局身家排名</h2><p>${esc(S.company.company)} · 第 ${r.place} / ${r.of} 名</p>
+    <h3>最终身家 ${usd(r.wealth)}</h3><p class="muted">截止日 ${esc(r.end)} · 实际结算至 ${esc(r.settledThrough)}</p>
+    ${r.pendingEvents ? `<p class="muted">截止时有 ${r.pendingEvents} 项未决事件，保留供回看，未发生的选择效果不计入终局身家。</p>` : ''}
+    <table class="tbl"><thead><tr><th>排名</th><th>公司</th><th>身家</th></tr></thead><tbody>${rows.map(x => `<tr><td>${x.place}</td><td>${esc(x.name)}</td><td>${usd(x.wealth)}</td></tr>`).join('')}</tbody></table>
+    <p class="muted">身家按持股比例 × 公司价值结算，未上市公司估值打八折；清算公司按清算价值计。</p>
+    <div class="result-actions"><button class="btn btn--ghost" data-act="office">回看后台</button><button class="btn btn--primary btn--xl" data-act="new">再来一局</button></div>
+    </div></section>`;
+}
 function renderResult() {
   const S = getState();
   const r = S.result;
+  if (r.kind === 'world') return renderWorldResult(S, r);
   const p = r.parts;
   const reason = { complete: `走到了 ${fmtDate(r.date)}`, goal_failed: `第三次没达成董事会目标（「${r.goal}」），董事会更换了管理层`, bankrupt: '资金链断裂' }[r.reason];
   const happy = r.rank === 'S' || r.rank === 'SS' || r.rank === 'A';
@@ -290,7 +337,7 @@ function renderResult() {
         <li><span>榜单</span><b>${p.capScore}</b></li><li><span>口碑</span><b>${p.rep}</b></li><li><span>董事会目标</span><b>${p.goalScore}</b></li>
         ${p.penalty ? `<li><span>丑闻与败诉</span><b class="bad">-${p.penalty}</b></li>` : ''}
       </ul>
-      <p class="muted">最终模型 ${esc(r.model || '无')} · 月收入 ${usd(r.revenue)} ${S.company.kind === 'division' ? '' : `· 估值 ${usd(r.valuation)}`}</p>
+      <p class="muted">最终模型 ${esc(r.model || '无')} · 近三月平均月收入 ${usd(r.revenue)} ${S.company.kind === 'division' ? '' : `· 估值 ${usd(r.valuation)}`}</p>
       ${r.basis ? `<p class="muted">这一局按增长考核：月收入对标 ${usd(r.basis.revenue)}${S.company.kind === 'division' ? '' : `，估值对标 ${usd(r.basis.valuation)}`}。</p>` : ''}
       <div class="result-actions"><button class="btn btn--ghost" data-act="office">回看后台</button><button class="btn btn--primary btn--xl" data-act="new">再来一局</button></div>
     </div>
@@ -308,17 +355,27 @@ app.addEventListener('click', ev => {
   if (ui.screen === 'home' && (clock.busy || layer.firstElementChild)) return;
   const id = el.dataset.id;
   switch (el.dataset.act) {
+    case 'open-post-training': openHomePostTraining();break;
+    case 'open-model-training': openOffice('train',{trainingKind:'overview'});break;
+    case 'post-only-resume': resumePostOnlyFromHome({modelId:id,jobId:el.dataset.job,modelToken:el.dataset.modelToken||null});break;
+    case 'post-only-cards': presentPostOnly(getState(),{force:true});break;
     case 'continue': { const r = readSaved(); if (playable(r)) resumeFrom(r); else { toast(r.ok ? '这一局已经打完了' : `存档无法读取：${r.reason}`); render(); } break; }
     case 'save-export': { const raw = getRaw(SAVE_KEY); if (raw !== null) downloadText(`model-raising-unreadable-${Date.now()}.json`, raw); else toast('已经没有这份存档了'); break; }
     case 'save-drop': if (el.dataset.confirm) { drop(SAVE_KEY); render(); } else { el.dataset.confirm = '1'; el.textContent = '再点一次确认丢弃'; } break;
-    case 'legacy-ok': ui.legacySeen = true; markLegacySeen(); render(); break;
+    case 'tutorial-basic':
+    case 'tutorial-advanced': {
+      if (ui.screen !== 'title') break;
+      window.location.assign(practiceURL(el.dataset.act === 'tutorial-basic' ? 'basic' : 'advanced'));
+      break;
+    }
     case 'new':
-      if (getWorld()) { try { globalThis.location?.reload?.(); } catch { /* 测试环境 */ } break; }
-      ui.screen = 'select'; ui.pick = null; render(); window.scrollTo(0, 0); break;
+      if (getWorld()) { ui.screen = 'title'; render(); break; }
+      ui.playSetup=defaultPlaySetup(); ui.screen = 'select'; ui.pick = null; render(); window.scrollTo(0, 0); break;
     case 'solo': ui.solo = defaultSolo(); ui.screen = 'solo'; render(); window.scrollTo(0, 0); break;
     case 'mp': ui.screen = 'lobby'; render(); window.scrollTo(0, 0); break;
+    case 'mp-home': if (getMp()?.S) { ui.screen = 'home'; render(); } break;
     case 'mp-back': ui.screen = 'title'; render(); break;
-    case 'mp-vote': roomCmd('vote', { speed: Number(id) }).catch(e => toast(e.message)); break;
+    case 'mp-speed': roomCmd('speed', { speed: Number(id) }).catch(e => toast(e.message)); break;
     case 'mp-pause': roomCmd('pause').catch(e => toast(e.message)); break;
     case 'mp-resume': roomCmd('resume').catch(e => toast(e.message)); break;
     case 'mp-card': openCard(Number(id)); break;
@@ -327,7 +384,7 @@ app.addEventListener('click', ev => {
     case 'solo-back': ui.screen = 'title'; render(); window.scrollTo(0, 0); break;
     case 'solo-set': { if (ui.solo) { soloClick(ui.solo, el); render(); } break; }
     case 'solo-start': {
-      if (!ui.solo) break;
+      if (!ui.solo || ui.screen!=='solo') break;
       try {
         const r = startSolo(ui.solo);
         enterSolo(r.world);
@@ -337,21 +394,26 @@ app.addEventListener('click', ev => {
     case 'continue-world': {
       loadWorld().then(r => {
         if (!r.ok) { ui.worldError = r.reason; render(); return; }
-        if (r.notes?.length) toast(`存档里有 ${r.notes.length} 条认不出的内容，已经丢掉`);
         enterSolo(r.world, { persist: false });
       });
       break;
     }
     case 'hof': openHof(); break;
     case 'to-title': ui.screen = 'title'; render(); break;
+    case 'play-setup': updateSelectSetup(el);break;
+    case 'solo-play-setup': if(ui.solo){playSetupAction(ui.solo.playSetup,el.dataset.setupAction,el.dataset.setupValue);render();}break;
+    case 'mp-play-setup': lobbyClick(el,app);break;
     case 'scenario': ui.scenario = id; render(); break;
-    case 'pick': ui.pick = id; render(); break;
-    case 'unpick': ui.pick = null; render(); break;
+    case 'pick': ui.pick = id; render(); app.querySelector('.select-detail__info h3')?.focus({preventScroll:true}); break;
+    case 'unpick': { const picked=ui.pick;ui.pick = null; render();app.querySelector(`[data-act="pick"][data-id="${CSS.escape(picked||'')}"]`)?.focus({preventScroll:true});break; }
     case 'start': startGame(id); break;
     case 'talk': ui.lineIdx += 1; { const p = app.querySelector('.bubble p'); if (p) p.textContent = homeLine(getState()); } break;
     case 'open-train': openOffice('train'); break;
     // 主界面“进行中”卡：点一行在原位展开两三个常用操作（暂停 / 继续、优先 / 正常、去训练页）。
     case 'now-row': toggleNowRow(id); render(); break;
+    // 主界面模型阵列：选中一个模型（只改显示）；对它发起后训练 = 打开训练页、后训练表单预选这个模型，确认后才开始。
+    case 'pick-model': selectHomeModel(id); render(); break;
+    case 'post-model': openOffice('train', { post: id }); break;
     case 'job': doDecision('job', { op: el.dataset.op, id, ...(el.dataset.on !== undefined ? { on: el.dataset.on === '1' } : {}), ...(el.dataset.prio ? { prio: el.dataset.prio } : {}) }); break;
     case 'open-data': openPicker('data'); break;
     case 'open-eval': openPicker('eval'); break;
@@ -379,7 +441,7 @@ app.addEventListener('input', ev => {
   const box = app.querySelector(`[data-error="${t.dataset.solo}"]`);
   if (box) box.textContent = err;
   const start = app.querySelector('[data-act="solo-start"]');
-  if (start) start.disabled = !validDraft(ui.solo);
+  if (start) start.disabled = !validDraft(ui.solo) || !playSetupReady(ui.solo.playSetup);
 });
 app.addEventListener('change', ev => {
   if (ui.screen === 'lobby') { if (lobbyChange(ev.target) && ev.target.tagName === 'SELECT') render(); return; }
@@ -393,8 +455,9 @@ document.addEventListener('keydown', ev => {
   if (ui.screen !== 'home' || !getState() || ev.target.closest?.('input, select, textarea') || layer.firstElementChild) return;
   const mp = getMp();
   if (mp) {
+    if (!isHost(mp)) return;
     if (ev.code === 'Space') { ev.preventDefault(); roomCmd(mp.clock?.paused ? 'resume' : 'pause').catch(e => toast(e.message)); }
-    else if (/^Digit[1-4]$/.test(ev.code)) roomCmd('vote', { speed: Number(ev.code.slice(5)) - 1 }).catch(e => toast(e.message));
+    else if (/^Digit[1-4]$/.test(ev.code)) roomCmd('speed', { speed: Number(ev.code.slice(5)) - 1 }).catch(e => toast(e.message));
     return;
   }
   if (ev.code === 'Space') { ev.preventDefault(); setSpeed(clock.speed ? 0 : clock.last); }
@@ -406,7 +469,7 @@ document.addEventListener('visibilitychange', () => { const S = getState(); if (
 function openHof() {
   const hof = load(HOF_KEY) || [];
   const root = openLayer(`<div class="picker"><div class="picker-head"><h3>名人堂</h3><button class="icon-btn" data-close>${icon('close')}</button></div>
-    <ul class="hof">${hof.map(h => `<li>${face(PLAYABLE.find(p => p.id === h.charId)?.artId)}<div><b>${esc(h.name)}</b><small>${esc(h.company)} · ${esc(SCENARIOS.find(x => x.id === h.scenario)?.title || '')} · ${h.reason === 'complete' ? '完成' : '中途结束'}</small></div><span class="rank rank--${h.rank}">${h.rank}</span><em>${h.total}</em></li>`).join('') || '<li class="muted">还没有记录。</li>'}</ul></div>`, 'overlay--picker');
+    <ul class="hof">${hof.map(h => `<li>${face(PLAYABLE.find(p => p.id === h.charId)?.artId)}<div><b>${esc(h.name)}</b><small>${esc(h.company)} · ${esc(SCENARIOS.find(x => x.id === h.scenario)?.title || '')} · ${h.reason === 'complete' ? '完成' : '中途结束'}</small></div>${h.kind === 'world' ? `<span>第 ${h.place} / ${h.of} 名</span><em>${usd(h.wealth)}</em>` : `<span class="rank rank--${h.rank}">${h.rank}</span><em>${h.total}</em>`}</li>`).join('') || '<li class="muted">还没有记录。</li>'}</ul></div>`, 'overlay--picker');
   root.addEventListener('click', ev => { if (ev.target.closest('[data-close]') || ev.target === root) closeLayer(); });
 }
 
@@ -414,8 +477,6 @@ function openHof() {
 const playable = r => r.ok && r.s.status === 'playing';
 function resumeFrom(r) {
   setWorld(null);
-  if (r.backup === 'failed') toast('没能给旧存档留备份（浏览器空间不够），接着玩没问题');
-  if (r.notes.length) toast(`存档里有 ${r.notes.length} 条认不出的内容，已经丢掉`);
   enterGame(r.s);
 }
 // Esc 关掉后台和选择面板；事件、跑分、里程碑正等着玩家选，关了会让流程停住，不响应。
@@ -432,7 +493,8 @@ document.addEventListener('keydown', ev => {
 bind({ render, scheduleTick, setSpeed });
 // 启动：刚离开自洽世界时先回标题；否则接着玩最后玩的那一种（刷新页面不会从自洽世界掉进另一份史实存档），
 // 没记过就史实局优先，再试着恢复自洽世界。
-(async function boot() {
+export const bootReady = (async function boot() {
+  if (practiceKind()) return startPracticeTutorial();
   if (takeWorldLeave()) return render();
   const r = readSaved();
   const tryWorld = async () => {

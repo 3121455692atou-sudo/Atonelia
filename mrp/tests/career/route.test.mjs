@@ -13,7 +13,6 @@ import { COMPANIES, SCENARIOS } from '../../src/career/data/core.js';
 import { RELEASES } from '../../src/career/data/rivals.js';
 import { DELAY_DAYS, ROUTE_COOLDOWN } from '../../src/career/data/balance.js';
 import { setStance, releaseOpenRule, routeTick, routeCooldownLeft, stanceSwitchEffects, licenseOf, openStance, ensureRoute, routeOf } from '../../src/career/sim/route.js';
-import { run as routeStep } from '../../src/career/sim/migrations/route.js';
 import { playerBrand, usageBoards, simulateService, monthlyCosts, ANTI_DISTILL_FEE } from '../../src/career/sim/economy.js';
 import { conditionalEvents } from '../../src/career/sim/events.js';
 import { applyWorldEvent } from '../../src/career/sim/world.js';
@@ -139,8 +138,8 @@ describe('发布时的开闭（B2，按发布角色 relRole）', () => {
     }
     setStance(s, 'delayed', { src: 'start', license: 'restrictive' });
     assert.equal(releaseOpenRule(s, 'small').license, 'restrictive');
-    // 没有路线的状态（手搭的）按闭源算。
-    assert.equal(releaseOpenRule({ day: s.day }, 'flagship').open, false);
+    // 缺少路线不能被静默解释成闭源。
+    assert.throws(() => releaseOpenRule({ day: s.day }, 'flagship'), /不支持|路线/);
   });
   it('闭源档：旗舰不能开源（勾了也不算），小模型可以开源，不勾就按默认闭源', () => {
     const s = fresh('gpt', 'y2024');
@@ -304,7 +303,7 @@ describe('delayed 档的旧代开放（B5）', () => {
 });
 
 describe('切换效果与冷却（B4、B5）', () => {
-  it('来源只能是 strategy、start、migration；只有 strategy 带切换效果：走向开放加品牌，走向封闭扣口碑、加估值', () => {
+  it('来源只能是 strategy、start；只有 strategy 带切换效果：走向开放加品牌，走向封闭扣口碑、加估值', () => {
     assert.deepEqual(stanceSwitchEffects('closed', 'open'), { brand: 1.16 });
     assert.deepEqual(stanceSwitchEffects('open', 'open_family'), { rep: -9, valuation: 1 + 0.03 * 3 });
     assert.equal(stanceSwitchEffects('open', 'open'), null);
@@ -326,9 +325,9 @@ describe('切换效果与冷却（B4、B5）', () => {
     const gv = g.valuation;
     setStance(g, 'closed', { src: 'strategy', by: 'g_route_close_all' });
     assert.equal(g.valuation, gv);
-    for (const src of ['event', 'effects', 'world', undefined]) assert.throws(() => setStance(s, 'closed', { src }), /只能由/);
+    for (const src of ['event', 'effects', 'world', 'migration', undefined]) assert.throws(() => setStance(s, 'closed', { src }), /只能由/);
   });
-  it('冷却：公司策略改路线之后 ROUTE_COOLDOWN 天；开局和读档迁移设的路线不起冷却', () => {
+  it('冷却：公司策略改路线之后 ROUTE_COOLDOWN 天；开局设的路线不起冷却', () => {
     const s = fresh('gpt', 'y2024');
     assert.equal(routeCooldownLeft(s), 0);
     setStance(s, 'open_family', { src: 'strategy', by: 'g_route_open_family' });
@@ -343,105 +342,20 @@ describe('切换效果与冷却（B4、B5）', () => {
   });
 });
 
-describe('读档迁移（B7）', () => {
-  it('旧档选过开源（GPT y2023，表值闭源）→ 完全开源（宽松许可）；删掉旧的公司字段和在练模型、项目上的 open；已发布模型的 open 不动', () => {
-    const raw = FIXTURES('gpt_y2023_open');
-    assert.equal(raw.company.open, true);
-    const r = E.migrateGame(raw);
-    assert.ok(r.ok, r.reason);
-    const s = r.s;
-    assert.deepEqual(s.route, { stance: 'open', license: 'permissive', since: s.day, by: 'migration' });
-    for (const k of ['open', 'line', 'sibling']) assert.ok(!(k in s.company), k);
-    assert.ok(!('smallOpen' in s.flags));
-    assert.ok(s.models.filter(m => m.stage !== 'released').every(m => !('open' in m)));
-    if (E.hasBaseJob(s)) assert.ok(!('open' in baseJob(s).pj) && !('open' in (baseJob(s).pj.cfg || {})));
-    const before = Object.fromEntries(raw.models.filter(m => m.stage === 'released').map(m => [m.id, m.open]));
-    for (const m of s.models.filter(x => x.stage === 'released')) if (m.id in before) assert.equal(m.open, before[m.id], m.name);
-  });
-  it('表值已经是开源档的不改（DeepSeek y2025 选过开源仍是受限许可开源）；只选过“开源小尺寸”的闭源公司 → open_family', () => {
-    const ds = FIXTURES('deepseek_y2025_mid');
-    assert.equal(ds.company.open, true);
-    assert.deepEqual([E.migrateGame(ds).s.route.stance, E.migrateGame(ds).s.route.license], ['open_restricted', 'restrictive']);
-    const raw = FIXTURES('gpt_y2023_open');
-    raw.company.open = false;
-    raw.flags.smallOpen = true;
-    assert.equal(E.migrateGame(raw).s.route.stance, 'open_family');
-    raw.flags.smallOpen = false;
-    assert.equal(E.migrateGame(raw).s.route.stance, 'closed');
-    // Kimi y2026 的表值就是 open/P，选没选过都一样。
-    const kimi = FIXTURES('kimi_y2026');
-    assert.deepEqual([E.migrateGame(kimi).s.route.stance, E.migrateGame(kimi).s.route.license], ['open', 'permissive']);
-  });
-  it('幂等：迁移结果再跑一遍路线步骤，JSON 一字不差；6 份夹具都有路线；还没回答的“要不要开源权重”丢掉', () => {
-    for (const f of fs.readdirSync(new URL('../fixtures/saves/', import.meta.url)).filter(x => x.endsWith('.json') && !x.startsWith('._'))) {
-      const raw = FIXTURES(f.replace(/\.json$/, ''));
-      raw.queue.push({ kind: 'event', id: 'open_question' });
-      const s = E.migrateGame(raw).s;
-      assert.ok(STANCE[s.route.stance], f);
-      assert.ok(!s.queue.some(q => q.id === 'open_question'), f);
-      const again = clone(s);
-      routeStep(again);
-      assert.equal(JSON.stringify(again), JSON.stringify(s), f);
+describe('旧路线结构不支持', () => {
+  it('历史 v3 夹具明确拒绝，原始 JSON 不改写', () => {
+    const dir = new URL('../fixtures/saves/', import.meta.url);
+    for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.json') && !x.startsWith('.'))) {
+      const raw = JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8')), before = JSON.stringify(raw);
+      const r = E.migrateGame(raw); assert.equal(r.ok, false, f); assert.match(r.reason, /不支持|版本|旧存档/);
+      assert.equal(JSON.stringify(raw), before, f);
     }
   });
-  it('旧档的开源模型补上许可：史实型号按真实许可标签，其余按路线的许可，和新开的同一局一样（DeepSeek y2025 的在线旗舰是受限许可）', () => {
-    const s = E.migrateGame(FIXTURES('deepseek_y2025_mid')).s;
-    const open = s.models.filter(m => m.stage === 'released' && m.open);
-    assert.ok(open.length > 0 && open.every(m => m.license === 'permissive' || m.license === 'restrictive'), JSON.stringify(open.map(m => [m.name, m.license])));
-    const live = E.liveModel(s);
-    assert.ok(live.open && !live.hist);
-    assert.equal(live.license, 'restrictive', '自己练的按路线（受限许可开源）的许可');
-    assert.equal(open.find(m => m.name === 'DeepSeek-R1')?.license, 'permissive', 'R1 是 MIT（LP）');
-    const n = fresh('deepseek', 'y2025');
-    const lic = g => Object.fromEntries(g.models.filter(m => m.stage === 'released' && m.open && m.hist).map(m => [m.name, m.license]));
-    const hist = lic(s), want = lic(n);
-    for (const k of Object.keys(hist)) if (k in want) assert.equal(hist[k], want[k], k);
-    // 已有的许可不改。
-    const raw = FIXTURES('deepseek_y2025_mid');
-    raw.models.find(m => m.name === live.name).license = 'permissive';
-    assert.equal(E.migrateGame(raw).s.models.find(m => m.name === live.name).license, 'permissive');
-  });
-  it('兜底：P0.3a 到 P1.3 之间新开的存档（mig.route 已记、没有 s.route），推进第一天时照 B7 补上路线、补许可、清掉旧字段', () => {
-    // 开发期存档：那时 initRoute 是空存根，旧的公司字段 open、flags.smallOpen 还在，继承的开源型号没有许可。
-    const dev = (id, sc) => {
-      const s = fresh(id, sc);
-      delete s.route;
-      for (const m of s.models) delete m.license;
-      return s;
-    };
-    const s = dev('deepseek', 'y2025');
-    s.company.open = true;
-    s.flags.smallOpen = true;
-    assert.equal(s.mig.route, true);
-    assert.equal(routeOf(s).stance, 'closed', '补之前按闭源兜底');
-    E.tickDay(s);
-    const st = START_STANCE.deepseek.y2025;
-    assert.deepEqual([s.route.stance, s.route.license, s.route.by], [st.stance, st.license, 'migration']);
-    assert.equal(routeCooldownLeft(s), 0, '补的路线不起冷却');
-    assert.ok(!('open' in s.company) && !('smallOpen' in s.flags));
-    assert.equal(releaseOpenRule(s, 'flagship').open, true);
-    const want = fresh('deepseek', 'y2025');
-    const lic = g => g.models.filter(m => m.stage === 'released' && m.open).map(m => [m.name, m.license]);
-    assert.ok(lic(want).length > 0);
-    assert.deepEqual(lic(s), lic(want), '继承的开源型号按开局的办法补许可');
-    // 表值属于 closed、open_family、delayed 三档、旧的公司字段 open 为真 → 完全开源（宽松许可）。
-    // “要不要开源权重”这个抉择已经删了（E5，P2.3）：开发期存档推进第一天时只补路线。
-    const g = dev('gpt', 'y2023');
-    assert.equal(START_STANCE.gpt.y2023.stance, 'closed');
-    g.company.open = true;
-    assert.ok(!g.route && g.company.open === true);
-    E.tickDay(g);
-    assert.deepEqual([g.route.stance, g.route.license, g.route.by], ['open', 'permissive', 'migration']);
-    assert.ok(!('open' in g.company));
-    // 已经有路线、或者没记 mig.route 的（测试里手搭的）不归这里管。
-    const kept = fresh('gpt', 'y2023');
-    const before = JSON.stringify(kept);
-    assert.equal(ensureRoute(kept), kept.route);
-    assert.equal(JSON.stringify(kept), before);
-    const bare = dev('gpt', 'y2023');
-    delete bare.mig;
-    assert.equal(ensureRoute(bare), null);
-    assert.ok(!bare.route);
+  it('旧路线：拒绝缺失结构且不补写原对象', () => {
+    const s = E.createGame('qwen', 'y2025', 1); delete s.route;
+    const before = JSON.stringify(s); assert.throws(() => ensureRoute(s), /不支持|旧存档/);
+    assert.equal(JSON.stringify(s), before);
+    const r = E.migrateGame(s); assert.equal(r.ok, false); assert.equal(JSON.stringify(s), before);
   });
 });
 
@@ -475,8 +389,8 @@ describe('读取点（B3）', () => {
     }
     assert.ok(Math.abs(api.permissive / api.closed - 0.75) < 1e-9 && Math.abs(api.restrictive / api.closed - 0.85) < 1e-9, JSON.stringify(api));
     assert.ok(Math.abs(router.permissive / router.closed - 2.2) < 1e-9 && Math.abs(router.restrictive / router.closed - 1.8) < 1e-9, JSON.stringify(router));
-    // 旧档的开源模型没有许可信息：按宽松算。
-    assert.equal(licenseOf({ open: true }), 'permissive');
+    // 没有许可的旧结构不能被静默解释成宽松许可。
+    assert.throws(() => licenseOf({ open: true }), /不支持|许可/);
     assert.equal(licenseOf({ open: false, license: 'permissive' }), null);
   });
   it('被别家蒸馏：在线旗舰闭源、离世界最强不到 3 分才会出现；许可之争：在线旗舰开源而且是受限许可才会出现', () => {
@@ -497,7 +411,7 @@ describe('读取点（B3）', () => {
     const at = gap => { const d = (top - gap - E.qOf('llm', m.dims)) / 0.88; for (const k of ['knowledge', 'code', 'math', 'writing']) m.dims[k] += d; };
     at(2.5);
     assert.ok(hits(s, 'distilled_by_others') > 0, '闭源、差 2.5 分');
-    m.open = true;
+    m.open = true; m.license = 'permissive';
     assert.equal(hits(s, 'distilled_by_others'), 0, '开源');
     m.open = false;
     at(3.5);

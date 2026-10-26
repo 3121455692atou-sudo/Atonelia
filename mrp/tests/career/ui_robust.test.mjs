@@ -22,6 +22,7 @@ function makeOverlay(html) {
   const classes = (html.match(/class="overlay ([^"]*)"/)?.[1] || '').split(/\s+/);
   return {
     handlers, office,
+    get isConnected() { return overlayRoot.overlay === this; },
     classList: { contains: c => classes.includes(c), add() {} },
     addEventListener(type, fn) { (handlers[type] ||= []).push(fn); },
     removeEventListener(type, fn) { handlers[type] = (handlers[type] || []).filter(f => f !== fn); },
@@ -56,7 +57,7 @@ const bracketsBalanced = s => { const st = []; for (const c of s) { if (PAIRS[c]
 const clickOn = (overlay, target) => overlay.handlers.click.forEach(f => f({ target }));
 const changeOn = (overlay, target) => overlay.handlers.change.forEach(f => f({ target }));
 const targetFor = (sel, dataset = {}) => ({ closest: s => (s === sel ? { dataset } : null) });
-const game = (id = 'deepseek', sc = 'y2024', seed = 5) => { const s = E.createGame(id, sc, seed); s.queue.length = 0; return s; };
+const game = (id = 'deepseek', sc = 'y2024', seed = 5) => { const s = E.createSinglePlayerGame(id, sc, seed); s.queue.length = 0; return s; };
 const saved = () => writes.includes(SAVE_KEY);
 
 beforeEach(() => { toasts.length = 0; writes = []; mem.clear(); overlayRoot.innerHTML = ''; resetOffice(); });
@@ -120,6 +121,23 @@ describe('事件队列：放不出来的项丢掉，不卡住时间', () => {
 describe('后台：一页画不出来、换局、只读', () => {
   const withPage = (id, page, fn) => { const orig = PAGE[id]; PAGE[id] = page; try { return fn(); } finally { PAGE[id] = orig; } };
   const boom = { render() { throw new Error('页面炸了'); } };
+
+  it('关闭后台会断开旧节点：迟到的重绘不能更新已移除的页', () => {
+    setState(game()); let draw, renders = 0;
+    withPage('model', { render() { renders++; return '<p>mounted</p>'; }, click(_S, _t, ctx) { draw = ctx.draw; } }, () => {
+      openOffice('model');
+      const overlay = overlayRoot.overlay;
+      assert.equal(overlay.isConnected, true);
+      clickOn(overlay, targetFor('[data-op]', { op: 'capture' }));
+      const html = overlay.office.innerHTML;
+      clickOn(overlay, targetFor('[data-close]'));
+      assert.equal(overlay.isConnected, false);
+      draw();
+      assert.equal(renders, 1);
+      assert.equal(overlay.office.innerHTML, html);
+      assert.equal(overlayRoot.innerHTML, '');
+    });
+  });
 
   it('某一页 render 抛错：这页换成错误卡（带原因和「返回」），导航还在；返回回到上一个好页', () => {
     setState(game());
@@ -283,7 +301,28 @@ describe('主界面和图表小修', () => {
     renderHome(app);
     const btn = id => app.innerHTML.match(new RegExp(`<button class="quick-btn[^"]*" data-act="quick" data-id="${id}"[^>]*>`))?.[0];
     for (const id of ['eval', 'release']) { assert.match(btn(id), /is-off/, id); assert.match(btn(id), /\sdisabled/, id); }
-    for (const id of ['data', 'compute', 'news']) { assert.ok(btn(id), id); assert.doesNotMatch(btn(id), /disabled|is-off/, id); }
+    for (const id of ['data', 'compute', 'tech', 'model']) { assert.ok(btn(id), id); assert.doesNotMatch(btn(id), /disabled|is-off/, id); }
+    const more = app.innerHTML.match(/<button class="btn home-more" data-act="quick" data-id="more"[^>]*>/)?.[0];
+    assert.ok(more, '首页必须保留清楚的更多功能入口');
+    assert.doesNotMatch(more, /disabled|is-off|\shidden|aria-hidden="true"/);
+    assert.equal(btn('news'), undefined, '新闻收到更多，不恢复首页次要灰字堆');
+    // Assert the actual home route, then exercise the actual office navigation
+    // it opens. News coverage moves with the entry; it is not deleted.
+    const route = fs.readFileSync(new URL('../../src/career/ui/app.js', import.meta.url), 'utf8');
+    assert.match(route, /openOffice\(id === 'more' \? undefined : id\)/);
+    const before = JSON.stringify(S);
+    openOffice();
+    const overlay = overlayRoot.overlay, office = overlay.office;
+    for (const id of ['service', 'capital', 'rivals', 'boards', 'news']) {
+      const entry = office.innerHTML.match(new RegExp(`<button[^>]*data-page="${id}"[^>]*>`))?.[0];
+      assert.ok(entry, `更多内 ${id} 入口可见`);
+      assert.doesNotMatch(entry, /disabled|is-off|\shidden|aria-hidden="true"/, id);
+      clickOn(overlay, targetFor('[data-page]', { page: id }));
+      assert.match(office.innerHTML, new RegExp(`class="is-on" data-page="${id}"`), `${id} 实际导航成功`);
+      assert.doesNotMatch(office.innerHTML, /这一页没能显示出来/, id);
+    }
+    assert.equal(JSON.stringify(S), before, '浏览更多页面不修改游戏');
+
   });
 
   it('“下一步”每次渲染都重算 advise()，源码里没有手拼的缓存键', () => {

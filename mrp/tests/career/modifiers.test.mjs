@@ -205,7 +205,7 @@ describe('E3 读取点：特质承诺的加成真的生效', () => {
     for (const k of ['staff', 'owned', 'rented']) near(b[k], a[k] * f, k);
     assert.equal(b.legal, a.legal);
     assert.equal(b.risk, a.risk);
-    delete t.computeLedger;
+    assert.equal(t.computeLedger.days,0,'新局已显式建立空账本');
     accrueComputeDay(t);
     near(t.computeLedger.owned / t.computeLedger.days, b.owned / daysInMonth(t.date), '账本的日费率');
   });

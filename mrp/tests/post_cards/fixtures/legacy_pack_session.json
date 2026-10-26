@@ -1,0 +1,686 @@
+{
+  "playing": {
+    "format": "solo-post-plan-catalog-v2",
+    "profileId": "catalog-v1",
+    "catalogVersion": "166-card-draft-3",
+    "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+    "modality": "llm",
+    "companyId": "deepseek",
+    "nextGeneration": 1,
+    "nextEpoch": 1,
+    "generations": {
+      "m3_2025-01": {
+        "token": "g1:m3_2025-01",
+        "modelId": "m3_2025-01",
+        "knownUnlocked": [
+          "basic",
+          "ptc_qwen_sample_tabs",
+          "ptc_qwen_paired_preferences",
+          "ptc_qwen_context_index",
+          "ptc_qwen_cross_check",
+          "ptc_deepseek_sketch_dedup",
+          "ptc_deepseek_teacher_margin",
+          "ptc_deepseek_draft_verify",
+          "ptc_deepseek_little_rehearsal",
+          "ptc_deepseek_pro_tidy_tray",
+          "ptc_deepseek_pro_group_relative",
+          "ptc_deepseek_pro_latent_cache",
+          "ptc_deepseek_pro_math_service",
+          "ptc_deepseek_pro_precision_cleanup",
+          "ptc_gemini_two_views",
+          "ptc_gemini_million_window",
+          "ptc_gemini_expert_quorum",
+          "ptc_gemini_window_vote",
+          "ptc_claude_red_team_note",
+          "ptc_claude_preference_boundary",
+          "ptc_gpt_instruction_cards",
+          "ptc_gpt_typed_calls",
+          "ptc_gpt_slow_answer",
+          "ptc_kimi_bookmark_chain",
+          "ptc_kimi_context_recall",
+          "ptc_kimi_quiet_conclusion",
+          "ptc_glm_task_tiles",
+          "ptc_glm_schema_check",
+          "ptc_glm_action_rehearsal",
+          "ptc_glm_multi_token_check",
+          "ptc_grok_odd_question",
+          "ptc_grok_debate_table",
+          "ptc_grok_parallel_voters",
+          "ptc_grok_dissent_check",
+          "ptc_seed_clean_seed",
+          "ptc_seed_self_textbook",
+          "ptc_seed_screen_marks",
+          "ptc_seed_native_feedback",
+          "ptc_rwkv_state_card",
+          "ptc_rwkv_rolling_context",
+          "ptc_ernie_entity_cards",
+          "ptc_ernie_retrieval_page",
+          "ptc_ernie_expert_catalog",
+          "ptc_ernie_two_pass_index",
+          "ptc_mistral_neat_batch",
+          "ptc_mistral_sliding_window",
+          "ptc_mistral_expert_rotation",
+          "ptc_mistral_rotating_review",
+          "ptc_minimax_idea_notes",
+          "ptc_minimax_feedback_pair",
+          "ptc_perplexity_citation_lamp",
+          "ptc_perplexity_evidence_window",
+          "ptc_perplexity_query_contract",
+          "ptc_perplexity_citation_revisit",
+          "ptc_image2_thumbnail_grid",
+          "ptc_llama_gentle_review",
+          "ptc_llama_textbook_margin",
+          "ptc_llama_small_teacher",
+          "ptc_llama_open_rehearsal",
+          "ptc_hunyuan_mixed_notes",
+          "ptc_hunyuan_sparse_router",
+          "ptc_hunyuan_reasoning_budget",
+          "ptc_stepfun_small_steps",
+          "ptc_stepfun_tool_stair",
+          "ptc_stepfun_thinking_landings",
+          "ptc_stepfun_step_return",
+          "ptc_novelai_story_seeds",
+          "ptc_novelai_context_thread",
+          "ptc_novelai_voice_preferences",
+          "ptc_novelai_foreshadow_payoff",
+          "ptc_midjourney_mood_board",
+          "ptc_suno_count_in",
+          "ptc_elevenlabs_breath_marks",
+          "ptc_fable_gentle_boundary",
+          "ptc_fable_rewrite_safely",
+          "ptc_jev_decision_schema",
+          "ptc_jev_typed_verdict",
+          "ptc_jev_abstain_option",
+          "ptc_jev_calibrated_verdict",
+          "ptc_opencode_portable_patch",
+          "ptc_github_copilot_pair_review",
+          "ptc_microsoft_copilot_office_outline",
+          "ptc_zcode_blind_check",
+          "ptc_deepseek_harness_bounded_harness",
+          "ptc_huggingface_model_card",
+          "ptc_ascend_precision_probe",
+          "ptc_kiro_spec_checkpoint",
+          "ptc_cursor_diff_anchor",
+          "ptc_pi_minimal_terminal",
+          "ptc_sillytavern_continuity_notebook"
+        ]
+      }
+    },
+    "byModel": {
+      "m3_2025-01": "post:g1:m3_2025-01:1"
+    },
+    "activeByModel": {},
+    "sessions": {
+      "post:g1:m3_2025-01:1": {
+        "id": "post:g1:m3_2025-01:1",
+        "companyId": "deepseek",
+        "modelId": "m3_2025-01",
+        "generationToken": "g1:m3_2025-01",
+        "planEpoch": 1,
+        "status": "playing",
+        "controlMode": "manual",
+        "revision": 2,
+        "choiceRevision": 1,
+        "controlChanges": 0,
+        "draftChanges": 0,
+        "cardRulesVersion": "bounded-dsl-v1",
+        "effectRulesVersion": 1,
+        "directionPolicy": "model-general",
+        "profileId": "catalog-v1",
+        "catalogVersion": "166-card-draft-3",
+        "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+        "modality": "llm",
+        "draftDeck": [
+          "basic",
+          "ptc_qwen_sample_tabs",
+          "ptc_mistral_neat_batch",
+          "ptc_glm_task_tiles"
+        ],
+        "confirmedDeck": [
+          "basic",
+          "ptc_qwen_sample_tabs",
+          "ptc_mistral_neat_batch",
+          "ptc_glm_task_tiles"
+        ],
+        "drawTicket": 2046036520,
+        "unlockProof": {
+          "verifiedAtDay": "2025-01-01",
+          "config": {
+            "profileId": "catalog-v1",
+            "catalogVersion": "166-card-draft-3",
+            "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+            "modality": "llm",
+            "companyId": "deepseek",
+            "rulesVersion": "bounded-dsl-v1",
+            "techs": [
+              "rlhf",
+              "distill",
+              "dpo",
+              "func_call",
+              "long_ctx",
+              "textbook",
+              "flash_attn",
+              "spec_decode",
+              "moe",
+              "grpo",
+              "mla",
+              "reasoning",
+              "computer_use",
+              "fp8",
+              "mtp"
+            ],
+            "strategy": {
+              "done": {
+                "ds_found": true,
+                "ds_coder": true,
+                "ds_moe": true,
+                "ds_grpo": true,
+                "ds_mla": true,
+                "ds_price_butcher": true,
+                "ds_self_funded": true,
+                "ds_r1_lite": true,
+                "ds_v3": true
+              }
+            }
+          },
+          "rulesVersion": "bounded-dsl-v1"
+        },
+        "replayProof": {
+          "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+          "turn": 2,
+          "budget": 8,
+          "focus": 0,
+          "flow": 0,
+          "shield": 0,
+          "boost": 0,
+          "score": 1,
+          "pending": [],
+          "nextEventId": 1,
+          "history": [
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            }
+          ],
+          "rng": 675621852,
+          "hand": [
+            "ptc_mistral_neat_batch",
+            "ptc_qwen_sample_tabs",
+            "basic"
+          ],
+          "status": "playing",
+          "revision": 1
+        },
+        "choices": [
+          "basic"
+        ],
+        "openUnlockProof": {
+          "verifiedAtDay": "2025-01-01",
+          "config": {
+            "profileId": "catalog-v1",
+            "catalogVersion": "166-card-draft-3",
+            "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+            "modality": "llm",
+            "companyId": "deepseek",
+            "rulesVersion": "bounded-dsl-v1",
+            "techs": [
+              "rlhf",
+              "distill",
+              "dpo",
+              "func_call",
+              "long_ctx",
+              "textbook",
+              "flash_attn",
+              "spec_decode",
+              "moe",
+              "grpo",
+              "mla",
+              "reasoning",
+              "computer_use",
+              "fp8",
+              "mtp"
+            ],
+            "strategy": {
+              "done": {
+                "ds_found": true,
+                "ds_coder": true,
+                "ds_moe": true,
+                "ds_grpo": true,
+                "ds_mla": true,
+                "ds_price_butcher": true,
+                "ds_self_funded": true,
+                "ds_r1_lite": true,
+                "ds_v3": true
+              }
+            }
+          }
+        },
+        "grant": null,
+        "createdAtDay": "2025-01-01",
+        "readyAtDay": null,
+        "effectiveFromDay": null,
+        "receiptId": null,
+        "invalidReason": null
+      }
+    },
+    "receipts": {}
+  },
+  "ready": {
+    "format": "solo-post-plan-catalog-v2",
+    "profileId": "catalog-v1",
+    "catalogVersion": "166-card-draft-3",
+    "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+    "modality": "llm",
+    "companyId": "deepseek",
+    "nextGeneration": 1,
+    "nextEpoch": 1,
+    "generations": {
+      "m3_2025-01": {
+        "token": "g1:m3_2025-01",
+        "modelId": "m3_2025-01",
+        "knownUnlocked": [
+          "basic",
+          "ptc_qwen_sample_tabs",
+          "ptc_qwen_paired_preferences",
+          "ptc_qwen_context_index",
+          "ptc_qwen_cross_check",
+          "ptc_deepseek_sketch_dedup",
+          "ptc_deepseek_teacher_margin",
+          "ptc_deepseek_draft_verify",
+          "ptc_deepseek_little_rehearsal",
+          "ptc_deepseek_pro_tidy_tray",
+          "ptc_deepseek_pro_group_relative",
+          "ptc_deepseek_pro_latent_cache",
+          "ptc_deepseek_pro_math_service",
+          "ptc_deepseek_pro_precision_cleanup",
+          "ptc_gemini_two_views",
+          "ptc_gemini_million_window",
+          "ptc_gemini_expert_quorum",
+          "ptc_gemini_window_vote",
+          "ptc_claude_red_team_note",
+          "ptc_claude_preference_boundary",
+          "ptc_gpt_instruction_cards",
+          "ptc_gpt_typed_calls",
+          "ptc_gpt_slow_answer",
+          "ptc_kimi_bookmark_chain",
+          "ptc_kimi_context_recall",
+          "ptc_kimi_quiet_conclusion",
+          "ptc_glm_task_tiles",
+          "ptc_glm_schema_check",
+          "ptc_glm_action_rehearsal",
+          "ptc_glm_multi_token_check",
+          "ptc_grok_odd_question",
+          "ptc_grok_debate_table",
+          "ptc_grok_parallel_voters",
+          "ptc_grok_dissent_check",
+          "ptc_seed_clean_seed",
+          "ptc_seed_self_textbook",
+          "ptc_seed_screen_marks",
+          "ptc_seed_native_feedback",
+          "ptc_rwkv_state_card",
+          "ptc_rwkv_rolling_context",
+          "ptc_ernie_entity_cards",
+          "ptc_ernie_retrieval_page",
+          "ptc_ernie_expert_catalog",
+          "ptc_ernie_two_pass_index",
+          "ptc_mistral_neat_batch",
+          "ptc_mistral_sliding_window",
+          "ptc_mistral_expert_rotation",
+          "ptc_mistral_rotating_review",
+          "ptc_minimax_idea_notes",
+          "ptc_minimax_feedback_pair",
+          "ptc_perplexity_citation_lamp",
+          "ptc_perplexity_evidence_window",
+          "ptc_perplexity_query_contract",
+          "ptc_perplexity_citation_revisit",
+          "ptc_image2_thumbnail_grid",
+          "ptc_llama_gentle_review",
+          "ptc_llama_textbook_margin",
+          "ptc_llama_small_teacher",
+          "ptc_llama_open_rehearsal",
+          "ptc_hunyuan_mixed_notes",
+          "ptc_hunyuan_sparse_router",
+          "ptc_hunyuan_reasoning_budget",
+          "ptc_stepfun_small_steps",
+          "ptc_stepfun_tool_stair",
+          "ptc_stepfun_thinking_landings",
+          "ptc_stepfun_step_return",
+          "ptc_novelai_story_seeds",
+          "ptc_novelai_context_thread",
+          "ptc_novelai_voice_preferences",
+          "ptc_novelai_foreshadow_payoff",
+          "ptc_midjourney_mood_board",
+          "ptc_suno_count_in",
+          "ptc_elevenlabs_breath_marks",
+          "ptc_fable_gentle_boundary",
+          "ptc_fable_rewrite_safely",
+          "ptc_jev_decision_schema",
+          "ptc_jev_typed_verdict",
+          "ptc_jev_abstain_option",
+          "ptc_jev_calibrated_verdict",
+          "ptc_opencode_portable_patch",
+          "ptc_github_copilot_pair_review",
+          "ptc_microsoft_copilot_office_outline",
+          "ptc_zcode_blind_check",
+          "ptc_deepseek_harness_bounded_harness",
+          "ptc_huggingface_model_card",
+          "ptc_ascend_precision_probe",
+          "ptc_kiro_spec_checkpoint",
+          "ptc_cursor_diff_anchor",
+          "ptc_pi_minimal_terminal",
+          "ptc_sillytavern_continuity_notebook"
+        ]
+      }
+    },
+    "byModel": {
+      "m3_2025-01": "post:g1:m3_2025-01:1"
+    },
+    "activeByModel": {},
+    "sessions": {
+      "post:g1:m3_2025-01:1": {
+        "id": "post:g1:m3_2025-01:1",
+        "companyId": "deepseek",
+        "modelId": "m3_2025-01",
+        "generationToken": "g1:m3_2025-01",
+        "planEpoch": 1,
+        "status": "ready",
+        "controlMode": "manual",
+        "revision": 7,
+        "choiceRevision": 6,
+        "controlChanges": 0,
+        "draftChanges": 0,
+        "cardRulesVersion": "bounded-dsl-v1",
+        "effectRulesVersion": 1,
+        "directionPolicy": "model-general",
+        "profileId": "catalog-v1",
+        "catalogVersion": "166-card-draft-3",
+        "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+        "modality": "llm",
+        "draftDeck": [
+          "basic",
+          "ptc_qwen_sample_tabs",
+          "ptc_mistral_neat_batch",
+          "ptc_glm_task_tiles"
+        ],
+        "confirmedDeck": [
+          "basic",
+          "ptc_qwen_sample_tabs",
+          "ptc_mistral_neat_batch",
+          "ptc_glm_task_tiles"
+        ],
+        "drawTicket": 2046036520,
+        "unlockProof": {
+          "verifiedAtDay": "2025-01-01",
+          "config": {
+            "profileId": "catalog-v1",
+            "catalogVersion": "166-card-draft-3",
+            "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+            "modality": "llm",
+            "companyId": "deepseek",
+            "rulesVersion": "bounded-dsl-v1",
+            "techs": [
+              "rlhf",
+              "distill",
+              "dpo",
+              "func_call",
+              "long_ctx",
+              "textbook",
+              "flash_attn",
+              "spec_decode",
+              "moe",
+              "grpo",
+              "mla",
+              "reasoning",
+              "computer_use",
+              "fp8",
+              "mtp"
+            ],
+            "strategy": {
+              "done": {
+                "ds_found": true,
+                "ds_coder": true,
+                "ds_moe": true,
+                "ds_grpo": true,
+                "ds_mla": true,
+                "ds_price_butcher": true,
+                "ds_self_funded": true,
+                "ds_r1_lite": true,
+                "ds_v3": true
+              }
+            }
+          },
+          "rulesVersion": "bounded-dsl-v1"
+        },
+        "replayProof": {
+          "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+          "turn": 6,
+          "budget": 8,
+          "focus": 0,
+          "flow": 0,
+          "shield": 0,
+          "boost": 0,
+          "score": 6,
+          "pending": [],
+          "nextEventId": 1,
+          "history": [
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            }
+          ],
+          "rng": 1702889220,
+          "hand": [],
+          "status": "done",
+          "revision": 6
+        },
+        "choices": [
+          "basic",
+          "basic",
+          "basic",
+          "basic",
+          "basic",
+          "basic"
+        ],
+        "openUnlockProof": {
+          "verifiedAtDay": "2025-01-01",
+          "config": {
+            "profileId": "catalog-v1",
+            "catalogVersion": "166-card-draft-3",
+            "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+            "modality": "llm",
+            "companyId": "deepseek",
+            "rulesVersion": "bounded-dsl-v1",
+            "techs": [
+              "rlhf",
+              "distill",
+              "dpo",
+              "func_call",
+              "long_ctx",
+              "textbook",
+              "flash_attn",
+              "spec_decode",
+              "moe",
+              "grpo",
+              "mla",
+              "reasoning",
+              "computer_use",
+              "fp8",
+              "mtp"
+            ],
+            "strategy": {
+              "done": {
+                "ds_found": true,
+                "ds_coder": true,
+                "ds_moe": true,
+                "ds_grpo": true,
+                "ds_mla": true,
+                "ds_price_butcher": true,
+                "ds_self_funded": true,
+                "ds_r1_lite": true,
+                "ds_v3": true
+              }
+            }
+          }
+        },
+        "grant": null,
+        "createdAtDay": "2025-01-01",
+        "readyAtDay": "2025-01-01",
+        "effectiveFromDay": "2025-01-02",
+        "receiptId": "receipt:post:g1:m3_2025-01:1",
+        "invalidReason": null
+      }
+    },
+    "receipts": {
+      "receipt:post:g1:m3_2025-01:1": {
+        "id": "receipt:post:g1:m3_2025-01:1",
+        "sourceSessionId": "post:g1:m3_2025-01:1",
+        "companyId": "deepseek",
+        "modelId": "m3_2025-01",
+        "generationToken": "g1:m3_2025-01",
+        "planEpoch": 1,
+        "cardRulesVersion": "bounded-dsl-v1",
+        "effectRulesVersion": 1,
+        "directionPolicy": "model-general",
+        "profileId": "catalog-v1",
+        "modality": "llm",
+        "catalogVersion": "166-card-draft-3",
+        "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+        "replayProof": {
+          "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+          "turn": 6,
+          "budget": 8,
+          "focus": 0,
+          "flow": 0,
+          "shield": 0,
+          "boost": 0,
+          "score": 6,
+          "pending": [],
+          "nextEventId": 1,
+          "history": [
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            },
+            {
+              "cardId": "basic",
+              "kind": "train",
+              "tags": []
+            }
+          ],
+          "rng": 1702889220,
+          "hand": [],
+          "status": "done",
+          "revision": 6
+        },
+        "confirmedDeck": [
+          "basic",
+          "ptc_qwen_sample_tabs",
+          "ptc_mistral_neat_batch",
+          "ptc_glm_task_tiles"
+        ],
+        "drawTicket": 2046036520,
+        "choices": [
+          "basic",
+          "basic",
+          "basic",
+          "basic",
+          "basic",
+          "basic"
+        ],
+        "unlockProof": {
+          "verifiedAtDay": "2025-01-01",
+          "config": {
+            "profileId": "catalog-v1",
+            "catalogVersion": "166-card-draft-3",
+            "catalogFingerprint": "f270106f1693043eaee61f773a60e460c1d95171bc666148e13f8c61c906a6f8",
+            "modality": "llm",
+            "companyId": "deepseek",
+            "rulesVersion": "bounded-dsl-v1",
+            "techs": [
+              "rlhf",
+              "distill",
+              "dpo",
+              "func_call",
+              "long_ctx",
+              "textbook",
+              "flash_attn",
+              "spec_decode",
+              "moe",
+              "grpo",
+              "mla",
+              "reasoning",
+              "computer_use",
+              "fp8",
+              "mtp"
+            ],
+            "strategy": {
+              "done": {
+                "ds_found": true,
+                "ds_coder": true,
+                "ds_moe": true,
+                "ds_grpo": true,
+                "ds_mla": true,
+                "ds_price_butcher": true,
+                "ds_self_funded": true,
+                "ds_r1_lite": true,
+                "ds_v3": true
+              }
+            }
+          },
+          "rulesVersion": "bounded-dsl-v1"
+        },
+        "terminalRevision": 7,
+        "createdAtDay": "2025-01-01",
+        "effectiveFromDay": "2025-01-02"
+      }
+    }
+  }
+}

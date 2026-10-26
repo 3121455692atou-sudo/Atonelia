@@ -57,6 +57,19 @@ export function tokens(v) {
 export const pct = (v, d = 0) => `${(v * 100).toFixed(d)}%`;
 export const params = b => (b >= 1000 ? `${(b / 1000).toFixed(b % 1000 ? 1 : 0)}T` : `${b}B`);
 
+// 显示用：把格式化好的数字拆成“前缀 | 数字 | 单位”三段（$9.0亿 → $ 9.0 亿），数字大、单位小。只改排版，不改数值。
+export function numHtml(text) {
+  const m = String(text).match(/^([^\d]*?)(-?[\d.,]+)(.*)$/);
+  if (!m) return `<span class="nu"><span class="nu-n">${esc(text)}</span></span>`;
+  return `<span class="nu">${m[1] ? `<span class="nu-p">${esc(m[1])}</span>` : ''}<span class="nu-n">${esc(m[2])}</span>${m[3] ? `<span class="nu-u">${esc(m[3])}</span>` : ''}</span>`;
+}
+// 能力维度的评级字母（育成游戏式显示）：只按 0–100 的维度值换算，纯显示，不参与任何计算。
+const GRADES = [[95, 'S+'], [88, 'S'], [78, 'A'], [66, 'B'], [54, 'C'], [42, 'D'], [30, 'E'], [18, 'F'], [-Infinity, 'G']];
+export function grade(v) {
+  const g = GRADES.find(([min]) => v >= min)[1];
+  return { g, cls: `g-${g === 'S+' ? 'ss' : g.toLowerCase()}` };
+}
+
 // 背景写进 CSS 变量时，相对地址会按样式表目录解析，所以转成绝对地址。
 const abs = p => new URL(p, document.baseURI).href;
 export const BG = {
@@ -84,7 +97,15 @@ export function art(id, variant = 'card', emotion = 'neutral') {
   const sp = c.sprites || {};
   return thumb(sp[emotion] || sp.neutral || c.src, variant);
 }
-export const face = (id, cls = '') => (id ? `<img class="face ${cls}" src="${art(id, 'face')}" alt="" loading="lazy" />` : `<span class="face face--blank ${cls}"></span>`);
+// 虚构公司的身份不是美术角色 ID；缺立绘时明确占位，不借别家人物冒充或写回经营状态。
+export function stagePortrait(id, name, emotion = 'neutral') {
+  const src = art(id, 'stage', emotion);
+  return src ? `<img src="${src}" alt="${esc(name)}" />` : '<span class="stage-placeholder" role="img" aria-label="角色立绘未配置"><span aria-hidden="true">◇</span><b>角色立绘未配置</b></span>';
+}
+export const face = (id, cls = '') => {
+  const src = art(id, 'face');
+  return src ? `<img class="face ${cls}" src="${src}" alt="" loading="lazy" />` : `<span class="face face--blank ${cls}"></span>`;
+};
 export function hasEmotion(id, e) { return !!characterById(id)?.sprites?.[e]; }
 
 const ICONS = {
@@ -110,6 +131,15 @@ const ICONS = {
   flag: '<path d="M5 21V4m0 0h12l-2.5 4L17 12H5"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
   chat: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  scale: '<path d="M12 3v18M7 21h10M5 7h14M5 7l-3 6a3 3 0 0 0 6 0L5 7Zm14 0-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
+  layers: '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  news: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/>',
+  auto: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+  sliders: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+  sword: '<path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/>',
 };
 export const icon = (name, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
 
