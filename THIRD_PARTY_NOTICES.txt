@@ -1,0 +1,44 @@
+素材与转载说明
+更新日期：2026-10-27
+项目：https://github.com/3121455692atou-sudo/Atonelia
+
+一、代码与原创文档
+根目录 LICENSE 的 MIT 许可适用于本项目原创代码、脚本、测试及原创文档。
+欢迎转载、复制、修改、分发和二次开发；请保留版权声明和许可证。
+请勿把这项许可理解为对全部图片、字体、照片、第三方文本或商标的统一授权。
+
+二、角色美术、卡面及衍生图
+原作者、原帖与授权记录见 mrp/docs/ART_CREDITS.txt、
+mrp/src/career/data/roster.js 与 mrp/src/career/data/post_card_art.js。
+主要角色美术作者为 ZipZipPipe；鲸鱼娘相关原设署名上善无形。
+
+现有素材记录将 DeepSeek Flash、DeepSeek Pro、DeepSeek Harness 相关素材标为
+CC BY-NC-SA 4.0：转载时保留署名和来源、提供许可链接、标明修改，
+不得用于商业目的，改编后按相同许可共享。
+许可：https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans
+
+其他角色的现有记录写明未核实统一开放授权。本项目不会替原作者作出统一
+再授权承诺；请按原作者实际许可使用，或另行取得所需授权。
+去背景、裁剪、缩略图、Q 版卡面和其他衍生处理不取消原素材的条件。
+WebP 等优化版本与对应原图适用相同的署名和素材许可。
+
+三、背景及自制图像
+生成方式、参考与文件记录见 mrp/docs/art-manifest.json、
+mrp/assets/posttraining/ 内的 provenance 文件，以及游戏内素材鸣谢。
+这些图像未随代码统一改为 MIT；涉及参考角色的部分继续保留其原有条件。
+
+四、硬件照片
+来自 Wikimedia Commons，逐项作者、原始页面和许可见：
+mrp/assets/hardware/CREDITS.json
+mrp/src/career/data/hardware_gen.js
+部分为 CC BY 3.0，部分为 CC BY-SA 4.0；适用各条目所附许可。
+运行用 hw-*.webp 是对应照片的尺寸与格式转换版本，仍保留各自许可。
+
+五、字体
+Barlow Condensed 由 The Barlow Project Authors 提供，采用 SIL Open Font
+License 1.1。完整版权和许可见 mrp/assets/fonts/BarlowCondensed-OFL.txt。
+
+六、介绍、源码与完整游戏转载的区别
+项目介绍和原创代码欢迎转载；包含第三方素材的完整游戏或修改版，
+需要同时遵守这些素材的许可条件。转载时请保留 LICENSE、本说明和素材署名。
+如发现来源或授权记录有误，可在仓库提交 Issue，指明作品与相关文件。

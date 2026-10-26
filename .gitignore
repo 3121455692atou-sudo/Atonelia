@@ -4,3 +4,14 @@ node_modules/
 *.log
 .fp-cache/
 mp-data/
+
+# 本地配置、缓存与发布信息
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.sites-runtime/
+.openai/
+*.pem
+*.key
