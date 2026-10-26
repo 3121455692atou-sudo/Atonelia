@@ -1,0 +1,58 @@
+{
+  "asset": "posttraining-modelgirls-atlas.png",
+  "width": 1536,
+  "height": 1024,
+  "columns": 3,
+  "rows": 2,
+  "cellWidth": 512,
+  "cellHeight": 512,
+  "method": "built-in image_gen; referenced source game character art; chibi style transfer",
+  "libraryFileId": "libfile_1c114d1c0ae88191afbeb0ceb72e7dad",
+  "referencePaths": [
+    "game_qa_github_original/mrp/assets/characters/gpt-neutral.png",
+    "game_qa_github_original/mrp/assets/characters/qwen-neutral.png",
+    "game_qa_github_original/mrp/assets/characters/deepseek-neutral.png",
+    "game_qa_github_original/mrp/assets/characters/claude-neutral.png",
+    "game_qa_github_original/mrp/assets/characters/gemini-neutral.png"
+  ],
+  "sourceAttribution": "See original game docs/art-manifest.json and docs/character-library; this sheet is derivative of those supplied character designs, not newly invented characters.",
+  "cells": [
+    {
+      "id": "data_cleaning",
+      "character": "DeepSeek",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "curriculum",
+      "character": "Qwen",
+      "x": 512,
+      "y": 0
+    },
+    {
+      "id": "focus",
+      "character": "GPT",
+      "x": 1024,
+      "y": 0
+    },
+    {
+      "id": "gradient",
+      "character": "Gemini",
+      "x": 0,
+      "y": 512
+    },
+    {
+      "id": "reward",
+      "character": "Claude",
+      "x": 512,
+      "y": 512
+    },
+    {
+      "id": "convergence",
+      "character": "GPT",
+      "x": 1024,
+      "y": 512
+    }
+  ],
+  "prompt": "Use case: identity-preserve / style-transfer. Turn the FIVE provided game character reference illustrations into an adorable polished CHIBI training-card illustration atlas. These are existing specific characters: preserve their individually recognizable identity, hairstyle, hair color, outfit color design, signature accessories, and fantasy features. NOT generic anime girls and NOT animal mascots. Transform to cute superdeformed two-and-a-half-head-tall proportions, big expressive heads, tiny fully clothed bodies, clean anime cel shading and delicate pastel glow. No sexualized posing.\nReference order: 1 GPT white-haired dragon girl; 2 Qwen periwinkle braided elegant girl; 3 DeepSeek blue braided whale painter girl; 4 Claude long orange hair Victorian girl; 5 Gemini blue-purple hair cat-eared tech girl. GPT appears in two distinct training poses.\nOutput is ONE landscape 3:2 canvas, an EXACT 3-column by 2-row grid of six equal SQUARE illustrations. No gutters, no outer card borders, no titles, no UI, no text, no numbers, no logos. Every cell background pale warm ivory, illustrations contained within central 84% of each cell and no element crosses boundary. Six grid cells in strict reading order:\nTOP LEFT: reference 3 DeepSeek data cleaning. Preserve blue long side braid, gold round glasses, navy painter beret with small whale ornament, whale ears and tail, navy paint-splashed coat, white blouse and navy bow, plaid skirt. Cheerfully brushes dusty little data cubes clean with her paintbrush.\nTOP MIDDLE: reference 2 Qwen curriculum planning. Preserve periwinkle long hair and thick side braid, small blue-and-white ruffled tilted hat, white Chinese-style high collar dress and flowing navy gold-trim sleeves, white gloves, decorative folding fan. Arranges three colorful lesson tiles into staircase with thoughtful gentle smile.\nTOP RIGHT: reference 1 GPT focused observation. Preserve long white lavender-tinted hair, two white dragon horns, pointed ears, small white dragon wings and tail, navy/white gold-trim celestial dress, crescent shoulder ornament and violet gem, orbit ring at waist. Looks through a small telescope at one bright star, concentrated cute expression.\nBOTTOM LEFT: reference 5 Gemini gradient accumulation. Preserve long blue-to-purple gradient hair, cat ears, large purple welding visor on head, distinctive rainbow four-point star hair clip, black silver and violet tech jacket, purple accents, fluffy blue-purple tail. Carefully stacks glowing blue-violet data cubes, determined little smile.\nBOTTOM MIDDLE: reference 4 Claude reward calibration. Preserve long warm orange hair, large bronze sunburst flower clip with black ribbon, amber eyes, ivory high-ruffle Victorian blouse, dark chocolate skirt/corset with gold details. Adjusts little golden balance scale with a golden star on each pan, warm calm smile.\nBOTTOM RIGHT: reference 1 GPT convergence burst. Preserve long white lavender-tinted hair, two white dragon horns, pointed ears, small white dragon wings and tail, navy/white gold-trim celestial dress with crescent shoulder ornament and violet gem, orbit ring at waist. Raises hands joyfully beside a glowing star crystal and several small controlled sparkle rays.\nEvery character must clearly match HER own reference without blending identities. Keep recognizable essential details but simplify intricate decoration for readability at 150px. Same scale and cohesive adorable premium anime-game card-art style throughout. Cute expressive faces, little blush, soft round silhouette, generous margins. No generated lettering; simplify tiny written ornaments into abstract shapes. Do not reuse the previous fox design. This atlas will be sliced by CSS into six 512-square regions, so exact grid alignment matters."
+}
