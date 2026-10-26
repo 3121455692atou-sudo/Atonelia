@@ -1,15 +1,20 @@
+import { assertRandomWorld, validatePostRandom, dailyPostRandomRate } from './post_random.js';
+import { postCardEfficiency, cardJobSupported, validateSavedPostCardPlans } from './post_cards.js';
+import { recognizedPostPlanLedger } from './post_card_profiles.js';
+import { P } from './provider.js';
 // 训练作业（规格 T 章，P2.4a）：训练卡上并行的几项作业——底座（预训练）、蒸馏小模型、续训、后训练、试验——按“优先 / 正常”自动分卡。
 // 每项作业有最低卡（放不下就排队）和想要卡（再多也没用）；作业位按团队人数和自用卡数取大（试验不占作业位）。
 // 主线同一时间只有一项底座类作业（预训练或续训）；小模型线（只有语言模型有）最多 3 个；每个模型最多挂一项后训练。
 // 状态：s.jobs（见 initJobs）。底座类作业的载荷 pj 就是原来的 s.project 对象（字段和键的顺序都不变）。
-import { DIRECTIONS, PARAM_TOTALS, PARAM_ACTIVES, SCALES, ARCHS } from '../data/core.js';
+import {recordAutoTrialOutcome,recordAutoTrialCancel} from './automation_trial_ledger.js';
+import { DIRECTIONS, PARAM_TOTALS, PARAM_ACTIVES, SCALES, ARCHS, dimKeys } from '../data/core.js';
 import { BENCH_BY_ID } from '../data/benchmarks.js';
 import { TRAIN_PACE, BEYOND, JOBS, REPAIR, LAB } from '../data/balance.js';
-import { clamp, rand, round1 } from './util.js';
+import { clamp, rand, round1, persistentInputError } from './util.js';
 import { daysBetween } from './clock.js';
 import {
   postPreview, benchmaxPreview, workingModel, applyGains, gpuAllocation, trainFlops, projectRisk, projectProgress, poolStats, pretrainRepeat,
-  genMinCards, previewProject, directionsFor, scaleById,
+  genMinCards, previewProject, directionsFor, scaleById, withModelReadSnapshot,
 } from './model.js';
 import { knowFx } from './research.js';
 import { normalizeDistill } from './data_ops.js';
@@ -17,7 +22,7 @@ import { addSpirit } from './strategy.js';
 import { log } from './log.js';
 import { DAY } from './loop.js';
 import { modelLabel } from './naming.js';
-import { upgradeTrainingAcc, rescaleTrainingAcc, finishJob, projectCheck, distillCheck, finetuneCheck, smallBaseCheck, makePretrainPj, makeDistillPj, makeFinetunePj, startedLog } from './projects.js';
+import { validateTrainingAcc, rescaleTrainingAcc, finishJob, projectCheck, distillCheck, finetuneCheck, smallBaseCheck, makePretrainPj, makeDistillPj, makeFinetunePj, startedLog } from './projects.js';
 import { modifier } from './modifiers.js';
 import { trialCheck, finishTrial, consumeFindings, returnFindings, TRIAL_LABEL, SIZE_LABEL } from './lab.js';
 
@@ -33,7 +38,13 @@ export function initJobs() {
     focusPause: null, nag: {}, idle: { since: null }, log: [] };
 }
 export function ensureJobs(s) {
-  if (!isObj(s.jobs) || !Array.isArray(s.jobs.list)) s.jobs = initJobs();
+  if (!isObj(s.jobs) || !Array.isArray(s.jobs.list)) throw Error('不支持缺少作业表的旧存档，请新开一局');
+  for (const j of s.jobs.list) {
+    if (Object.hasOwn(j,'legacyMin')) throw Error('不支持旧版作业最低卡字段，请新开一局');
+    validateTrainingAcc(j.pj);
+    if (j.kind === 'distill' && (!isObj(j.pj?.preview) || !isObj(j.pj.preview.teacher) || !isObj(j.pj.preview.dims) || !Number.isFinite(j.pj.preview.gap)))
+      throw Error('不支持缺少冻结老师快照的旧存档，请新开一局');
+  }
   return s.jobs;
 }
 // 作业日志（最近 40 条）：作业的开工、结束、排队，只进这里，不弹卡（E4）。
@@ -102,8 +113,8 @@ export function minCards(s, job) {
   else if (job.kind === 'post') { const m = postTarget(s, job) || (job.model ?? null); n = s.mod === 'llm' ? memMin(m?.total ?? 7, JOBS.MEM.post) : 1; }
   else if (job.kind === 'trial') n = Math.max(LAB.MIN_CARDS, Math.ceil(LAB.MIN_FRAC * wantCards(s, job)));
   else n = 0;
-  // 读旧档迁移来的作业：最低卡不超过迁移当天按旧规则分到的卡，免得一读档就排队（T11.3）。
-  return Number.isFinite(job.legacyMin) ? Math.min(n, job.legacyMin) : n;
+  if (Object.hasOwn(job, 'legacyMin')) throw Error('不支持旧版作业最低卡字段，请新开一局');
+  return n;
 }
 // φ：每张训练卡每月的算力（已含健康、加成、挖人、适配）。
 const phiOf = s => { const T = gpuAllocation(s).trainGpus; return T > 0 ? trainFlops(s) / T : 0; };
@@ -137,11 +148,32 @@ export function waterFill(run, cap) {
   for (const i of run) i.share = freeSet.has(i) ? l * i.w : i.min / i.w > lo ? i.min : i.upper;
 }
 // 这项作业参不参加今天的分卡：被玩家暂停的、检修时的后训练、目标模型不在了的后训练不参加。假想的后训练按“不在检修”估（预估说的是“练的时候能拿到多少”）。
+// Shared readonly gate: unprepared single-player cards reserve neither GPU nor
+// team research. It is deliberately not an allocation/run test: ordinary GPU
+// queues still reserve the team, and an old active recipe can train while its
+// replacement is being assembled. Broken/unknown card state never falls back.
+function cardWorkReason(s, job) {
+  if (job.hypo || (s.postCards === undefined && s.postPlanSessions === undefined)) return null;
+  if (s.postCards?.version !== 1) return 'cardInvalid';
+  const L = s.postPlanSessions;
+  if (L !== undefined) {
+    if (!recognizedPostPlanLedger(s) || !['byModel', 'activeByModel', 'sessions', 'generations', 'receipts'].every(k => isObj(L[k]))) return 'cardInvalid';
+    const m = postTarget(s, job), account = p => isObj(p) && Number.isFinite(p.own) && p.own >= 0 && Number.isFinite(p.dist) && p.dist >= 0 && isObj(p.teachers) && Object.values(p.teachers).every(x => Number.isFinite(x) && x >= 0);
+    if (!m || m.postExposureVersion !== 1 || !account(m.postExposure) || !account(m.post)) return 'cardInvalid';
+    try { validateSavedPostCardPlans(s); } catch { return 'cardInvalid'; }
+  }
+  if (!cardJobSupported(s, job)) return 'cardUnsupported';
+  const m = postTarget(s, job);
+  try { postCardEfficiency(s, job, m); return null; }
+  catch { return L?.activeByModel?.[m?.id] ? 'cardInvalid' : 'sessionPending'; }
+}
 function why0(s, J, job) {
   if (job.paused) return 'paused';
   if (isPost(job)) {
     if (J.repair && !job.hypo) return 'repair';
     if (!postTarget(s, job) && !job.model) return 'target';
+    const cardReason = cardWorkReason(s, job);
+    if (cardReason) return cardReason;
   }
   return null;
 }
@@ -209,7 +241,7 @@ export function postAvail(s, m, dirKey = null) {
   const job = postJobFor(s, m);
   const cur = job ? (job.bench ? null : job.dir === 'auto' ? job.autoDir : job.dir) : null;
   if (job && (!dirKey || cur === dirKey)) { const it = itemOf(s, job); if (it?.run) return trainFlops(s) * it.share; }
-  const hypo = { kind: 'post', target: targetOf(s, m), model: m, dir: dirKey || job?.dir || 'auto', autoDir: job?.autoDir, bench: job?.bench, prio: job?.prio ?? 'normal', cap: job?.cap ?? null, seq: job?.seq ?? Infinity, legacyMin: job?.legacyMin };
+  const hypo = { kind: 'post', target: targetOf(s, m), model: m, dir: dirKey || job?.dir || 'auto', autoDir: job?.autoDir, bench: job?.bench, prio: job?.prio ?? 'normal', cap: job?.cap ?? null, seq: job?.seq ?? Infinity };
   return trainFlops(s) * (allocJobs(s, hypo, { replace: job }).extra?.share ?? 0);
 }
 // 冲顶力的算力项系数 max(1 − baseShareFree, 0.25)（T4.6）：底座占训练卡 ≥ 75% 时和旧的“有项目 ×0.25”相同，没有底座时 ×1。
@@ -254,10 +286,10 @@ export function jobLabel(s, job) {
 
 // ---------- 立项检查（T2、T3） ----------
 const no = reason => ({ ok: false, reason, warn: '', eta: null, cards: null, effects: [], lab: null });
-function untilOk(u) {
+function untilOk(s, u) {
   if (u === 'none' || u === 'stall') return true;
   if (isObj(u) && Number.isFinite(u.days) && u.days >= 1) return true;
-  return isObj(u) && typeof u.dim === 'string' && Number.isFinite(u.to);
+  return isObj(u) && typeof u.dim === 'string' && dimKeys(s.mod).includes(u.dim) && Number.isFinite(u.to);
 }
 // 草稿：按 spec 建出作业（不放进作业表），检查不过返回 { reason }。
 function draft(s, spec) {
@@ -294,7 +326,7 @@ function draft(s, spec) {
     if (spec.bench && !benchmaxPreview(s, spec.bench, m)) return { reason: '现在不能针对这个榜单训练' };
     if (dir && dir !== 'auto' && !directionsFor(s).some(d => d.key === dir)) return { reason: '没有这个后训练方向，或者还没解锁' };
     const until = spec.until ?? (t === 'main' ? 'none' : { days: 30 });
-    if (!untilOk(until)) return { reason: '结束条件不对：7/14/30/60 天、练到主维 X、练到涨不动、一直练' };
+    if (!untilOk(s, until)) return { reason: '结束条件不对：7/14/30/60 天、练到主维 X、练到涨不动、一直练' };
     return { job: { kind, line: null, ...base, prio: spec.prio ?? 'normal', target: t, ...(dir ? { dir } : {}), ...(spec.bench ? { bench: spec.bench } : {}), until, days: 0, stall: 0, modelId: m.id } };
   }
   if (kind === 'trial') {
@@ -309,6 +341,7 @@ function draft(s, spec) {
 export function jobCheck(s, spec) {
   const J = ensureJobs(s);
   const kind = spec?.kind;
+  if (spec?.prio != null && (typeof spec.prio !== 'string' || !Object.hasOwn(JOBS.WEIGHT, spec.prio))) return no('优先级只有“优先”和“正常”');
   if (BASE_KINDS.has(kind) || kind === 'post') {
     const n = slotsUsed(s), cap = jobSlots(s);
     if (n >= cap) return no(`作业位已满（${n}/${cap}）：先结束或取消一项`);
@@ -321,6 +354,10 @@ export function jobCheck(s, spec) {
   }
   const d = draft(s, spec);
   if (!d.job) return no(d.reason);
+  if (Number.isFinite(spec.cap)) {
+    const min = Math.ceil(minCards(s, d.job));
+    if (spec.cap < min) return no(`最多张数不能比最低卡少（${min} 张）`);
+  }
   const before = allocJobs(s);
   const al = allocJobs(s, d.job);
   const it = al.extra;
@@ -356,7 +393,14 @@ function biggestBase(s, spec) {
   }
   return null;
 }
+const JOB_NUMBER_MESSAGES = Object.freeze({
+  '["cfg","tokens"]': '训练 token 必须是大于 0 的有限数',
+  '["cfg","total"]': '总参数和激活参数必须是至少 0.5B 的有限数',
+  '["cfg","active"]': '总参数和激活参数必须是至少 0.5B 的有限数',
+});
 export function startJob(s, spec) {
+  const inputError = persistentInputError(spec, JOB_NUMBER_MESSAGES);
+  if (inputError) throw new Error(inputError);
   const c = jobCheck(s, spec);
   if (!c.ok) throw new Error(c.reason);
   const J = ensureJobs(s);
@@ -381,6 +425,7 @@ const need = (s, id) => { const j = jobById(s, id); if (!j) throw new Error('没
 export function cancelJob(s, id) {
   const job = need(s, id);
   removeJob(s, job);
+  recordAutoTrialCancel(s,id);
   if (job.lab?.back?.length) returnFindings(s, job.lab);
   if (isBaseJob(job)) log(s, job.kind === 'distill' ? '中止蒸馏项目' : '中止训练项目');
   jobsLog(s, `取消：${jobLabel(s, job)}${job.lab?.back?.length ? '（用掉的试验结论退回）' : ''}`);
@@ -394,7 +439,7 @@ export function pauseJob(s, id, on = true) {
   return { kind: 'jobs', op: 'pause', id, on: !!on };
 }
 export function setJobPrio(s, id, prio) {
-  if (!JOBS.WEIGHT[prio]) throw new Error('优先级只有“优先”和“正常”');
+  if (typeof prio !== 'string' || !Object.hasOwn(JOBS.WEIGHT, prio)) throw new Error('优先级只有“优先”和“正常”');
   need(s, id).prio = prio;
   return { kind: 'jobs', op: 'prio', id, prio };
 }
@@ -411,6 +456,9 @@ export function setPost(s, id, { dir, bench, until } = {}) {
   const job = need(s, id);
   if (!isPost(job)) throw new Error('只有后训练能改方向');
   const m = postTarget(s, job);
+  const inputError = persistentInputError({ dir, bench, until });
+  if (inputError) throw new Error(inputError);
+  if (until !== undefined && !untilOk(s, until)) throw new Error('结束条件不对');
   if (bench !== undefined && bench !== null) {
     if (!benchmaxPreview(s, bench, m)) throw new Error('现在不能针对这个榜单训练');
     job.bench = bench; delete job.dir;
@@ -419,7 +467,7 @@ export function setPost(s, id, { dir, bench, until } = {}) {
     delete job.bench; job.dir = dir;
     if (dir === 'auto') delete job.autoAt;
   }
-  if (until !== undefined) { if (!untilOk(until)) throw new Error('结束条件不对'); job.until = until; job.stall = 0; }
+  if (until !== undefined) { job.until = until; job.stall = 0; }
   return { kind: 'jobs', op: 'post', id };
 }
 export function setRush(s, id, on) {
@@ -448,10 +496,11 @@ export function setOwnOnly(s, on) {
 export function setPlan(s, cfg) {
   if (cfg === null) { ensureJobs(s).plan = null; return { kind: 'jobs', op: 'plan', plan: null }; }
   if (!isObj(cfg) || !(Number.isFinite(cfg.tokens) && cfg.tokens > 0)) throw new Error('计划的训练 token 必须是大于 0 的数');
+  const total = s.mod === 'llm' ? Number(cfg.total) : null, active = s.mod === 'llm' ? Number(cfg.active) : null;
   const plan = s.mod === 'llm'
-    ? { total: Number(cfg.total), active: Math.min(Number(cfg.active), Number(cfg.total)), arch: cfg.arch || (cfg.active < cfg.total ? 'moe' : 'dense'), tokens: cfg.tokens }
+    ? { total, active: Math.min(active, total), arch: cfg.arch || (cfg.active < cfg.total ? 'moe' : 'dense'), tokens: cfg.tokens }
     : { scaleId: cfg.scaleId, tokens: cfg.tokens };
-  if (s.mod === 'llm' && !(plan.total >= 0.5 && plan.active >= 0.5 && ARCHS[plan.arch])) throw new Error('计划的参数量或架构不对');
+  if (s.mod === 'llm' && !(Number.isFinite(total) && Number.isFinite(active) && Number.isFinite(plan.active) && plan.total >= 0.5 && plan.active >= 0.5 && Object.hasOwn(ARCHS, plan.arch))) throw new Error('计划的参数量或架构不对');
   if (s.mod !== 'llm' && !scaleById(s.mod, plan.scaleId)) throw new Error('计划的规模不认识');
   ensureJobs(s).plan = plan;
   return { kind: 'jobs', op: 'plan', plan };
@@ -493,10 +542,12 @@ export function jobOp(s, arg = {}) {
 }
 
 // ---------- “重活”口径（T4.7） ----------
-// 按顺序取第一条成立的：① 正在检修 0.4 / 0.03；② 有非刷榜的后训练（没被玩家暂停，含排队）0.4 / 0.08；③ 只有刷榜 0.4 / 0.03；④ 都没有 1.7 / 0.3。
+// 按顺序取第一条成立的：① 正在检修 0.4 / 0.03；② 有非刷榜的后训练（没被玩家暂停，含算力排队）0.4 / 0.08；③ 只有刷榜 0.4 / 0.03；④ 都没有 1.7 / 0.3。
+// 仅单机卡牌的待方案/不支持方向不算已投入的团队重活；底座本来就不属于此口径。
 export function heavyWork(s) {
   const J = ensureJobs(s);
-  const posts = J.list.filter(j => isPost(j) && !j.paused);
+  const soloCards = recognizedPostPlanLedger(s) && s.postRandom === undefined && !P().world?.settings?.mp && !P().mirror && !P().world?.mirror;
+  const posts = J.list.filter(j => isPost(j) && !j.paused && !(soloCards && ['sessionPending', 'cardUnsupported'].includes(cardWorkReason(s, j))));
   if (J.repair) return { busy: JOBS.RESEARCH.busy, know: JOBS.KNOW.light, kind: 'repair' };
   if (posts.some(j => !j.bench)) return { busy: JOBS.RESEARCH.busy, know: JOBS.KNOW.post, kind: 'post' };
   if (posts.length) return { busy: JOBS.RESEARCH.busy, know: JOBS.KNOW.light, kind: 'benchmax' };
@@ -515,6 +566,7 @@ function goalWeights(s) {
   return w;
 }
 export function bestDir(s, m) {
+  return withModelReadSnapshot(s, () => {
   const w = goalWeights(s);
   let best = null, bv = -1;
   for (const d of directionsFor(s)) {
@@ -524,6 +576,7 @@ export function bestDir(s, m) {
     if (v > bv) { bv = v; best = d.key; }
   }
   return best;
+  });
 }
 function dirFor(s, job, m) {
   if (job.dir !== 'auto') return job.dir;
@@ -539,6 +592,8 @@ function dirFor(s, job, m) {
 // 先看自动检修、上一代收尾到期；再按今天的分卡推进全部后训练作业（每项各自用 postPreview 算涨幅、各自掷 loss spike）。
 // 后训练类损耗只扣在跑的里最重的一项（RL 15、SFT 11、刷榜 8），检修每天 +1.6。最后按“重活”口径记研究日。
 export function postTick(s, out) {
+  if(s.postRandom !== undefined) { assertRandomWorld(s); validatePostRandom(s); if(s.status !== 'playing' || s.postRandom.lastTickDay === s.day) return; }
+  if (s.postCards?.version === 1 && (s.status !== 'playing' || s.postCards.lastTickDay === s.day)) return;
   normalizeDistill(s);
   const J = ensureJobs(s);
   autoRepairTick(s, out);
@@ -551,25 +606,35 @@ export function postTick(s, out) {
     if (!isPost(job)) continue;
     const m = postTarget(s, job);
     if (!m) { endPost(s, job, out, 'target'); continue; }
-    if (job.modelId !== m.id) { job.modelId = m.id; job.stall = 0; }
+    if (job.modelId !== m.id) { job.modelId = m.id; job.stall = 0; if (s.postCards?.version === 1) delete job.postCardPlanRef; }
     waitNote(s, job, it, out);
     if (!it.run) continue;
+    let cardEfficiency = null;
+    if(s.postRandom?.version === 1 && !job.bench) { if(s.postRandom.lastDays[m.id] === s.day) continue; cardEfficiency=dailyPostRandomRate(s,m); }
+    if (s.postCards?.version === 1 && !job.bench) {
+      if (s.postCards.lastDays[m.id] === s.day) continue;
+      try { cardEfficiency = postCardEfficiency(s, job, m); }
+      catch { job.cardWaiting = true; continue; }
+      delete job.cardWaiting;
+    }
     const dir = job.bench ? null : dirFor(s, job, m);
     const F = trainFlops(s) * it.share;
     const p = job.bench ? benchmaxPreview(s, job.bench, m, F) : dir ? postPreview(s, dir, { model: m, avail: F }) : null;
     if (!p) { endPost(s, job, out, 'target'); continue; }
-    runs.push({ job, m, p });
+    runs.push({ job, m, p, cardEfficiency });
   }
   if (runs.length) {
     s.health = clamp(s.health + Math.min(...runs.map(r => r.p.health)) * DAY, 0, 100);
     s.mstat.train += 1;
   }
   if (J.repair) s.health = clamp(s.health + REPAIR.rate, 0, 100);
-  for (const r of runs) advancePost(s, r.job, r.m, r.p, out);
+  for (const r of runs) advancePost(s, r.job, r.m, r.p, out, r.cardEfficiency);
   if (heavyWork(s).kind === 'none') {
     s.mstat.research += 1;
     s.distillDep = Math.max(0, s.distillDep - 0.06 * DAY);
   }
+  if (s.postCards?.version === 1) s.postCards.lastTickDay = s.day;
+  if (s.postRandom?.version === 1) s.postRandom.lastTickDay = s.day;
 }
 // 今天的分卡结果记在作业上（界面、顾问读；每天重算）。
 function stamp(al, count) {
@@ -598,7 +663,7 @@ function endPost(s, job, out, why) {
   out.notes.push(`${text}。`);
   jobsLog(s, text);
 }
-function advancePost(s, job, m, p, out) {
+function advancePost(s, job, m, p, out, cardEfficiency = null) {
   m.postDays = (m.postDays || 0) + 1;
   m.postMonths = Math.floor((m.postDays - (m.relDays || 0)) / 30);
   job.days = (job.days || 0) + 1;
@@ -620,10 +685,12 @@ function advancePost(s, job, m, p, out) {
     log(s, `${p.dir.label}训练出现 loss spike，回滚检查点`);
   } else {
     const step = Object.fromEntries(Object.entries(p.gains).map(([k, v]) => [k, v * DAY * TRAIN_PACE]));
-    applyGains(s, m, step, { preMixed: true, sigma: p.sigma, dshare: p.dshare, levels: p.levels });
+    if (cardEfficiency === null) applyGains(s, m, step, { preMixed: true, sigma: p.sigma, dshare: p.dshare, levels: p.levels });
+    else applyGains(s, m, step, { preMixed: true, sigma: p.sigma, dshare: p.dshare, levels: p.levels, postCardEfficiency: cardEfficiency });
     streak[p.dir.key] = (streak[p.dir.key] || 0) + 1;
     if (job.target === 'main') beyondDay(s, m, p, out);
   }
+  if (cardEfficiency !== null) (s.postRandom || s.postCards).lastDays[m.id] = s.day;
   if (untilDone(s, job, m, p)) endPost(s, job, out, 'done');
 }
 // 结束条件：{ days }、{ dim, to }、'stall'（主维预估月涨幅 < 0.3 连续 7 天；自动方向只看除安全对齐以外的方向）、'none'。
@@ -700,7 +767,7 @@ export function baseTick(s, report) {
 }
 function baseDay(s, job, it, report) {
   const pj = job.pj;
-  upgradeTrainingAcc(s, pj);
+  validateTrainingAcc(pj);
   const main = job.line === 'main';
   // 蒸馏按日历记天数：分不到卡的日子也算（整理数据、评测照常做）；算力跑完了也要满流程下限才出小模型。
   if (pj.minDays) pj.elapsedDays = Math.round(((pj.elapsedDays || 0) + 1) * 1000) / 1000;
@@ -755,7 +822,7 @@ function trialDay(s, job, it, report) {
   if (!it?.run || !(it.share > 0)) return false;
   job.done += trainFlops(s) * it.share * DAY;
   job.elapsed = (job.elapsed || 0) + 1;
-  if (job.done >= job.cost - 1e-9 && job.elapsed >= job.minDays) finishTrial(s, job, report);
+  if (job.done >= job.cost - 1e-9 && job.elapsed >= job.minDays) { const result=finishTrial(s,job,report); recordAutoTrialOutcome(s,job,result); }
   return true;
 }
 

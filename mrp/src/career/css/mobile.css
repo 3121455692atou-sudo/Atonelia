@@ -7,10 +7,10 @@
 }
 @media (max-width: 860px) {
   .select-body { grid-template-columns: 1fr; }
-  .select-detail { position: fixed; inset: auto 0 0 0; top: auto; height: auto; max-height: 88dvh; z-index: 20; border-left: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -12px 40px rgba(31, 52, 72, .25); }
+  .select-detail { position: fixed; inset: auto 0 0 0; top: auto; height: 88dvh; max-height: 88dvh; z-index: 20; border-left: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -12px 40px rgba(31, 52, 72, .25); }
   .select-detail--empty { display: none; }
   .select-detail__close { display: grid; position: absolute; top: 10px; right: 10px; z-index: 3; }
-  .select-detail__art { flex: none; height: 34dvh; min-height: 0; }
+  .select-detail__art { height: 26dvh; min-height: 120px; }
   .scenario-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px 14px 4px; }
   .scenario { padding: 10px 12px; }
   .scenario b { font-size: 14px; line-height: 1.35; }
@@ -117,3 +117,33 @@
 
 @media (max-width: 520px) { .res-block { gap: 8px; } .res .ico { width: 15px; height: 15px; } }
 @media (max-width: 480px) { .lab-row { grid-template-columns: 1fr auto; } .lab-row .progress { grid-column: 1 / -1; grid-row: 2; } }
+
+/* 手机顶栏：两行，块高统一 38px；策略芯片在“进行中”第一行里已经有了，窄屏只留现金、技术积累和后台。 */
+@media (max-width: 860px) {
+  .topbar { padding: 8px 12px; gap: 8px 10px; }
+  .topbar .res, .topbar .strategy-chip, .topbar .speed, .topbar .goal-card { height: 38px; }
+  .topbar .btn--office { min-height: 38px; padding: 0 11px; }
+  .topbar .res-block { gap: 6px; }
+  .topbar .date-block b { font-size: 22px; }
+  .topbar .date-block span { font-size: 13px; }
+}
+@media (max-width: 480px) {
+  .topbar .strategy-chip { display: none; }
+  .topbar .res { padding: 0 9px 0 8px; column-gap: 5px; }
+  .topbar .res b { font-size: 14px; }
+  .topbar .goal-card { padding: 0 8px 0 4px; }
+  .dims { gap: 10px 16px; }
+}
+
+/* 手机后台：返回按钮固定在导航条最前面（只留箭头），导航横向滚动；表格不逐字折行，放不下就在卡片里横向滚。 */
+@media (max-width: 860px) {
+  .office-nav { gap: 8px; padding: 8px 10px; }
+  .office-close { order: -1; margin: 0; flex: none; width: 38px; min-height: 38px; padding: 0; justify-content: center; position: sticky; left: 0; z-index: 1; }
+  .office-close span { display: none; }
+  .office-nav nav button { min-height: 34px; gap: 6px; }
+  .office-nav nav button .ico { width: 15px; height: 15px; }
+  .office-body h2 { font-size: 21px; }
+  .tbl th, .tbl td { white-space: nowrap; }
+  .tbl td:first-child { white-space: normal; min-width: 7.5em; }
+}
+@media (max-width: 860px) { .select-screen > details.card { margin: 8px 14px 0; } }

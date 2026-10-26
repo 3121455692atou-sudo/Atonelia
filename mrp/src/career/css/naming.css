@@ -5,7 +5,7 @@
 .rel-name { display: grid; gap: 6px; min-width: 0; }
 .rel-name-field { display: grid; gap: 4px; min-width: 0; font-size: 12.5px; color: var(--ink-2); }
 .rel-name-field b { font-size: 13px; color: var(--ink); }
-.rel-name-field input { width: 100%; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; font-size: 14px; }
+.rel-name-field input { width: 100%; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--white); font-size: 14px; }
 .rel-name-field input[readonly] { background: #f2f4f2; color: var(--ink-2); }
 .rel-name-field input.is-bad { border-color: var(--bad); }
 .rel-name-field small { overflow-wrap: anywhere; }
@@ -16,7 +16,7 @@
 .rel-grants { display: grid; gap: 6px; min-width: 0; padding: 10px 12px; border-radius: 12px; background: #fffdf6; border: 1px solid #eadfc6; }
 .rel-grants > b { font-size: 13px; }
 .rel-grants > .muted { font-size: 12px; }
-.grant-opt { display: grid; gap: 4px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+.grant-opt { display: grid; gap: 4px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--white); }
 .grant-opt.is-on { border-color: var(--accent); background: var(--accent-soft); }
 .grant-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; min-width: 0; font-size: 13px; cursor: pointer; }
 .grant-head input { flex: none; }
@@ -42,7 +42,7 @@
 .expect-box small { font-size: 11.5px; color: var(--muted); line-height: 1.6; overflow-wrap: anywhere; }
 
 /* ---------- 代号（训练页的底座、蒸馏表单） ---------- */
-.form input[data-draft] { width: 100%; max-width: 100%; min-width: 0; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: #fff; }
+.form input[data-draft] { width: 100%; max-width: 100%; min-width: 0; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--white); }
 .form input[data-draft].is-bad { border-color: var(--bad); }
 .card small[data-draft-err] { display: block; font-size: 11.5px; line-height: 1.5; overflow-wrap: anywhere; }
 .card small[data-draft-err].is-bad { color: var(--bad); }

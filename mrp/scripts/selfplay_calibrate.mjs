@@ -6,6 +6,8 @@
 //   node scripts/selfplay_calibrate.mjs --perf       只量 12 家 730 天和分岔 20 家 730 天
 // 每个子进程只跑世界，不跑史实局。临时结果默认写到系统临时目录（--out 可改）。
 import fs from 'node:fs';
+import crypto from 'node:crypto';
+import { parseOptions, seedsFrom, positiveInt, sourceIdentity, checkRows, worldKey } from './lib/acceptance.mjs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -22,14 +24,16 @@ import { valuationView } from '../src/career/world/valuation.js';
 import { triggerCounts } from '../src/career/world/triggers.js';
 
 const argv = process.argv.slice(2);
-const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
-const SEEDS = Math.max(1, Number(arg('--seeds', 8)));
-const DAYS = Math.max(1, Number(arg('--days', 730)));
-const ONLY = arg('--only', null);
-const PERF = argv.includes('--perf');
-const OUT = arg('--out', path.join(os.tmpdir(), 'mrp-selfplay-calib'));
-const JOBS = Math.max(1, Number(arg('--jobs', Math.max(1, os.cpus().length - 2))));
-const WORKER = arg('--worker', null);
+const opts = parseOptions(argv,['--seeds','--seed-list','--days','--only','--out','--jobs','--worker'],['--perf','--help']);
+if (opts['--help']) { console.log('selfplay_calibrate [--seeds N | --seed-list raw-seeds.json] [--days N] [--only filter] [--out new-dir] [--jobs 1..4] [--perf]'); process.exit(0); }
+const RAW_SEEDS = seedsFrom(opts['--seed-list'],opts['--seeds'] || 8);
+const SEEDS = RAW_SEEDS.length;
+const DAYS = positiveInt(opts['--days'] || 730,'days');
+const ONLY = opts['--only'] || null;
+const PERF = !!opts['--perf'];
+const OUT = opts['--out'] || path.join(os.tmpdir(), 'mrp-selfplay-calib');
+const JOBS = Math.min(4,Math.max(1,os.cpus().length-2),positiveInt(opts['--jobs'] || 4,'jobs'));
+const WORKER = opts['--worker'] || null;
 const EPS = SOTA.EPS + 1e-6;
 
 const r1 = x => (Number.isFinite(x) ? Math.round(x * 10) / 10 : x);
@@ -79,18 +83,20 @@ for (const y of [2022, 2023, 2024, 2025, 2026]) {
 }
 
 function followAdvice(s) {
+  const errors = [];
   resolveAll(s);
   const seen = new Map();
   for (let k = 0; k < 30 && s.status === 'playing'; k++) {
     let a;
-    try { [a] = E.advise(s); } catch { break; }
+    try { [a] = E.advise(s); } catch(e) { errors.push(String(e.stack || e)); break; }
     if (!a) break;
     if (a.kind === 'event') { resolveAll(s); continue; }
-    if (a.kind !== 'jobs' && (seen.get(a.id) || 0) >= 3) break;
+    if (a.kind !== 'jobs' && (seen.get(a.id) || 0) >= 3) { errors.push(`原地重复建议 ${a.id}`); break; }
     seen.set(a.id, (seen.get(a.id) || 0) + 1);
-    try { E.applyAdvice(s, a); } catch { break; }
+    try { E.applyAdvice(s, a); } catch(e) { errors.push(String(e.stack || e)); break; }
     if (a.kind === 'jobs') break;
   }
+  return errors;
 }
 
 // 跑一个世界。task：{ kind:'zero'|'fork'|'full12'|'advised', year, tier, n, keep, seed, days }
@@ -118,6 +124,7 @@ function runTask(task) {
   const fWorld = [];
   let paused = false;
   let errors = 0;
+  const adviceErrors = [];
   let ticks = 0;
   const t0 = performance.now();
   try {
@@ -128,7 +135,7 @@ function runTask(task) {
     for (let i = 0; i < days; i++) {
       if (world.day > world.end) break;
       if (human && human.s.queue.length) resolveAll(human.s);
-      if (human && human.s.day >= driveAt) { followAdvice(human.s); driveAt = addDays(human.s.day, 7); }
+      if (human && human.s.day >= driveAt) { adviceErrors.push(...followAdvice(human.s)); driveAt = addDays(human.s.day, 7); }
       const res = world.tick();
       if (res.paused) { paused = true; break; }
       ticks += 1;
@@ -202,7 +209,7 @@ function runTask(task) {
   const endBest = E.worldBest(world, lastDay);
   const liveCompanies = Object.values(world.companies).filter(c => c.s && !c.frozen);
   companyMonths = liveCompanies.length * (ticks / 30);
-  errors = Object.values(world.companies).reduce((a, c) => a + (c.errors?.length || 0), 0) + world.errors.length;
+  errors = Object.values(world.companies).reduce((a, c) => a + (c.errors?.length || 0), 0) + world.errors.length + adviceErrors.length;
   const bad = badNumbers({ companies: liveCompanies.map(c => c.s), world });
   const triggers = triggerCounts(world);
   const ys = Object.keys(yearBest).sort();
@@ -223,7 +230,7 @@ function runTask(task) {
     humanRank = me >= 0 ? me + 1 : null;
   }
   return {
-    label, kind, year, tier, n, seed, days, ms: r2(ms), paused, errors, bad, swaps, stallMax, leaderMax,
+    label, kind, year, tier, n, seed, days, completed:!paused && (ticks === days || world.day > world.end), adviceErrors, ticks, ms: r2(ms), paused, errors, bad, swaps, stallMax, leaderMax,
     endBest: Number.isFinite(endBest) ? r1(endBest) : null, acad0: r1(acad0), annual, pace, firstAbove,
     violations, mirrorDays, shareDevMax, valResMax, valOver,
     fMedian: med(fWorld), fCount: fWorld.length,
@@ -245,19 +252,22 @@ function runWorker(tasks) {
 function spawnChunks(tasks) {
   const chunks = Array.from({ length: Math.min(JOBS, tasks.length) }, () => []);
   tasks.forEach((t, i) => chunks[i % chunks.length].push(t));
-  return Promise.all(chunks.map(chunk => new Promise(resolve => {
+  return Promise.allSettled(chunks.map(chunk => new Promise((resolve,reject) => {
     const child = spawn(process.execPath, [fileURLToPath(import.meta.url), '--worker', JSON.stringify(chunk)], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const spool = path.join(OUT,`worker-${crypto.randomUUID()}.jsonl`);
+    const timeout = setTimeout(() => { child.kill('SIGTERM'); setTimeout(()=>child.kill('SIGKILL'),1000).unref(); },Math.max(60000,chunk.length * 60000));
     let buf = '';
     const rows = [];
     child.stdout.on('data', d => {
       buf += d;
       const lines = buf.split('\n');
       buf = lines.pop();
-      for (const line of lines) if (line.startsWith('@@RESULT@@')) rows.push(JSON.parse(line.slice(10)));
+      for (const line of lines) if (line.startsWith('@@RESULT@@')) { try { const row=JSON.parse(line.slice(10)); rows.push(row); fs.appendFileSync(spool,JSON.stringify(row)+'\n'); } catch(e) { child.kill(); reject(e); } }
     });
     child.stderr.on('data', d => process.stderr.write(d));
-    child.on('close', () => resolve(rows));
-  })));
+    child.on('error', e => { clearTimeout(timeout); reject(e); });
+    child.on('close', (code,signal) => { clearTimeout(timeout); return code === 0 && !signal && rows.length === chunk.length ? resolve(rows) : reject(new Error(`worker 失败 code=${code} signal=${signal} rows=${rows.length}/${chunk.length}; 已留存 ${spool}`)); });
+  }))).then(results => results.map(x => x.status === 'fulfilled' ? x.value : [{ error:String(x.reason),completed:false,errors:1 }]));
 }
 
 // ---------- 汇总 ----------
@@ -326,7 +336,7 @@ function summarize(rows, extra) {
 function fmtCell(v) { return v === null ? '—' : String(v); }
 function toMarkdown(rows, meta) {
   const lines = [`# 自洽世界校准（${meta.seeds} 个种子，${meta.days} 天/局）`, '', `世界数：${meta.count}；抛错 ${meta.throws}；卡死 ${meta.paused}；非有限数 ${meta.bad}；报错 ${meta.errors}`, '', '| 指标 | 目标 | 本次 | 达标 |', '|---|---|---|---|'];
-  for (const [a, b, c, ok] of rows) lines.push(`| ${a} | ${b} | ${fmtCell(c)} | ${ok === null ? '只报数' : ok ? '是' : '否'} |`);
+  for (const [a, b, c, ok] of rows) lines.push(`| ${a} | ${b} | ${fmtCell(c)} | ${ok === null ? 'UNVERIFIED' : ok ? 'PASS' : 'FAIL'} |`);
   return lines.join('\n') + '\n';
 }
 
@@ -337,42 +347,54 @@ if (WORKER) {
   const runOne = (label, fn) => {
     const t0 = performance.now();
     const w = fn();
-    for (let i = 0; i < DAYS; i++) { const r = w.tick(); if (r.paused) break; }
+    let ticks=0, paused=false;
+    for (let i = 0; i < DAYS; i++) { const r = w.tick(); if (r.paused) { paused=true; break; } ticks++; }
     const ms = performance.now() - t0;
     const errors = Object.values(w.companies).reduce((a, c) => a + (c.errors?.length || 0), 0) + w.errors.length;
     console.log(`${label}：${r2(ms / 1000)} 秒（${Math.round(ms)} ms），报错 ${errors}`);
-    return ms;
+    return {ms,errors,completed:!paused && ticks===DAYS};
   };
   const a = runOne('12 家 730 天', () => E.createWorld({ start: 2024, seed: 11, days: DAYS, companies: makeCompanies(12, 'specialist') }));
   const b = runOne('分岔 20 家 730 天', () => E.createWorld({ mode: 'fork', start: 2024, seed: 11, days: DAYS, keep: 20 }));
-  process.exitCode = a <= 10000 && b <= 15000 ? 0 : 1;
+  process.exitCode = !a.completed || !b.completed || a.errors || b.errors || a.ms > 10000 || b.ms > 15000 ? 1 : DAYS===730 ? 0 : 2;
 } else {
   const tasks = [];
   for (const year of [2023, 2024, 2025]) for (const tier of SELF.TIERS) for (const n of [3, 6, 12]) {
     const label = `${year}-${TIER_LABEL[tier]}-${n}`;
     if (ONLY && !label.includes(ONLY)) continue;
-    for (let seed = 1; seed <= SEEDS; seed++) tasks.push({ kind: 'zero', year, tier, n, seed, days: DAYS });
+    for (const seed of RAW_SEEDS) tasks.push({ kind: 'zero', year, tier, n, seed, days: DAYS });
   }
   for (const year of [2023, 2024, 2025]) {
     const label = `fork-${year}`;
     if (ONLY && !label.includes(ONLY)) continue;
-    for (let seed = 1; seed <= SEEDS; seed++) tasks.push({ kind: 'fork', year, seed, days: DAYS, keep: SELF.FORK_KEEP.desktop });
+    for (const seed of RAW_SEEDS) tasks.push({ kind: 'fork', year, seed, days: DAYS, keep: SELF.FORK_KEEP.desktop });
   }
   // 额外的对照局（不进 240 的主矩阵）：电脑占满 12 家、1 真人 + 5 电脑。
   const extraTasks = [];
-  if (!ONLY) for (const year of [2023, 2024, 2025]) for (let seed = 1; seed <= Math.min(2, SEEDS); seed++) {
+  if (!ONLY) for (const year of [2023, 2024, 2025]) for (const seed of (opts['--seed-list'] ? RAW_SEEDS : RAW_SEEDS.slice(0,2))) {
     extraTasks.push({ kind: 'full12', year, tier: 'specialist', n: 12, seed, days: DAYS });
     // 大按钮真人三个国家各跑一遍（中国、美国、欧洲），F4a 的“进前一半”按全部算，另外分国家报数。
     for (const shift of [0, 1, 2]) extraTasks.push({ kind: 'advised', year, tier: 'specialist', n: 6, seed, days: DAYS, shift });
   }
 
+  if (!tasks.length) throw new Error('主矩阵为空');
+  if (fs.existsSync(OUT) && fs.readdirSync(OUT).length) throw new Error('输出目录非空，拒绝混入旧数据');
+  fs.mkdirSync(OUT,{ recursive:true });
+  const identity = sourceIdentity(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'));
+  const manifest = { version:1, runId:crypto.randomUUID(), ...identity, node:process.version, seeds:RAW_SEEDS, tasks, extraTasks, expectedKeys:[...tasks,...extraTasks].map(worldKey) };
+  fs.writeFileSync(path.join(OUT,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
   const t0 = performance.now();
-  const [mainChunks, extraChunks] = await Promise.all([spawnChunks(tasks), spawnChunks(extraTasks)]);
+  // 两个矩阵串行启动，保证总并发不超过 JOBS。
+  const mainChunks = await spawnChunks(tasks);
+  const extraChunks = await spawnChunks(extraTasks);
   const mainRows = mainChunks.flat();
   const extraRows = extraChunks.flat();
   const total = performance.now() - t0;
   extraRows.perfFork20 = null;
   const all = [...mainRows, ...extraRows];
+  for (const r of all) Object.assign(r,identity,{runId:manifest.runId});
+  const integrity = checkRows(all,manifest,worldKey,['errors','ticks']);
+  if (sourceIdentity(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')).sourceSha256 !== identity.sourceSha256) integrity.push('运行期间源码变化');
   const summary = summarize(mainRows, extraRows);
   const meta = {
     seeds: SEEDS, days: DAYS, count: mainRows.length,
@@ -383,9 +405,14 @@ if (WORKER) {
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, 'detail.jsonl'), all.map(r => JSON.stringify(r)).join('\n') + '\n');
   fs.writeFileSync(path.join(OUT, 'summary.md'), toMarkdown(summary.rowsOut, meta));
-  fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify({ meta, rows: summary.rowsOut, triggers: summary.trig, groups: summary.groups }, null, 2));
+  const coverageComplete = !ONLY && DAYS === 730 && !integrity.length;
+  const verdicts = summary.rowsOut.map(([metric,threshold,observed,ok])=>({metric,threshold,observed,status:ok===null || (ok && !coverageComplete)?'UNVERIFIED':ok?'PASS':'FAIL'}));
+  const controlViolations = extraRows.reduce((n,r)=>n+Object.values(r.violations || {}).reduce((a,b)=>a+b,0),0);
+  verdicts.push({metric:'control.invariants',numerator:controlViolations,denominator:extraRows.length,status:!extraRows.length?'UNVERIFIED':controlViolations?'FAIL':'PASS'});
+  const status = integrity.length || meta.throws || meta.paused || meta.bad || meta.errors || verdicts.some(x=>x.status==='FAIL') ? 'FAIL' : 'UNVERIFIED';
+  fs.writeFileSync(path.join(OUT, 'summary.json'), JSON.stringify({ status, integrity, verdicts, meta, rows: summary.rowsOut, triggers: summary.trig, groups: summary.groups }, null, 2));
   console.log(toMarkdown(summary.rowsOut, meta));
   console.log(`总耗时 ${r2(total / 1000)} 秒；结果写到 ${OUT}`);
   for (const r of all.filter(r => r.error || r.bad?.length || r.paused)) console.log(`  问题局 ${r.label}#${r.seed}：${r.error || r.bad?.join(',') || '卡死'}`);
-  process.exitCode = meta.throws || meta.paused || meta.bad ? 1 : 0;
+  process.exitCode = status === 'FAIL' ? 1 : 2;
 }

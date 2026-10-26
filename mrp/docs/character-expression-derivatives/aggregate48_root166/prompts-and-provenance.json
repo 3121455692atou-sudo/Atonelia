@@ -1,0 +1,1544 @@
+[
+  {
+    "id": "seed-determined",
+    "characterId": "seed",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate determined expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly focused, determined working expression: both visible eyes alert with slightly narrowed lids, eyebrows lowered inward in calm concentration, lips closed and firm. Not angry, not smiling, not neutral. Clearly legible in a small portrait thumbnail. Identity locks: Seed purple-to-cyan side ponytail human girl, purple eyes, white/blue/violet modern outfit, loop hair accessory, lanyard, recorder and clipboard. Keep brown-haired puppet/accessory head in her left arm IDENTICAL with its original expression, while only the main girl facial expression changes; keep other hand raised open, original body pose and shoes. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1679 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/seed-neutral.png"
+    ],
+    "referenceSHA256": "9dbebb475ca3f7864f816f4c83a78c88071e91d3ed6b0898e57f957f3ed2dca8",
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-seed.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1679
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-0906fa13-5ba2-48b3-bc08-f5a4649fb212.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-0906fa13-5ba2-48b3-bc08-f5a4649fb212.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:01:47Z",
+      "notes": "Main girl expression is distinct focused/success/worried, exact original posture/hands/outfit preserved; puppet neutral expression retained. Worried repaired via imagegen to restore puppet eyebrows only; rejected candidate retained. Full-body transparent PNG, no extra props."
+    }
+  },
+  {
+    "id": "seed-happy",
+    "characterId": "seed",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate happy expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly delighted successful-training expression: eyes softly closed in joyful upward crescents, relaxed raised cheeks and warm open smile (retain small fangs if originally present), subtle natural blush. More visibly joyful than neutral. No tears or added symbols. Identity locks: Seed purple-to-cyan side ponytail human girl, purple eyes, white/blue/violet modern outfit, loop hair accessory, lanyard, recorder and clipboard. Keep brown-haired puppet/accessory head in her left arm IDENTICAL with its original expression, while only the main girl facial expression changes; keep other hand raised open, original body pose and shoes. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1679 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/seed-neutral.png"
+    ],
+    "referenceSHA256": "9dbebb475ca3f7864f816f4c83a78c88071e91d3ed6b0898e57f957f3ed2dca8",
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-seed.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1679
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-319a9398-7997-440e-b558-1484ef7fea61.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-319a9398-7997-440e-b558-1484ef7fea61.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:01:47Z",
+      "notes": "Main girl expression is distinct focused/success/worried, exact original posture/hands/outfit preserved; puppet neutral expression retained. Worried repaired via imagegen to restore puppet eyebrows only; rejected candidate retained. Full-body transparent PNG, no extra props."
+    }
+  },
+  {
+    "id": "seed-worried",
+    "characterId": "seed",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate worried expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly worried and slightly tired setback expression: both visible eyes open but subdued, inner brows visibly raised/pinched, eyelids lowered with mild fatigue, mouth a small downturned hesitant curve. No crying, pain, injury, or added sweat/symbols. Clearly distinct from neutral and determination. Identity locks: Seed purple-to-cyan side ponytail human girl, purple eyes, white/blue/violet modern outfit, loop hair accessory, lanyard, recorder and clipboard. Keep brown-haired puppet/accessory head in her left arm IDENTICAL with its original expression, while only the main girl facial expression changes; keep other hand raised open, original body pose and shoes. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1679 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/seed-neutral.png"
+    ],
+    "referenceSHA256": "9dbebb475ca3f7864f816f4c83a78c88071e91d3ed6b0898e57f957f3ed2dca8",
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-seed.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1679
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-6273a59f-6794-4d86-ae12-f6e87e8f5700.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-6273a59f-6794-4d86-ae12-f6e87e8f5700.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "originalCandidate": "/workspace/scratch/d46925d38a6d/generated_images/exec-a2399de6-28b4-43e9-9d4b-e4ed1cd59545.png",
+    "repairPrompt": "Use case: precise-object-edit, identity-preserve. Image 1 is the generated worried Seed full-body sprite to correct. Image 2 is the original neutral sprite, used ONLY as the exact reference for the small brown-haired puppet/accessory face held at the left side. In Image 1 restore ONLY that small puppet's two eyebrows to the same neutral relaxed shape as Image 2; its eyes and small open round mouth also remain as original. The puppet must NOT mirror Seed's worried expression. Preserve the main purple-haired Seed girl's worried eyes/brows/downturned mouth EXACTLY as Image 1. Do not change any other pixel-level design detail, identity, body pose, hands, clothing, props, lighting, colors, full-body placement or scale. Keep original 937 x 1679 canvas/aspect ratio and genuine transparent alpha. One sprite only; no background, text, effects, panel, crop or zoom.",
+    "repairReference": [
+      "/workspace/scratch/d46925d38a6d/generated_images/exec-a2399de6-28b4-43e9-9d4b-e4ed1cd59545.png",
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/seed-neutral.png"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:01:47Z",
+      "notes": "Main girl expression is distinct focused/success/worried, exact original posture/hands/outfit preserved; puppet neutral expression retained. Worried repaired via imagegen to restore puppet eyebrows only; rejected candidate retained. Full-body transparent PNG, no extra props."
+    }
+  },
+  {
+    "id": "glm-determined",
+    "characterId": "glm",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate determined expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly focused, determined working expression: both visible eyes alert with slightly narrowed lids, eyebrows lowered inward in calm concentration, lips closed and firm. Not angry, not smiling, not neutral. Clearly legible in a small portrait thumbnail. Identity locks: GLM black fox girl with white inner ears and white tail tip, long black/blue hair, gray eyes, white/black long ruffled dress, blue accent ribbons, bells, Z insignia/book, black sleep mask RESTING ON HER FOREHEAD above the eyes. Keep the forehead mask; do not remove it, move it over her eyes, or borrow ZCode design. Keep one hand at chin and other arm holding book exactly as original. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 941 x 1672 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/glm-neutral.png"
+    ],
+    "referenceSHA256": "aec0e71dd3c8fdcb102f87faf894d8d080e63fbd2f2486106ea6bd1d83c64b85",
+    "source_url": "https://www.bilibili.com/opus/1233069202138464289",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-glm.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-31574346-65e3-4adf-991d-e657232903cf.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-31574346-65e3-4adf-991d-e657232903cf.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T17:56:46Z",
+      "notes": "Individually visually compared with actual current neutral: same identity/outfit/pose/props/full-body framing, transparent alpha. Distinct concentrated brow/firm mouth, happy closed eyes/open smile, or worried raised inner brow/downturned hesitant mouth. GLM forehead sleep mask preserved; Grok whole X staff and two hands preserved. Native GLM happy/worried canvas is one pixel shorter, retained without resizing original."
+    }
+  },
+  {
+    "id": "glm-happy",
+    "characterId": "glm",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate happy expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly delighted successful-training expression: eyes softly closed in joyful upward crescents, relaxed raised cheeks and warm open smile (retain small fangs if originally present), subtle natural blush. More visibly joyful than neutral. No tears or added symbols. Identity locks: GLM black fox girl with white inner ears and white tail tip, long black/blue hair, gray eyes, white/black long ruffled dress, blue accent ribbons, bells, Z insignia/book, black sleep mask RESTING ON HER FOREHEAD above the eyes. Keep the forehead mask; do not remove it, move it over her eyes, or borrow ZCode design. Keep one hand at chin and other arm holding book exactly as original. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 941 x 1672 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/glm-neutral.png"
+    ],
+    "referenceSHA256": "aec0e71dd3c8fdcb102f87faf894d8d080e63fbd2f2486106ea6bd1d83c64b85",
+    "source_url": "https://www.bilibili.com/opus/1233069202138464289",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-glm.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-33140acb-9e68-4a85-b215-da089e4d841e.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-33140acb-9e68-4a85-b215-da089e4d841e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T17:56:46Z",
+      "notes": "Individually visually compared with actual current neutral: same identity/outfit/pose/props/full-body framing, transparent alpha. Distinct concentrated brow/firm mouth, happy closed eyes/open smile, or worried raised inner brow/downturned hesitant mouth. GLM forehead sleep mask preserved; Grok whole X staff and two hands preserved. Native GLM happy/worried canvas is one pixel shorter, retained without resizing original."
+    }
+  },
+  {
+    "id": "glm-worried",
+    "characterId": "glm",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate worried expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly worried and slightly tired setback expression: both visible eyes open but subdued, inner brows visibly raised/pinched, eyelids lowered with mild fatigue, mouth a small downturned hesitant curve. No crying, pain, injury, or added sweat/symbols. Clearly distinct from neutral and determination. Identity locks: GLM black fox girl with white inner ears and white tail tip, long black/blue hair, gray eyes, white/black long ruffled dress, blue accent ribbons, bells, Z insignia/book, black sleep mask RESTING ON HER FOREHEAD above the eyes. Keep the forehead mask; do not remove it, move it over her eyes, or borrow ZCode design. Keep one hand at chin and other arm holding book exactly as original. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 941 x 1672 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/glm-neutral.png"
+    ],
+    "referenceSHA256": "aec0e71dd3c8fdcb102f87faf894d8d080e63fbd2f2486106ea6bd1d83c64b85",
+    "source_url": "https://www.bilibili.com/opus/1233069202138464289",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-glm.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-804ab374-8648-4971-a7bd-7d156191517a.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-804ab374-8648-4971-a7bd-7d156191517a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T17:56:46Z",
+      "notes": "Individually visually compared with actual current neutral: same identity/outfit/pose/props/full-body framing, transparent alpha. Distinct concentrated brow/firm mouth, happy closed eyes/open smile, or worried raised inner brow/downturned hesitant mouth. GLM forehead sleep mask preserved; Grok whole X staff and two hands preserved. Native GLM happy/worried canvas is one pixel shorter, retained without resizing original."
+    }
+  },
+  {
+    "id": "grok-determined",
+    "characterId": "grok",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate determined expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly focused, determined working expression: both visible eyes alert with slightly narrowed lids, eyebrows lowered inward in calm concentration, lips closed and firm. Not angry, not smiling, not neutral. Clearly legible in a small portrait thumbnail. Identity locks: Grok blonde twin-tailed vampire girl, vivid blue eyes, small fangs, black bows/crown, black/gold/burgundy long dress, original huge black/gold X-headed staff held in one hand and skirt held with other hand. Keep staff whole within original framing, same hands, pose and costume. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1678 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/grok-neutral.png"
+    ],
+    "referenceSHA256": "a1128238d4f8fb3fe237c3beec1fc5cfbc12ab6f7a4ee731a55ff48fb7e42227",
+    "source_url": "https://www.bilibili.com/opus/1233069202138464289",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-grok.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-d5b85cd6-dcc3-4b55-b69c-67890f84c0fa.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-d5b85cd6-dcc3-4b55-b69c-67890f84c0fa.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T17:56:46Z",
+      "notes": "Individually visually compared with actual current neutral: same identity/outfit/pose/props/full-body framing, transparent alpha. Distinct concentrated brow/firm mouth, happy closed eyes/open smile, or worried raised inner brow/downturned hesitant mouth. GLM forehead sleep mask preserved; Grok whole X staff and two hands preserved. Native GLM happy/worried canvas is one pixel shorter, retained without resizing original."
+    }
+  },
+  {
+    "id": "grok-happy",
+    "characterId": "grok",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate happy expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly delighted successful-training expression: eyes softly closed in joyful upward crescents, relaxed raised cheeks and warm open smile (retain small fangs if originally present), subtle natural blush. More visibly joyful than neutral. No tears or added symbols. Identity locks: Grok blonde twin-tailed vampire girl, vivid blue eyes, small fangs, black bows/crown, black/gold/burgundy long dress, original huge black/gold X-headed staff held in one hand and skirt held with other hand. Keep staff whole within original framing, same hands, pose and costume. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1678 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/grok-neutral.png"
+    ],
+    "referenceSHA256": "a1128238d4f8fb3fe237c3beec1fc5cfbc12ab6f7a4ee731a55ff48fb7e42227",
+    "source_url": "https://www.bilibili.com/opus/1233069202138464289",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-grok.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-eff8d142-8915-4220-ae63-3041c39ea9af.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-eff8d142-8915-4220-ae63-3041c39ea9af.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T17:56:46Z",
+      "notes": "Individually visually compared with actual current neutral: same identity/outfit/pose/props/full-body framing, transparent alpha. Distinct concentrated brow/firm mouth, happy closed eyes/open smile, or worried raised inner brow/downturned hesitant mouth. GLM forehead sleep mask preserved; Grok whole X staff and two hands preserved. Native GLM happy/worried canvas is one pixel shorter, retained without resizing original."
+    }
+  },
+  {
+    "id": "grok-worried",
+    "characterId": "grok",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate worried expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly worried and slightly tired setback expression: both visible eyes open but subdued, inner brows visibly raised/pinched, eyelids lowered with mild fatigue, mouth a small downturned hesitant curve. No crying, pain, injury, or added sweat/symbols. Clearly distinct from neutral and determination. Identity locks: Grok blonde twin-tailed vampire girl, vivid blue eyes, small fangs, black bows/crown, black/gold/burgundy long dress, original huge black/gold X-headed staff held in one hand and skirt held with other hand. Keep staff whole within original framing, same hands, pose and costume. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1678 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/grok-neutral.png"
+    ],
+    "referenceSHA256": "a1128238d4f8fb3fe237c3beec1fc5cfbc12ab6f7a4ee731a55ff48fb7e42227",
+    "source_url": "https://www.bilibili.com/opus/1233069202138464289",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-grok.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-c6d727dd-17a4-4b81-b534-7ca536f659dc.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-c6d727dd-17a4-4b81-b534-7ca536f659dc.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T17:56:46Z",
+      "notes": "Individually visually compared with actual current neutral: same identity/outfit/pose/props/full-body framing, transparent alpha. Distinct concentrated brow/firm mouth, happy closed eyes/open smile, or worried raised inner brow/downturned hesitant mouth. GLM forehead sleep mask preserved; Grok whole X staff and two hands preserved. Native GLM happy/worried canvas is one pixel shorter, retained without resizing original."
+    }
+  },
+  {
+    "id": "suno-determined",
+    "characterId": "suno",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate determined expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly focused, determined working expression: both visible eyes alert with slightly narrowed lids, eyebrows lowered inward in calm concentration, lips closed and firm. Not angry, not smiling, not neutral. Clearly legible in a small portrait thumbnail. Identity locks: Suno human music girl with long black/orange/magenta/purple hair, gradient purple/orange eyes, headphones with original S emblem, white dress/black multicolor-trim jacket, mismatched black/white thigh-high socks and chunky sneakers. Keep both open hands low at sides, crossed-leg pose, every hair/headphone/clothing detail. Main expression may open the currently winking eye for focused/worried state, but keep eye colors and face shape. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 1024 x 1536 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/suno-neutral.png"
+    ],
+    "referenceSHA256": "5ae9242e2f4dd463a46b83863e331ced72c97d45bcce9725d6d05e4bf6e709e9",
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-suno.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-75aa1edf-c47c-44d6-b6de-c6965c96fdcb.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-75aa1edf-c47c-44d6-b6de-c6965c96fdcb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:11:34Z",
+      "notes": "Same identity, hairstyle/headphones/outfit/pose/hands and full-body framing as actual current neutral; original soft aura and partial alpha retained. Focused brows and closed mouth, happy closed eyes/open smile, worried inward-raised brows/downturned mouth clearly distinct. No extra limbs or props."
+    }
+  },
+  {
+    "id": "suno-happy",
+    "characterId": "suno",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate happy expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly delighted successful-training expression: eyes softly closed in joyful upward crescents, relaxed raised cheeks and warm open smile (retain small fangs if originally present), subtle natural blush. More visibly joyful than neutral. No tears or added symbols. Identity locks: Suno human music girl with long black/orange/magenta/purple hair, gradient purple/orange eyes, headphones with original S emblem, white dress/black multicolor-trim jacket, mismatched black/white thigh-high socks and chunky sneakers. Keep both open hands low at sides, crossed-leg pose, every hair/headphone/clothing detail. Main expression may open the currently winking eye for focused/worried state, but keep eye colors and face shape. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 1024 x 1536 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/suno-neutral.png"
+    ],
+    "referenceSHA256": "5ae9242e2f4dd463a46b83863e331ced72c97d45bcce9725d6d05e4bf6e709e9",
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-suno.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-45d4a29b-f695-4dae-8adf-68d484891bc3.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-45d4a29b-f695-4dae-8adf-68d484891bc3.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:11:34Z",
+      "notes": "Same identity, hairstyle/headphones/outfit/pose/hands and full-body framing as actual current neutral; original soft aura and partial alpha retained. Focused brows and closed mouth, happy closed eyes/open smile, worried inward-raised brows/downturned mouth clearly distinct. No extra limbs or props."
+    }
+  },
+  {
+    "id": "suno-worried",
+    "characterId": "suno",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate worried expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly worried and slightly tired setback expression: both visible eyes open but subdued, inner brows visibly raised/pinched, eyelids lowered with mild fatigue, mouth a small downturned hesitant curve. No crying, pain, injury, or added sweat/symbols. Clearly distinct from neutral and determination. Identity locks: Suno human music girl with long black/orange/magenta/purple hair, gradient purple/orange eyes, headphones with original S emblem, white dress/black multicolor-trim jacket, mismatched black/white thigh-high socks and chunky sneakers. Keep both open hands low at sides, crossed-leg pose, every hair/headphone/clothing detail. Main expression may open the currently winking eye for focused/worried state, but keep eye colors and face shape. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 1024 x 1536 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/suno-neutral.png"
+    ],
+    "referenceSHA256": "5ae9242e2f4dd463a46b83863e331ced72c97d45bcce9725d6d05e4bf6e709e9",
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-suno.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-de93a861-0953-46cc-bd6f-1406a9306e09.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-de93a861-0953-46cc-bd6f-1406a9306e09.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:11:34Z",
+      "notes": "Same identity, hairstyle/headphones/outfit/pose/hands and full-body framing as actual current neutral; original soft aura and partial alpha retained. Focused brows and closed mouth, happy closed eyes/open smile, worried inward-raised brows/downturned mouth clearly distinct. No extra limbs or props."
+    }
+  },
+  {
+    "id": "elevenlabs-determined",
+    "characterId": "elevenlabs",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate determined expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly focused, determined working expression: both visible eyes alert with slightly narrowed lids, eyebrows lowered inward in calm concentration, lips closed and firm. Not angry, not smiling, not neutral. Clearly legible in a small portrait thumbnail. Identity locks: ElevenLabs human speech girl with very long black hair fading mint at ends, gray eyes, black headphones with two white bars and feather ornament, white pleated long dress and black cape/waist bow/feather charms, black bow shoes. Keep both hands clasped in front, identical posture and all costume details. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 1024 x 1536 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/elevenlabs-neutral.png"
+    ],
+    "referenceSHA256": "e427a6ac1d154695df3ab066b7427fa8e7261f8967d4f1f6414d4b3962eaea7c",
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-elevenlabs.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-2a74e4df-1330-4c64-b56c-2f495f4bf5a9.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-2a74e4df-1330-4c64-b56c-2f495f4bf5a9.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:11:34Z",
+      "notes": "Same identity, hairstyle/headphones/outfit/pose/hands and full-body framing as actual current neutral; original soft aura and partial alpha retained. Focused brows and closed mouth, happy closed eyes/open smile, worried inward-raised brows/downturned mouth clearly distinct. No extra limbs or props."
+    }
+  },
+  {
+    "id": "elevenlabs-happy",
+    "characterId": "elevenlabs",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate happy expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly delighted successful-training expression: eyes softly closed in joyful upward crescents, relaxed raised cheeks and warm open smile (retain small fangs if originally present), subtle natural blush. More visibly joyful than neutral. No tears or added symbols. Identity locks: ElevenLabs human speech girl with very long black hair fading mint at ends, gray eyes, black headphones with two white bars and feather ornament, white pleated long dress and black cape/waist bow/feather charms, black bow shoes. Keep both hands clasped in front, identical posture and all costume details. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 1024 x 1536 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/elevenlabs-neutral.png"
+    ],
+    "referenceSHA256": "e427a6ac1d154695df3ab066b7427fa8e7261f8967d4f1f6414d4b3962eaea7c",
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-elevenlabs.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-e5c1af66-d57d-4abc-b408-bf5a04dc7fde.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-e5c1af66-d57d-4abc-b408-bf5a04dc7fde.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:11:34Z",
+      "notes": "Same identity, hairstyle/headphones/outfit/pose/hands and full-body framing as actual current neutral; original soft aura and partial alpha retained. Focused brows and closed mouth, happy closed eyes/open smile, worried inward-raised brows/downturned mouth clearly distinct. No extra limbs or props."
+    }
+  },
+  {
+    "id": "elevenlabs-worried",
+    "characterId": "elevenlabs",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate worried expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly worried and slightly tired setback expression: both visible eyes open but subdued, inner brows visibly raised/pinched, eyelids lowered with mild fatigue, mouth a small downturned hesitant curve. No crying, pain, injury, or added sweat/symbols. Clearly distinct from neutral and determination. Identity locks: ElevenLabs human speech girl with very long black hair fading mint at ends, gray eyes, black headphones with two white bars and feather ornament, white pleated long dress and black cape/waist bow/feather charms, black bow shoes. Keep both hands clasped in front, identical posture and all costume details. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 1024 x 1536 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/elevenlabs-neutral.png"
+    ],
+    "referenceSHA256": "e427a6ac1d154695df3ab066b7427fa8e7261f8967d4f1f6414d4b3962eaea7c",
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-elevenlabs.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-79b1fd61-39a5-4929-9264-96c6b7b2e181.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-79b1fd61-39a5-4929-9264-96c6b7b2e181.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:11:34Z",
+      "notes": "Same identity, hairstyle/headphones/outfit/pose/hands and full-body framing as actual current neutral; original soft aura and partial alpha retained. Focused brows and closed mouth, happy closed eyes/open smile, worried inward-raised brows/downturned mouth clearly distinct. No extra limbs or props."
+    }
+  },
+  {
+    "id": "image2-determined",
+    "characterId": "image2",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate determined expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly focused, determined working expression: both visible eyes alert with slightly narrowed lids, eyebrows lowered inward in calm concentration, lips closed and firm. Not angry, not smiling, not neutral. Clearly legible in a small portrait thumbnail. Identity locks: Image2 dark dragon girl (NOT GPT/Codex): warm tan skin, amber-gold eyes, long black hair, black horns, black dragon wing and scaled tail, ornate black/gold dress with original knot emblems, clipboard held in one hand and stylus near chin in the other. Preserve darker complexion, full horns/wing/tail, exact original pose and framing. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1679 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/image2-neutral.png"
+    ],
+    "referenceSHA256": "070687eaf5d3f1cdb7c1d154ec4390298aca3af8d53351afe56440aae736c71a",
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-image2.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1679
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-fe464c9c-001a-4be8-ba0f-9aabbd524371.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-fe464c9c-001a-4be8-ba0f-9aabbd524371.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:15:59Z",
+      "notes": "Actual Image2 black dragon identity, tan complexion, horns/wing/tail, gold accents, stylus/clipboard pose and full framing retained. Focused lowered brow/firm mouth, happy closed eyes/open smile, worried raised inner brow/downturned mouth visibly distinct; no extra anatomy."
+    }
+  },
+  {
+    "id": "image2-happy",
+    "characterId": "image2",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate happy expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly delighted successful-training expression: eyes softly closed in joyful upward crescents, relaxed raised cheeks and warm open smile (retain small fangs if originally present), subtle natural blush. More visibly joyful than neutral. No tears or added symbols. Identity locks: Image2 dark dragon girl (NOT GPT/Codex): warm tan skin, amber-gold eyes, long black hair, black horns, black dragon wing and scaled tail, ornate black/gold dress with original knot emblems, clipboard held in one hand and stylus near chin in the other. Preserve darker complexion, full horns/wing/tail, exact original pose and framing. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1679 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/image2-neutral.png"
+    ],
+    "referenceSHA256": "070687eaf5d3f1cdb7c1d154ec4390298aca3af8d53351afe56440aae736c71a",
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-image2.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1679
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-18104b5c-de97-48e5-b86c-a14696073a62.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-18104b5c-de97-48e5-b86c-a14696073a62.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:15:59Z",
+      "notes": "Actual Image2 black dragon identity, tan complexion, horns/wing/tail, gold accents, stylus/clipboard pose and full framing retained. Focused lowered brow/firm mouth, happy closed eyes/open smile, worried raised inner brow/downturned mouth visibly distinct; no extra anatomy."
+    }
+  },
+  {
+    "id": "image2-worried",
+    "characterId": "image2",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Input image is the ACTUAL CURRENT full-body game portrait sprite and is the edit target, not a loose inspiration. Make ONE separate worried expression derivative. Change ONLY the main character facial expression (eyes, eyebrows, mouth and subtle cheek shading): A clearly worried and slightly tired setback expression: both visible eyes open but subdued, inner brows visibly raised/pinched, eyelids lowered with mild fatigue, mouth a small downturned hesitant curve. No crying, pain, injury, or added sweat/symbols. Clearly distinct from neutral and determination. Identity locks: Image2 dark dragon girl (NOT GPT/Codex): warm tan skin, amber-gold eyes, long black hair, black horns, black dragon wing and scaled tail, ornate black/gold dress with original knot emblems, clipboard held in one hand and stylus near chin in the other. Preserve darker complexion, full horns/wing/tail, exact original pose and framing. Preserve EXACT original art style, face identity, body proportions (NOT chibi), body pose, hands/fingers, hair, outfit, every accessory/prop, lighting, colors, linework, canvas aspect ratio and full-body placement/scale. Keep all visible anatomy and props, do not crop, zoom, re-pose, add characters, write new text, or change existing costume emblems. Preserve genuine background transparency and clean transparent silhouette; no solid backdrop, scene, checkerboard, frame, effects or caption. Preserve soft original edge glow only if present. Output one standalone transparent PNG sprite, not a sheet or side-by-side comparison. Keep the exact 937 x 1679 original canvas and centered full-body sprite scale; only facial features may change.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/image2-neutral.png"
+    ],
+    "referenceSHA256": "070687eaf5d3f1cdb7c1d154ec4390298aca3af8d53351afe56440aae736c71a",
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-image2.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "referenceDimensions": [
+      937,
+      1679
+    ],
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-e19d26c7-fc4e-4c13-b292-d1a262c7856e.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-e19d26c7-fc4e-4c13-b292-d1a262c7856e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:15:59Z",
+      "notes": "Actual Image2 black dragon identity, tan complexion, horns/wing/tail, gold accents, stylus/clipboard pose and full framing retained. Focused lowered brow/firm mouth, happy closed eyes/open smile, worried raised inner brow/downturned mouth visibly distinct; no extra anatomy."
+    }
+  },
+  {
+    "id": "minimax-determined",
+    "characterId": "minimax",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: MiniMax human recording girl, orange/coral bob hair, coral eyes, white/pink beret with waveform emblem, shell earrings, white/pink coat over striped shirt and tan plaid skirt, recorder/clapperboard bag/lanyard, white/pink socks and sneakers. Keep original one arm pointing outward and other holding conch shell exactly, all recording accessories unchanged. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/minimax-neutral.png"
+    ],
+    "referenceSHA256": "b0c1f9b0e9e0f88d51903f5c436b7adc07d714da56b3195e4d73fbd1bd7a7d2e",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-minimax.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-0e67180e-7718-4d54-b254-88665b8b41f2.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-0e67180e-7718-4d54-b254-88665b8b41f2.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:25:24.989688+00:00",
+      "notes": "Full sprite individually viewed: orange/coral bob and eyes, waveform beret, pointing hand and conch-holding hand, coat/skirt/recorder props and full-body framing retained. Focused brows/firm mouth, joyful crescent eyes/open smile, and tired raised-inner brows/downturned mouth distinct. No added limbs or accessories."
+    }
+  },
+  {
+    "id": "minimax-happy",
+    "characterId": "minimax",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: MiniMax human recording girl, orange/coral bob hair, coral eyes, white/pink beret with waveform emblem, shell earrings, white/pink coat over striped shirt and tan plaid skirt, recorder/clapperboard bag/lanyard, white/pink socks and sneakers. Keep original one arm pointing outward and other holding conch shell exactly, all recording accessories unchanged. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/minimax-neutral.png"
+    ],
+    "referenceSHA256": "b0c1f9b0e9e0f88d51903f5c436b7adc07d714da56b3195e4d73fbd1bd7a7d2e",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-minimax.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-5fa48771-0d53-4585-96f0-7077d345229c.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-5fa48771-0d53-4585-96f0-7077d345229c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:25:24.989688+00:00",
+      "notes": "Full sprite individually viewed: orange/coral bob and eyes, waveform beret, pointing hand and conch-holding hand, coat/skirt/recorder props and full-body framing retained. Focused brows/firm mouth, joyful crescent eyes/open smile, and tired raised-inner brows/downturned mouth distinct. No added limbs or accessories."
+    }
+  },
+  {
+    "id": "minimax-worried",
+    "characterId": "minimax",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: MiniMax human recording girl, orange/coral bob hair, coral eyes, white/pink beret with waveform emblem, shell earrings, white/pink coat over striped shirt and tan plaid skirt, recorder/clapperboard bag/lanyard, white/pink socks and sneakers. Keep original one arm pointing outward and other holding conch shell exactly, all recording accessories unchanged. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/minimax-neutral.png"
+    ],
+    "referenceSHA256": "b0c1f9b0e9e0f88d51903f5c436b7adc07d714da56b3195e4d73fbd1bd7a7d2e",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-minimax.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-49936f8b-1869-4418-9196-7e12f3ffa86d.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-49936f8b-1869-4418-9196-7e12f3ffa86d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:25:24.989688+00:00",
+      "notes": "Full sprite individually viewed: orange/coral bob and eyes, waveform beret, pointing hand and conch-holding hand, coat/skirt/recorder props and full-body framing retained. Focused brows/firm mouth, joyful crescent eyes/open smile, and tired raised-inner brows/downturned mouth distinct. No added limbs or accessories."
+    }
+  },
+  {
+    "id": "perplexity-determined",
+    "characterId": "perplexity",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: Perplexity human teal-haired retrieval girl with teal eyes, BOTH original glasses AND headphones, P hairclip, long teal/cream/gold scholarly coat-dress, belt books/compass/lantern and teal boots. Keep one hand holding tall geometric star staff and other touching headphone. Glasses must stay on face, headphones stay on head, do not delete either for facial edit. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/perplexity-neutral.png"
+    ],
+    "referenceSHA256": "689bc373531fed21f76a9e36e6738d757a3beaf528e66b739bdf6977b8aa21b6",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-perplexity.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-1fb167a5-bb62-4e6a-8f76-b642b5dc6809.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-1fb167a5-bb62-4e6a-8f76-b642b5dc6809.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:28:32.756786+00:00",
+      "notes": "Individually viewed full sprite: teal hair/eyes, glasses AND headphones retained, P hairclip, raised star staff and headphone hand pose, coat/dress, books/compass/lantern and boots retained. Focused, delighted and worried facial states visibly distinct. Worried has small generated linework differences on lower coat/props but same identity, outfit and composition; no extra limbs or identity replacement."
+    }
+  },
+  {
+    "id": "perplexity-happy",
+    "characterId": "perplexity",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: Perplexity human teal-haired retrieval girl with teal eyes, BOTH original glasses AND headphones, P hairclip, long teal/cream/gold scholarly coat-dress, belt books/compass/lantern and teal boots. Keep one hand holding tall geometric star staff and other touching headphone. Glasses must stay on face, headphones stay on head, do not delete either for facial edit. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/perplexity-neutral.png"
+    ],
+    "referenceSHA256": "689bc373531fed21f76a9e36e6738d757a3beaf528e66b739bdf6977b8aa21b6",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-perplexity.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-ac395b35-9a4c-4d04-8205-390ac95dad6a.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-ac395b35-9a4c-4d04-8205-390ac95dad6a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:28:32.757011+00:00",
+      "notes": "Individually viewed full sprite: teal hair/eyes, glasses AND headphones retained, P hairclip, raised star staff and headphone hand pose, coat/dress, books/compass/lantern and boots retained. Focused, delighted and worried facial states visibly distinct. Worried has small generated linework differences on lower coat/props but same identity, outfit and composition; no extra limbs or identity replacement."
+    }
+  },
+  {
+    "id": "perplexity-worried",
+    "characterId": "perplexity",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: Perplexity human teal-haired retrieval girl with teal eyes, BOTH original glasses AND headphones, P hairclip, long teal/cream/gold scholarly coat-dress, belt books/compass/lantern and teal boots. Keep one hand holding tall geometric star staff and other touching headphone. Glasses must stay on face, headphones stay on head, do not delete either for facial edit. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/perplexity-neutral.png"
+    ],
+    "referenceSHA256": "689bc373531fed21f76a9e36e6738d757a3beaf528e66b739bdf6977b8aa21b6",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-perplexity.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-20be9473-e75e-4fb7-b907-f96cbcf5707e.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-20be9473-e75e-4fb7-b907-f96cbcf5707e.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:28:32.757051+00:00",
+      "notes": "Individually viewed full sprite: teal hair/eyes, glasses AND headphones retained, P hairclip, raised star staff and headphone hand pose, coat/dress, books/compass/lantern and boots retained. Focused, delighted and worried facial states visibly distinct. Worried has small generated linework differences on lower coat/props but same identity, outfit and composition; no extra limbs or identity replacement."
+    }
+  },
+  {
+    "id": "midjourney-determined",
+    "characterId": "midjourney",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: Midjourney human navy-haired captain, golden eyes, navy captain hat with rainbow sail emblem, navy/white/gold long dress/cape with anchor trim and painted sailboat panels, blue/gold tassels and navy boots. Keep hand at chest bow and other lowered open exactly, hat and cape whole in frame. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1024 x 1536 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/midjourney-neutral.png"
+    ],
+    "referenceSHA256": "c08ec5f3a442033d432cffb2d2a9ef31a7aa32dfe1601c99243d036227e17a81",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-midjourney.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-97bcf0a7-86d9-41ae-88b5-6180be7795af.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-97bcf0a7-86d9-41ae-88b5-6180be7795af.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:29:02.622249+00:00",
+      "notes": "Full sprite individually viewed. Same navy-haired golden-eyed captain, rainbow sail hat, anchor/navy/white/gold outfit, painted sail panels, tassels and boots. Original hand at bow and lowered other hand/full-body framing retained, existing soft aura retained. Focused brows/firm mouth, joyful closed eyes/smile, concerned raised-inner brows/downturned mouth clearly distinct."
+    }
+  },
+  {
+    "id": "midjourney-happy",
+    "characterId": "midjourney",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: Midjourney human navy-haired captain, golden eyes, navy captain hat with rainbow sail emblem, navy/white/gold long dress/cape with anchor trim and painted sailboat panels, blue/gold tassels and navy boots. Keep hand at chest bow and other lowered open exactly, hat and cape whole in frame. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1024 x 1536 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/midjourney-neutral.png"
+    ],
+    "referenceSHA256": "c08ec5f3a442033d432cffb2d2a9ef31a7aa32dfe1601c99243d036227e17a81",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-midjourney.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-584d4711-cb3e-41e8-a16f-5a96e8f6d842.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-584d4711-cb3e-41e8-a16f-5a96e8f6d842.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:29:02.622344+00:00",
+      "notes": "Full sprite individually viewed. Same navy-haired golden-eyed captain, rainbow sail hat, anchor/navy/white/gold outfit, painted sail panels, tassels and boots. Original hand at bow and lowered other hand/full-body framing retained, existing soft aura retained. Focused brows/firm mouth, joyful closed eyes/smile, concerned raised-inner brows/downturned mouth clearly distinct."
+    }
+  },
+  {
+    "id": "midjourney-worried",
+    "characterId": "midjourney",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: Midjourney human navy-haired captain, golden eyes, navy captain hat with rainbow sail emblem, navy/white/gold long dress/cape with anchor trim and painted sailboat panels, blue/gold tassels and navy boots. Keep hand at chest bow and other lowered open exactly, hat and cape whole in frame. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1024 x 1536 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/midjourney-neutral.png"
+    ],
+    "referenceSHA256": "c08ec5f3a442033d432cffb2d2a9ef31a7aa32dfe1601c99243d036227e17a81",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "source_url": "https://www.bilibili.com/opus/1244061599751208994",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-midjourney.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-64b064bd-4fd0-42a1-a234-b2a0a74028e6.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-64b064bd-4fd0-42a1-a234-b2a0a74028e6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:29:02.622372+00:00",
+      "notes": "Full sprite individually viewed. Same navy-haired golden-eyed captain, rainbow sail hat, anchor/navy/white/gold outfit, painted sail panels, tassels and boots. Original hand at bow and lowered other hand/full-body framing retained, existing soft aura retained. Focused brows/firm mouth, joyful closed eyes/smile, concerned raised-inner brows/downturned mouth clearly distinct."
+    }
+  },
+  {
+    "id": "rwkv-determined",
+    "characterId": "rwkv",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: RWKV raven girl, long cobalt/indigo hair, purple eyes, dark spiked circular headpiece and loop ahoge, purple raven perched on shoulder, black/purple feather gown with chains and the original hanging text badges. TWO FEATHERED WING-ARMS, no human hands; violet scaled bird legs and black claws. Preserve both wing-arm poses/feathers and raven completely; do not add human arms, remove bird, or change badge text. Only her facial emotion changes. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 941 x 1672 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/rwkv-neutral.png"
+    ],
+    "referenceSHA256": "6efb288863b0dda49c714720776a3993266bbcb2341b6a8f3024147edf5e6bd2",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-rwkv.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-0e18896b-ab74-45d4-8bfc-fe2e7f0ea3c5.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-0e18896b-ab74-45d4-8bfc-fe2e7f0ea3c5.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:52:48.279768+00:00",
+      "notes": "All3 full sprites individually viewed: same cobalt hair/purple eyes, spiked headpiece, raven, two wing-arms with no human hands, feather gown/chains/badges and bird legs/claws. Focused, happy and worried faces distinct; no added limbs or gesture changes. Original tiny text badge rendering has minor model variations; no newly asserted message."
+    }
+  },
+  {
+    "id": "rwkv-happy",
+    "characterId": "rwkv",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: RWKV raven girl, long cobalt/indigo hair, purple eyes, dark spiked circular headpiece and loop ahoge, purple raven perched on shoulder, black/purple feather gown with chains and the original hanging text badges. TWO FEATHERED WING-ARMS, no human hands; violet scaled bird legs and black claws. Preserve both wing-arm poses/feathers and raven completely; do not add human arms, remove bird, or change badge text. Only her facial emotion changes. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 941 x 1672 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/rwkv-neutral.png"
+    ],
+    "referenceSHA256": "6efb288863b0dda49c714720776a3993266bbcb2341b6a8f3024147edf5e6bd2",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-rwkv.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-8349d1bd-ccf9-4aa4-8360-d9eef507ec0d.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-8349d1bd-ccf9-4aa4-8360-d9eef507ec0d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:52:48.279856+00:00",
+      "notes": "All3 full sprites individually viewed: same cobalt hair/purple eyes, spiked headpiece, raven, two wing-arms with no human hands, feather gown/chains/badges and bird legs/claws. Focused, happy and worried faces distinct; no added limbs or gesture changes. Original tiny text badge rendering has minor model variations; no newly asserted message."
+    }
+  },
+  {
+    "id": "rwkv-worried",
+    "characterId": "rwkv",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: RWKV raven girl, long cobalt/indigo hair, purple eyes, dark spiked circular headpiece and loop ahoge, purple raven perched on shoulder, black/purple feather gown with chains and the original hanging text badges. TWO FEATHERED WING-ARMS, no human hands; violet scaled bird legs and black claws. Preserve both wing-arm poses/feathers and raven completely; do not add human arms, remove bird, or change badge text. Only her facial emotion changes. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 941 x 1672 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/rwkv-neutral.png"
+    ],
+    "referenceSHA256": "6efb288863b0dda49c714720776a3993266bbcb2341b6a8f3024147edf5e6bd2",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-rwkv.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-de5b6b06-9a69-463d-b394-96f92b9dde74.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-de5b6b06-9a69-463d-b394-96f92b9dde74.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:52:48.279901+00:00",
+      "notes": "All3 full sprites individually viewed: same cobalt hair/purple eyes, spiked headpiece, raven, two wing-arms with no human hands, feather gown/chains/badges and bird legs/claws. Focused, happy and worried faces distinct; no added limbs or gesture changes. Original tiny text badge rendering has minor model variations; no newly asserted message."
+    }
+  },
+  {
+    "id": "ernie-determined",
+    "characterId": "ernie",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: ERNIE human girl with long blue hair/red streak, blue eyes and blue hexagonal hairclip, white/blue frilled dress, seated in original wheelchair. One hand holds original oxygen mask beside face; other rests on book stack on lap. Preserve wheelchair, all IV pole/monitor/oxygen cylinder/medical accessories/books/slippers and exact seated pose. ONLY face emotion changes; no standing, cure, injury, new medical action, moved props or added hands. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/ernie-neutral.png"
+    ],
+    "referenceSHA256": "2f3c3feb6a7b2113af98e65a926cf23dc5b9e752b4bdfd768d4ead617bb9bffe",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-ernie.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-6c7a98c8-e058-4a65-b142-b5f6c20333c0.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-6c7a98c8-e058-4a65-b142-b5f6c20333c0.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:52:48.307844+00:00",
+      "notes": "All3 full sprites individually viewed: same blue-haired girl/red streak, wheelchair, mask beside face, two original hand poses, books/IV/oxygen/monitor and outfit unchanged. Only emotion differs; no standing/cure/new medical action. Focused lowered brows, joyful closed-eye smile and worried raised-inner brows clearly distinct."
+    }
+  },
+  {
+    "id": "ernie-happy",
+    "characterId": "ernie",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: ERNIE human girl with long blue hair/red streak, blue eyes and blue hexagonal hairclip, white/blue frilled dress, seated in original wheelchair. One hand holds original oxygen mask beside face; other rests on book stack on lap. Preserve wheelchair, all IV pole/monitor/oxygen cylinder/medical accessories/books/slippers and exact seated pose. ONLY face emotion changes; no standing, cure, injury, new medical action, moved props or added hands. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/ernie-neutral.png"
+    ],
+    "referenceSHA256": "2f3c3feb6a7b2113af98e65a926cf23dc5b9e752b4bdfd768d4ead617bb9bffe",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-ernie.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-ba9d49bd-2885-46bf-b1fe-bbb63cebbf1f.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-ba9d49bd-2885-46bf-b1fe-bbb63cebbf1f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:52:48.307910+00:00",
+      "notes": "All3 full sprites individually viewed: same blue-haired girl/red streak, wheelchair, mask beside face, two original hand poses, books/IV/oxygen/monitor and outfit unchanged. Only emotion differs; no standing/cure/new medical action. Focused lowered brows, joyful closed-eye smile and worried raised-inner brows clearly distinct."
+    }
+  },
+  {
+    "id": "ernie-worried",
+    "characterId": "ernie",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: ERNIE human girl with long blue hair/red streak, blue eyes and blue hexagonal hairclip, white/blue frilled dress, seated in original wheelchair. One hand holds original oxygen mask beside face; other rests on book stack on lap. Preserve wheelchair, all IV pole/monitor/oxygen cylinder/medical accessories/books/slippers and exact seated pose. ONLY face emotion changes; no standing, cure, injury, new medical action, moved props or added hands. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 937 x 1678 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/ernie-neutral.png"
+    ],
+    "referenceSHA256": "2f3c3feb6a7b2113af98e65a926cf23dc5b9e752b4bdfd768d4ead617bb9bffe",
+    "referenceDimensions": [
+      937,
+      1678
+    ],
+    "source_url": "https://www.bilibili.com/opus/1236803362705375305",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-ernie.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-380d279c-30a6-4579-9497-2a696a2cf79c.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-380d279c-30a6-4579-9497-2a696a2cf79c.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:52:48.307962+00:00",
+      "notes": "All3 full sprites individually viewed: same blue-haired girl/red streak, wheelchair, mask beside face, two original hand poses, books/IV/oxygen/monitor and outfit unchanged. Only emotion differs; no standing/cure/new medical action. Focused lowered brows, joyful closed-eye smile and worried raised-inner brows clearly distinct."
+    }
+  },
+  {
+    "id": "hunyuan-determined",
+    "characterId": "hunyuan",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: Hunyuan human girl with long dark navy hair/light-gray ends, gray-blue eyes, gold hairpin with white/cyan tassel, red scarf, black coat with white fur trim, pale-blue Chinese-style inner blouse, long white skirt. Penguin charm/tiny abacus/blue tai-ji waist emblem, black shoes with blue gems. Preserve exact one hand at tiny abacus and other lowered, outfit, hair and every accessory. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 941 x 1672 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/hunyuan-neutral.png"
+    ],
+    "referenceSHA256": "a2f3c356a6a7bc5ec6927d25a36da01241bcc76d6d3578ac8cc10e2ebc522004",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "source_url": "https://www.bilibili.com/opus/1242184338245681157",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-hunyuan.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-56d6712c-517f-4b10-b688-c6918ea4402d.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-56d6712c-517f-4b10-b688-c6918ea4402d.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:53:08.657131+00:00",
+      "notes": "All3 full sprites individually viewed: same navy/gray hair, gray-blue eyes, gold/tassel pin, red scarf, fur coat/long white skirt and abacus/penguin/tai-ji accessories. Original two hands and full-body pose preserved. Determined/happy/worried facial states distinct; no additional limbs or props."
+    }
+  },
+  {
+    "id": "hunyuan-happy",
+    "characterId": "hunyuan",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: Hunyuan human girl with long dark navy hair/light-gray ends, gray-blue eyes, gold hairpin with white/cyan tassel, red scarf, black coat with white fur trim, pale-blue Chinese-style inner blouse, long white skirt. Penguin charm/tiny abacus/blue tai-ji waist emblem, black shoes with blue gems. Preserve exact one hand at tiny abacus and other lowered, outfit, hair and every accessory. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 941 x 1672 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/hunyuan-neutral.png"
+    ],
+    "referenceSHA256": "a2f3c356a6a7bc5ec6927d25a36da01241bcc76d6d3578ac8cc10e2ebc522004",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "source_url": "https://www.bilibili.com/opus/1242184338245681157",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-hunyuan.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-242d51bb-fe48-4e0f-b7cf-3f0fbfe60467.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-242d51bb-fe48-4e0f-b7cf-3f0fbfe60467.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:53:08.657200+00:00",
+      "notes": "All3 full sprites individually viewed: same navy/gray hair, gray-blue eyes, gold/tassel pin, red scarf, fur coat/long white skirt and abacus/penguin/tai-ji accessories. Original two hands and full-body pose preserved. Determined/happy/worried facial states distinct; no additional limbs or props."
+    }
+  },
+  {
+    "id": "hunyuan-worried",
+    "characterId": "hunyuan",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: Hunyuan human girl with long dark navy hair/light-gray ends, gray-blue eyes, gold hairpin with white/cyan tassel, red scarf, black coat with white fur trim, pale-blue Chinese-style inner blouse, long white skirt. Penguin charm/tiny abacus/blue tai-ji waist emblem, black shoes with blue gems. Preserve exact one hand at tiny abacus and other lowered, outfit, hair and every accessory. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 941 x 1672 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/hunyuan-neutral.png"
+    ],
+    "referenceSHA256": "a2f3c356a6a7bc5ec6927d25a36da01241bcc76d6d3578ac8cc10e2ebc522004",
+    "referenceDimensions": [
+      941,
+      1672
+    ],
+    "source_url": "https://www.bilibili.com/opus/1242184338245681157",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-hunyuan.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-85daa4f5-ec07-4fac-b4a1-b3ef0cfc12f7.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-85daa4f5-ec07-4fac-b4a1-b3ef0cfc12f7.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:53:08.657229+00:00",
+      "notes": "All3 full sprites individually viewed: same navy/gray hair, gray-blue eyes, gold/tassel pin, red scarf, fur coat/long white skirt and abacus/penguin/tai-ji accessories. Original two hands and full-body pose preserved. Determined/happy/worried facial states distinct; no additional limbs or props."
+    }
+  },
+  {
+    "id": "stepfun-determined",
+    "characterId": "stepfun",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: StepFun human girl, long navy-to-bright-blue hair with side bun and three gold square hairclips, bright blue eyes, white puff-sleeve blouse, black gold-trim vest and blue bowtie, blue waist bow, black-to-blue tiered fringe skirt, white tights and black lace-up shoes with gold square accents. Keep original raised small finger-heart hand and other hand holding skirt edge, crossed-leg pose and original soft glow. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/stepfun-neutral.png"
+    ],
+    "referenceSHA256": "0453c1fa600fc6e6b85a7cf4f1e77e5c22d958c233c4c98f9487d7ac6f7dd8c0",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1257516954839678982",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-stepfun.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-3d6740a4-51fc-4c29-a01c-10ad0683031f.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-3d6740a4-51fc-4c29-a01c-10ad0683031f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:59:11.479567+00:00",
+      "notes": "All3 full sprites individually viewed: same navy-to-blue hair/blue eyes, triple square clip, vest/blouse/blue bow/tiered skirt/tights/shoes and original finger-heart/skirt-holding poses. Focused, delighted and worried faces clearly different. Tool returned a cleaner cutout with reduced broad original aura, retaining soft silhouette edges; proportions/framing maintained, no local visual edits."
+    }
+  },
+  {
+    "id": "stepfun-happy",
+    "characterId": "stepfun",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: StepFun human girl, long navy-to-bright-blue hair with side bun and three gold square hairclips, bright blue eyes, white puff-sleeve blouse, black gold-trim vest and blue bowtie, blue waist bow, black-to-blue tiered fringe skirt, white tights and black lace-up shoes with gold square accents. Keep original raised small finger-heart hand and other hand holding skirt edge, crossed-leg pose and original soft glow. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/stepfun-neutral.png"
+    ],
+    "referenceSHA256": "0453c1fa600fc6e6b85a7cf4f1e77e5c22d958c233c4c98f9487d7ac6f7dd8c0",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1257516954839678982",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-stepfun.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-6801c063-3e6e-4e85-9dd3-5b87ef25209b.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-6801c063-3e6e-4e85-9dd3-5b87ef25209b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:59:11.479622+00:00",
+      "notes": "All3 full sprites individually viewed: same navy-to-blue hair/blue eyes, triple square clip, vest/blouse/blue bow/tiered skirt/tights/shoes and original finger-heart/skirt-holding poses. Focused, delighted and worried faces clearly different. Tool returned a cleaner cutout with reduced broad original aura, retaining soft silhouette edges; proportions/framing maintained, no local visual edits."
+    }
+  },
+  {
+    "id": "stepfun-worried",
+    "characterId": "stepfun",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: StepFun human girl, long navy-to-bright-blue hair with side bun and three gold square hairclips, bright blue eyes, white puff-sleeve blouse, black gold-trim vest and blue bowtie, blue waist bow, black-to-blue tiered fringe skirt, white tights and black lace-up shoes with gold square accents. Keep original raised small finger-heart hand and other hand holding skirt edge, crossed-leg pose and original soft glow. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/stepfun-neutral.png"
+    ],
+    "referenceSHA256": "0453c1fa600fc6e6b85a7cf4f1e77e5c22d958c233c4c98f9487d7ac6f7dd8c0",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1257516954839678982",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-stepfun.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-9cc36d33-e6f9-4746-89e8-e29e4172534b.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-9cc36d33-e6f9-4746-89e8-e29e4172534b.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T18:59:11.479647+00:00",
+      "notes": "All3 full sprites individually viewed: same navy-to-blue hair/blue eyes, triple square clip, vest/blouse/blue bow/tiered skirt/tights/shoes and original finger-heart/skirt-holding poses. Focused, delighted and worried faces clearly different. Tool returned a cleaner cutout with reduced broad original aura, retaining soft silhouette edges; proportions/framing maintained, no local visual edits."
+    }
+  },
+  {
+    "id": "novelai-determined",
+    "characterId": "novelai",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: NovelAI angelic writer girl, long blue hair with golden tips and braids, golden eyes, gold laurel crown with pen-nib/feather crest and small white flowers, two large white/gold feather wings behind body. White long Grecian gown with blue/gold patterned hems, dark blue/gold draped cape, rope/tassel belt, gold sandals. One hand holds golden quill and other holds original parchment scroll. Preserve all wings/hands/props and exact pose, do not add arms or change scroll marks. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/novelai-neutral.png"
+    ],
+    "referenceSHA256": "dc6d6f0b4ec0061998cd804f6866322d164e2b744841115c36310f368ed0be6d",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1243825685770797113",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-novelai.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-9f4bdebf-256e-4656-9f38-9e253e9bf218.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-9f4bdebf-256e-4656-9f38-9e253e9bf218.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:02:13.507286+00:00",
+      "notes": "All3 full sprites individually viewed: same blue/gold hair, golden eyes, laurel/pen crown, white-gold wings, white/blue-gold gown/cape/sandals. Exact original two hand poses hold quill and scroll, wings unchanged. Clearly focused, delighted and worried facial states; no new limbs, props or scene."
+    }
+  },
+  {
+    "id": "novelai-happy",
+    "characterId": "novelai",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: NovelAI angelic writer girl, long blue hair with golden tips and braids, golden eyes, gold laurel crown with pen-nib/feather crest and small white flowers, two large white/gold feather wings behind body. White long Grecian gown with blue/gold patterned hems, dark blue/gold draped cape, rope/tassel belt, gold sandals. One hand holds golden quill and other holds original parchment scroll. Preserve all wings/hands/props and exact pose, do not add arms or change scroll marks. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/novelai-neutral.png"
+    ],
+    "referenceSHA256": "dc6d6f0b4ec0061998cd804f6866322d164e2b744841115c36310f368ed0be6d",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1243825685770797113",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-novelai.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-dd84c008-8845-4cab-8245-f8fd115de507.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-dd84c008-8845-4cab-8245-f8fd115de507.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:02:13.507353+00:00",
+      "notes": "All3 full sprites individually viewed: same blue/gold hair, golden eyes, laurel/pen crown, white-gold wings, white/blue-gold gown/cape/sandals. Exact original two hand poses hold quill and scroll, wings unchanged. Clearly focused, delighted and worried facial states; no new limbs, props or scene."
+    }
+  },
+  {
+    "id": "novelai-worried",
+    "characterId": "novelai",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: NovelAI angelic writer girl, long blue hair with golden tips and braids, golden eyes, gold laurel crown with pen-nib/feather crest and small white flowers, two large white/gold feather wings behind body. White long Grecian gown with blue/gold patterned hems, dark blue/gold draped cape, rope/tassel belt, gold sandals. One hand holds golden quill and other holds original parchment scroll. Preserve all wings/hands/props and exact pose, do not add arms or change scroll marks. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/novelai-neutral.png"
+    ],
+    "referenceSHA256": "dc6d6f0b4ec0061998cd804f6866322d164e2b744841115c36310f368ed0be6d",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1243825685770797113",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-novelai.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-ce28c1f9-1f71-4327-b7e2-271084e2fd72.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-ce28c1f9-1f71-4327-b7e2-271084e2fd72.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:02:13.507379+00:00",
+      "notes": "All3 full sprites individually viewed: same blue/gold hair, golden eyes, laurel/pen crown, white-gold wings, white/blue-gold gown/cape/sandals. Exact original two hand poses hold quill and scroll, wings unchanged. Clearly focused, delighted and worried facial states; no new limbs, props or scene."
+    }
+  },
+  {
+    "id": "fable-determined",
+    "characterId": "fable",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Clearly focused determined working expression: eyes alert and slightly narrowed, brows lower inward in calm concentration, closed firm lips. Resolute not sad or smiling. Identity invariants: Fable human girl, long orange hair with braided side bun and gold laurel ornament, amber eyes, white draped Grecian gown, black cape with orange/gold Greek-key trim, sun clasps and gold belt/bracelet/pendants. Bare feet with original gold ankle cuff and loose dangling chain/coins remain unchanged. Keep original arm/hand poses and full-body placement, original soft orange aura; no new restraints, props or text. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1024 x 1536 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/fable-neutral.png"
+    ],
+    "referenceSHA256": "cf4992fb344e38832ad620ffe3f857834522b159712ed59d219d0fe24f82131a",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "source_url": "https://www.bilibili.com/opus/1237359535163703301",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-fable.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-a0e9b246-b096-4103-bfa2-f4940288626a.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-a0e9b246-b096-4103-bfa2-f4940288626a.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:03:13.315470+00:00",
+      "notes": "All3 full sprites individually viewed: same orange-haired amber-eyed Fable with laurel/sun ornaments, white gown/black gold-trim cape, gold accessories and existing ankle chain/coins. Original hand/body pose, framing and orange soft aura retained. Focused brow, joyful closed-eye smile, worried raised-inner brow distinct. No added restraints or props."
+    }
+  },
+  {
+    "id": "fable-happy",
+    "characterId": "fable",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Clearly delighted success expression: eyes closed into joyful upward crescents, raised cheeks, warm open smile, subtle blush. More visibly happy than neutral. Identity invariants: Fable human girl, long orange hair with braided side bun and gold laurel ornament, amber eyes, white draped Grecian gown, black cape with orange/gold Greek-key trim, sun clasps and gold belt/bracelet/pendants. Bare feet with original gold ankle cuff and loose dangling chain/coins remain unchanged. Keep original arm/hand poses and full-body placement, original soft orange aura; no new restraints, props or text. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1024 x 1536 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/fable-neutral.png"
+    ],
+    "referenceSHA256": "cf4992fb344e38832ad620ffe3f857834522b159712ed59d219d0fe24f82131a",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "source_url": "https://www.bilibili.com/opus/1237359535163703301",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-fable.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-e48e43bb-f7be-4f2e-b0b7-9868aeed3c06.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-e48e43bb-f7be-4f2e-b0b7-9868aeed3c06.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:03:13.315535+00:00",
+      "notes": "All3 full sprites individually viewed: same orange-haired amber-eyed Fable with laurel/sun ornaments, white gown/black gold-trim cape, gold accessories and existing ankle chain/coins. Original hand/body pose, framing and orange soft aura retained. Focused brow, joyful closed-eye smile, worried raised-inner brow distinct. No added restraints or props."
+    }
+  },
+  {
+    "id": "fable-worried",
+    "characterId": "fable",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Clearly worried slightly tired setback expression: subdued open eyes, lowered lids, visibly raised pinched inner brows and small downturned hesitant mouth. No crying, tears, pain, sweat symbols or injuries. Identity invariants: Fable human girl, long orange hair with braided side bun and gold laurel ornament, amber eyes, white draped Grecian gown, black cape with orange/gold Greek-key trim, sun clasps and gold belt/bracelet/pendants. Bare feet with original gold ankle cuff and loose dangling chain/coins remain unchanged. Keep original arm/hand poses and full-body placement, original soft orange aura; no new restraints, props or text. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1024 x 1536 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/fable-neutral.png"
+    ],
+    "referenceSHA256": "cf4992fb344e38832ad620ffe3f857834522b159712ed59d219d0fe24f82131a",
+    "referenceDimensions": [
+      1024,
+      1536
+    ],
+    "source_url": "https://www.bilibili.com/opus/1237359535163703301",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-fable.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-a2b329cb-29be-4037-9187-f2f77a5dade5.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-a2b329cb-29be-4037-9187-f2f77a5dade5.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:03:13.315560+00:00",
+      "notes": "All3 full sprites individually viewed: same orange-haired amber-eyed Fable with laurel/sun ornaments, white gown/black gold-trim cape, gold accessories and existing ankle chain/coins. Original hand/body pose, framing and orange soft aura retained. Focused brow, joyful closed-eye smile, worried raised-inner brow distinct. No added restraints or props."
+    }
+  },
+  {
+    "id": "jev-determined",
+    "characterId": "jev",
+    "emotion": "determined",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate determined sprite. Change ONLY the main character facial expression: Eyes open narrowed and attentive, brows lowered inward in quiet concentration. Mouth remains hidden by original seal. Identity invariants: JEV human girl, long black hair with magenta ends, silver-gray eyes with gold glints, white/magenta feather hairpiece and feather shoulder mantle. ORIGINAL thorn-flower ornamental seal across mouth with small black hexagonal badge MUST remain in exact place, shape and detail; never remove, move or expose mouth. Black/white/magenta long robe with silver chains/buckles and boots. One hand holds original balance scales topped with tiny pink bird, other hangs lowered. Preserve all scales/chains/feathers/hand poses and original soft purple aura. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/jev-neutral.png"
+    ],
+    "referenceSHA256": "3eaf540d9b3d2af09779a677696f93f0412ff3d8cab02ae60af17c719974d879",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1253808555541135367",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-jev.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-7b01a5b7-daf7-43da-abca-fbb9e053e850.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-7b01a5b7-daf7-43da-abca-fbb9e053e850.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:06:58.697308+00:00",
+      "notes": "All3 full sprites individually viewed: original thorn-flower mouth seal/badge remains in place; happy is conveyed solely through closed crescent eyes and cheeks, focused through narrowed eyes/brows, worried through raised inner brows/lowered lids. Same black/magenta hair, feathers, robe/chains/boots, balance-scale hand and lowered hand retained. Tool reduced broad original aura to clean cutout with soft edges; no new props, exposed mouth or removed seal."
+    }
+  },
+  {
+    "id": "jev-happy",
+    "characterId": "jev",
+    "emotion": "happy",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate happy sprite. Change ONLY the main character facial expression: Eyes softly closed in joyful upward crescents, cheeks gently lifted and subtle blush. Convey happy success ONLY through visible eyes/brows/cheeks; mouth remains hidden and original thorn-flower seal must not be removed or moved. Identity invariants: JEV human girl, long black hair with magenta ends, silver-gray eyes with gold glints, white/magenta feather hairpiece and feather shoulder mantle. ORIGINAL thorn-flower ornamental seal across mouth with small black hexagonal badge MUST remain in exact place, shape and detail; never remove, move or expose mouth. Black/white/magenta long robe with silver chains/buckles and boots. One hand holds original balance scales topped with tiny pink bird, other hangs lowered. Preserve all scales/chains/feathers/hand poses and original soft purple aura. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/jev-neutral.png"
+    ],
+    "referenceSHA256": "3eaf540d9b3d2af09779a677696f93f0412ff3d8cab02ae60af17c719974d879",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1253808555541135367",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-jev.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-38c33170-4ff1-4476-b4d4-d97aaf3a9350.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-38c33170-4ff1-4476-b4d4-d97aaf3a9350.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:06:58.697372+00:00",
+      "notes": "All3 full sprites individually viewed: original thorn-flower mouth seal/badge remains in place; happy is conveyed solely through closed crescent eyes and cheeks, focused through narrowed eyes/brows, worried through raised inner brows/lowered lids. Same black/magenta hair, feathers, robe/chains/boots, balance-scale hand and lowered hand retained. Tool reduced broad original aura to clean cutout with soft edges; no new props, exposed mouth or removed seal."
+    }
+  },
+  {
+    "id": "jev-worried",
+    "characterId": "jev",
+    "emotion": "worried",
+    "prompt": "Use case: identity-preserve expression edit. Edit the provided ACTUAL CURRENT full-body game portrait sprite, not loose inspiration, into ONE separate worried sprite. Change ONLY the main character facial expression: Eyes subdued/half-lidded, inner brows raised and pinched with quiet worry, mild fatigue in eyes. Mouth remains hidden by original seal; do not move/remove it or add tears. Identity invariants: JEV human girl, long black hair with magenta ends, silver-gray eyes with gold glints, white/magenta feather hairpiece and feather shoulder mantle. ORIGINAL thorn-flower ornamental seal across mouth with small black hexagonal badge MUST remain in exact place, shape and detail; never remove, move or expose mouth. Black/white/magenta long robe with silver chains/buckles and boots. One hand holds original balance scales topped with tiny pink bird, other hangs lowered. Preserve all scales/chains/feathers/hand poses and original soft purple aura. Preserve EXACT original face identity, non-chibi body proportions, body pose, hands or wing-arms, costume, accessories, species features, props, linework, lighting and colors. Keep exact 1152 x 2048 canvas/aspect ratio and full-body placement/scale. No new gesture, crop, zoom, extra limbs or character. Preserve original genuine alpha transparency and existing soft edge glow if any; no solid background, scene, checkerboard, frame, caption or effects. Existing costume emblems stay unchanged. Output one transparent PNG sprite, not a collage/sheet.",
+    "generationInputs": [
+      "/workspace/scratch/d46925d38a6d/game_qa_integration_cards/mrp/assets/characters/jev-neutral.png"
+    ],
+    "referenceSHA256": "3eaf540d9b3d2af09779a677696f93f0412ff3d8cab02ae60af17c719974d879",
+    "referenceDimensions": [
+      1152,
+      2048
+    ],
+    "source_url": "https://www.bilibili.com/opus/1253808555541135367",
+    "originalCredit": "ZipZipPipe",
+    "license": "未检得统一再授权声明；本机个人体验",
+    "sourceRecord": "docs/character-library/records/character-jev.md",
+    "transparent_background": true,
+    "status": "accepted",
+    "generated_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-a48d3891-0535-4b9e-a14d-17215ccc3bec.png",
+    "output_hint": "Generated images are saved to /workspace/scratch/d46925d38a6d/generated_images as /workspace/scratch/d46925d38a6d/generated_images/exec-a48d3891-0535-4b9e-a14d-17215ccc3bec.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+    "tool": "built-in image_gen",
+    "resultKeys": [
+      "image_url",
+      "output_hint"
+    ],
+    "visualReview": {
+      "status": "PASS",
+      "reviewedAt": "2026-10-23T19:06:58.697398+00:00",
+      "notes": "All3 full sprites individually viewed: original thorn-flower mouth seal/badge remains in place; happy is conveyed solely through closed crescent eyes and cheeks, focused through narrowed eyes/brows, worried through raised inner brows/lowered lids. Same black/magenta hair, feathers, robe/chains/boots, balance-scale hand and lowered hand retained. Tool reduced broad original aura to clean cutout with soft edges; no new props, exposed mouth or removed seal."
+    }
+  }
+]

@@ -3,6 +3,7 @@
 // 名册的 credit 和 source_url 直接从 roster.js 生成，不手抄；docs/ART_CREDITS.txt 里的场景和事件背景在这里列成条目，
 // 其中 event-*.png 的七张在 art-manifest.json 里没有记录，但图确实在 assets/backgrounds/ 里，所以只补条目、不碰图片文件。
 // 每一条都有 who（作者）、what（做了什么）、license（授权说法）、url（可核对的来源；没有就是 null）。
+import { POST_CARD_ART_CREDITS } from './post_card_art.js';
 import { CHARACTER_ROSTER } from './roster.js';
 import { HW_CREDITS } from './hardware_gen.js';
 
@@ -92,4 +93,4 @@ const HARDWARE = Object.entries(HW_CREDITS).map(([id, c]) => ({
   license_url: c.license_url || null,
 }));
 
-export const CREDITS = [LEGACY, ...ROSTER_CREDITS, ...OTHER_ART, ...CAREER_BACKGROUNDS, ...EVENT_BACKGROUNDS, ...HARDWARE];
+export const CREDITS = [LEGACY, ...ROSTER_CREDITS, ...OTHER_ART, ...CAREER_BACKGROUNDS, ...EVENT_BACKGROUNDS, ...HARDWARE, ...POST_CARD_ART_CREDITS];

@@ -50,6 +50,12 @@ function realRef(ms) {
 const mineChoiceList = (ms, h) => (ms.choices || h.choices).filter(c => c.id !== 'skip');
 // 个别里程碑的触发方式要多说一句。
 const NOTES = {
+  ms_family: '已发布至少两款开放权重模型，且有在线副线或这次作为副线发布。写多款开源产品组成家族，不从 role small 推断多种参数尺寸、轻量端侧、口袋设备或便携部署。',
+  ms_family3: '已有至少三次发布、存在副线，且本次综合能力距当前世界前沿不超过5分。写多款产品阵容与分工，不写一次发布大小两版，不由副线身份推断速度快、成本低。',
+  ms_fast_small: '这次作为副线发布，综合能力距当前世界前沿不超过10分。肯定副线能力与产品分工成果，不称参数轻量，不承诺低延迟、高吞吐或便宜；role small 是发布身份而非速度成本门槛。',
+  ms_flash_catchup: '这次作为副线发布，综合能力达到一年前世界最强的水平。写副线追上去年前沿，不声称参数只有零头、用卡减少、速度更快或成本下降。',
+  ms_decider: '这次作为副线发布，Agent维至少70、安全维至少80。保留决策应用主题与角色语气，但副线身份不证明参数小、跑得快或显存占用低，不写显存不喘等承诺。',
+  ms_lite_moe: '玩家发布了采用 MoE 架构的副线模型。role small 表示副线或子系列，不表示参数轻量：总参数和激活参数都可能很大。只可说按需激活相对全参数计算节省开销；完整权重仍需要内存。不得承诺普通电脑、消费级硬件、轻薄本部署或不爆显存，不称激活参数仅有/只要/这么小；选项写部署测量与工具调用、能力安全对照，不假设存在完整参数版本。',
   ms_first_sota: '玩家的模型第一次被公认为这个领域最强（拿到 SOTA 标签）：可能是刚发布那天，也可能是挡住了对手的一次挑战以后才坐实。可用 {field} 指这个领域（语言模型、图像生成、音乐生成、语音合成）。',
   ms_open_reasoning_frontier: '玩家发布的开放权重推理模型，综合能力离世界最强不到 4 分。',
 };
@@ -85,7 +91,7 @@ function prompt(ms) {
   const isTech = ms.player.on === 'tech';
   const mineChoices = isTech
     ? '- paper：把方法写成论文公开（口碑、品牌和技术积累上升；以后别家也能照着学）\n- secret：先不公开，自己用（领先保持得更久；以后发布新版本时也能写进技术报告）'
-    : mineChoiceList(ms, h).map(c => `- ${c.id}：旧文案「${c.label}」；效果：${describeEffects(c.effects) || '无'}`).join('\n');
+    : mineChoiceList(ms, h).map(c => `- ${c.id}：旧文案「${c.label}」；效果：${describeEffects(c.effects, { mod: ms.mod }) || '无'}`).join('\n');
   const rivalPart = ms.type === 'first' ? `
 另外写“别家先做到”的版本 rival：{who} 抢先做到了这件事，玩家是旁观者。选项（效果固定，只写文字）：
 - study：${tech ? `照着论文和开源代码学「${tech.name}」（研究时间缩短）` : '组织团队研究对方的做法（技术积累小幅上升）'}

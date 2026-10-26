@@ -8,23 +8,30 @@
   <meta name="description" content="经营一家 AI 模型公司：按真实月份走史实剧本，或在自洽世界里从零开局，也可以联机和别人同场。找数据、立项炼模型、跑榜、发布、融资上市。" />
   <title>模型育成计划 · AI 模型公司经营模拟</title>
   <!-- 样式按区块拆在 src/career/css/ 里，按这个顺序加载（后面的盖前面的；窄屏断点都在 mobile.css）。 -->
-  <link rel="stylesheet" href="./src/career/css/base.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/layout.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/topbar.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/home.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/office.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/overlay.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/picker.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/panels.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/mobile.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/strategy.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/naming.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/history.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/archive.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/train.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/solo.css?v=4" />
-  <link rel="stylesheet" href="./src/career/css/mp.css?v=4" />
+  <link rel="stylesheet" href="./src/career/css/base.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/layout.css?v=29-start-flow" />
+  <link rel="stylesheet" href="./src/career/css/topbar.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/home.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/office.css?v=9-uiux" />
+  <link rel="stylesheet" href="./src/career/css/overlay.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/picker.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/panels.css?v=9-compact" />
+  <link rel="stylesheet" href="./src/career/css/mobile.css?v=29-start-flow" />
+  <link rel="stylesheet" href="./src/career/css/strategy.css?v=9-uiux" />
+  <link rel="stylesheet" href="./src/career/css/naming.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/history.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/archive.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/train.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/post_plan.css?v=28-card-pack" />
+  <link rel="stylesheet" href="./src/career/css/post_plan_feedback.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/solo.css?v=8-hud" />
+  <link rel="stylesheet" href="./src/career/css/mp.css?v=8-hud" />
   <link rel="preload" as="image" href="./assets/thumbs/bg-sunlit-atelier.webp" />
+  <link rel="stylesheet" href="./src/career/css/play_setup.css?v=29-start-flow" />
+  <link rel="stylesheet" href="./src/career/css/practice_coach.css?v=29-onboarding" />
+  <link rel="stylesheet" href="./src/career/css/responsive_fit.css?v=26-reflow" />
+  <link rel="stylesheet" href="./src/career/css/home_refresh.css?v=29-training" />
+  <link rel="stylesheet" href="./src/career/css/office_refresh.css?v=26" />
 </head>
 <body>
   <noscript>请启用 JavaScript 以开始育成。</noscript>
@@ -32,6 +39,6 @@
   <div id="overlay-root"></div>
   <div id="toast-root" class="toast-root" role="status" aria-live="polite"></div>
   <!-- 入口不要加 ?v= 之类的查询串：scripts/ui_smoke.mjs 按 ./src/career/ui/app.js 导入来读游戏状态，地址不同会再加载出一份 app.js，页面上会同时跑两份游戏。界面模块之间共用的东西在 state.js，不从 app.js 导入。 -->
-  <script type="module" src="./src/career/ui/app.js"></script>
+  <script type="module" src="./src/career/ui/bootstrap.js"></script>
 </body>
 </html>

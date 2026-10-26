@@ -10,18 +10,17 @@ import { addPoolData, knowledgeCap, runBenchmark, suiteFor } from './model.js';
 import { startKnow } from './research.js';
 import { initMilestones } from './milestones.js';
 import { seedWorldFlags } from './world.js';
-import { hypeIndex } from './economy.js';
+import { hypeIndex, initComputeLedger } from './economy.js';
 import { buildGoals } from './board.js';
 import { log } from './log.js';
 import { startOfMonth, releaseScheduled } from './loop.js';
 import { newModel, structuredCloneSafe } from './projects.js';
 import { recordRun } from './release.js';
 import { initSota, orgBest, familyBest, orgReleases, qOf } from './sota.js';
-import { ensureExpect } from './expect.js';
+import { initExpect } from './expect.js';
 import { initRoute } from './route.js';
 import { initStrategy } from './strategy.js';
 import { initNaming, nextHintText } from './naming.js';
-import { stampFeatures } from './migrate.js';
 import { initJobs, guardOldFields } from './jobs.js';
 import { P } from './provider.js';
 
@@ -42,7 +41,7 @@ export {
 } from './model.js';
 export { averageRent, monthlyCosts, monthlyDepreciation, serveCostPerM, staffCostPerHead, regionOf, tickerPrice, usageBoards } from './economy.js';
 export { goalNeed, resolveGoal } from './board.js';
-export { fundingOffers, fundingBlock, fundBoost, ipoCheck, startFunding, startIpo, trade, borrow, repay, borrowLimit, loanOf, collateralValue } from './capital.js';
+export { fundingOffers, fundingBlock, fundBoost, ipoCheck, ipoReview, startFunding, startIpo, trade, borrow, repay, borrowLimit, loanOf, collateralValue } from './capital.js';
 export { bestRentGpu, buyGpu, buySmuggled, gpuOrderInfo, grayHeatLevel, releaseGpu, setInferShare, smuggleOffers } from './compute.js';
 export { dataOptions, datasetAvailable, distillOptions } from './data_ops.js';
 export { finish } from './finish.js';
@@ -61,7 +60,6 @@ export { sotaAt, sotaMade, sotaWouldTake, worldSota, gapOf } from './sota.js';
 export { expectPreview } from './expect.js';
 export { releaseOpenRule } from './route.js';
 export { strategyOptions, nodeStatus, startStrategy, cancelStrategy, routeChangeBlocked } from './strategy.js';
-export { FEATURES } from './migrate.js';
 // 训练作业（P2.4a，规格 T11.2）：分卡、作业位、最快天数、立项检查和作业操作、“重活”口径。
 export {
   allocJobs, allocCtx, jobSlots, slotsByTeam, slotsByCards, slotsUsed, minCards, wantCards, fastestDays, startJob, jobCheck, cancelJob, pauseJob, setJobPrio, setJobCap,
@@ -116,7 +114,7 @@ export function startModel(charId, scenarioId) {
   if (!rel && !next) return null;
   const nx = next ? nextHintText(charId, next.name) : '';
   const text = [rel ? `在线：${rel.name}` : '还没有在线模型', nx].filter(Boolean).join(' · ');
-  const detail = [rel ? `${rel.name}（${fmtDate(rel.date)}）` : '', next ? `${rel ? '' : '还没有在线模型；'}${nx.replace('下一代在练', '下一代底座已练好，正在后训练')}` : ''].filter(Boolean).join('；');
+  const detail = [rel ? `${rel.name}（${fmtDate(rel.date)}）` : '', next ? `${rel ? '' : '还没有在线模型；'}${nx.replace('下一代在练', '下一代底座已练好，可发起后训练')}` : ''].filter(Boolean).join('；');
   return { name: rel?.name ?? null, date: rel?.date ?? null, training: !!next, text, detail };
 }
 
@@ -149,6 +147,7 @@ export function createGame(charId, scenarioId, seed = Date.now()) {
     // 按天推进：今天、团队正在做的事、在途订单、待上线的版本、排在某天的事件和新闻、本季度 / 本月已用的配额、本月的工作天数。
     day: dayKey(scenario.start, 1), orders: [], deploy: [], scheduled: [], quota: {}, mstat: { train: 0, research: 0 },
     // 训练作业（规格 T 章，P2.4a）：作业表、送评中的候选、上一代收尾、待发布的小模型（smallWorking 之外的）。开局没有作业（团队在做研究）。
+    computeLedger: initComputeLedger(scenario.start),
     jobs: initJobs(), evals: [], prevWorking: null, smallShelf: [],
   };
   // s.project、s.focus 已删除：装上读旧字段报错的取值器（T11.2）。
@@ -248,16 +247,14 @@ export function createGame(charId, scenarioId, seed = Date.now()) {
   // v1.0 的开局钩子（规格 D10.3，顺序固定）：开局阵容和继承型号都定好以后，SOTA 标签 → 市场期待 → 开源路线 → 公司策略 → 命名。
   // 里程碑账本排在公司策略之前：策略播种（A4.7）要读开局前已经发生的“行业第一次”。
   // initSota（P1.1）按 D10.4 播种，再把开局前看得到的对手发布和继承的型号回放一遍；其余各包落地前是存根，不往 s 里写东西。
-  // stampFeatures 在结构版本到 4 以后把读档特性步骤记成已执行（新存档不用迁移）。
   initSota(s);
-  ensureExpect(s);
+  s.expect = initExpect();
   initRoute(s);
   initMilestones(s);
   // 开局前已经发生的世界事件留下的标记（规格 E5，例如 2024-05 的价格战）：要读里程碑账本，排在 initMilestones 之后。
   seedWorldFlags(s);
   initStrategy(s);
   initNaming(s);
-  stampFeatures(s);
   startOfMonth(s, true);
   releaseScheduled(s);
   if (ipoTicker) s.queue.unshift({ kind: 'notice', title: '月底挂牌', text: `招股已经结束，${s.company.company} 这个月底在港交所挂牌，代码 ${ipoTicker}。上市后的股价会跟着你们的发布、榜单、收入和诉讼走。` });

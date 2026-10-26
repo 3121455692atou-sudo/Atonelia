@@ -9,7 +9,7 @@ export const MP = { PORT: 8790, HOST: '127.0.0.1', MAX_ROOMS: 4, SEATS: [2, 8], 
   SSE_PER_SEAT: 3, RATE: { cmd: 10, chat: 1 }, BODY: 8192,
   TEXT: 200, TOTAL: [3, 12] };                                 // M3b：聊天、名字最多 200 字；从零局公司总数 3–12
 
-export const PROTOCOL_V = 2;   // 2（P4.2）：公开视图的 exchange 按股票再拆一层，追加列表能带“前面截掉几条”
+export const PROTOCOL_V = 3;   // 3：强制差分版本标记；托管字段及有界日志按增量传输。
 // 引擎命令：唯一参数表。房间命令不进引擎；系统命令由服务器自己发，写进日志（M3b 补全）。
 export const ENGINE_COMMANDS = Object.keys(COMMANDS);
 export const ROOM_COMMANDS = ['start', 'pause', 'resume', 'speed', 'vote', 'ready', 'chat', 'kick', 'approveSeat', 'settings', 'save', 'setCompany'];
@@ -23,6 +23,7 @@ export function stripPrivate(s) {
   if (!s) return s;
   const { rng, seed, ...rest } = s;
   void rng; void seed;
+  if (rest.postRandom) { const { runSeed, ...publicRandom } = rest.postRandom; void runSeed; rest.postRandom = publicRandom; }
   return rest;
 }
 
@@ -30,7 +31,7 @@ const J = v => JSON.stringify(v);
 const clone = v => (v === undefined ? undefined : JSON.parse(J(v)));
 // 只追加的列表：news 新的在前（unshift），log、history 新的在后（push）。对不上就整条重发。
 const FRONT = new Set(['news']);
-const BACK = new Set(['log', 'history']);
+const BACK = new Set(['log', 'history', 'recent', 'receipts']);
 function listDiff(prev, cur, front) {
   if (!Array.isArray(prev) || !Array.isArray(cur) || cur.length < prev.length) return { set: cur };
   const n = cur.length - prev.length;
@@ -111,24 +112,44 @@ function modelsDiff(prev, cur) {
 }
 // 二级差分（M.6.1 定稿）：顶层键变了才发；models、news、log、history 再往下一层。返回 null 表示没变。
 export function diffState(prev, cur) {
-  if (!prev) return { full: clone(cur) };
+  if (!prev) return { $v: PROTOCOL_V, full: clone(cur) };
   const d = {};
   for (const k of Object.keys(cur)) {
     if (J(cur[k]) === J(prev[k])) continue;
-    if (k === 'models') { const md = modelsDiff(prev[k], cur[k]); if (md) d[k] = { models: md }; }
+    if (k === 'automation' && isObj(prev[k]) && isObj(cur[k])) { const ad = diffState(prev[k], cur[k]); if (ad) d[k] = { object: ad }; }
+    else if (k === 'models') { const md = modelsDiff(prev[k], cur[k]); if (md) d[k] = { models: md }; }
     else if (k === 'exchange') { const ed = exchangeDiff(prev[k], cur[k]); if (ed) d[k] = { ex: ed }; }
     else if (FRONT.has(k) || BACK.has(k)) { const ld = listDiff(prev[k], cur[k], FRONT.has(k)); if (ld) d[k] = { list: ld }; }
     else d[k] = { set: cur[k] };
   }
   const del = Object.keys(prev).filter(k => !(k in cur));
   if (del.length) d.$del = del;
-  return Object.keys(d).length ? clone(d) : null;
+  return Object.keys(d).length ? clone({ $v: PROTOCOL_V, ...d }) : null;
+}
+function validateDiffVersion(d) {
+  if (!isObj(d) || d.$v !== PROTOCOL_V) throw new Error(`联机差分版本不匹配，需要 v${PROTOCOL_V}`);
+  for (const [k, v] of Object.entries(d)) if (k !== '$v' && k !== 'full' && k !== '$del' && v?.object) validateDiffVersion(v.object);
+}
+function validateSafeKeys(value) {
+  if (!value || typeof value !== 'object') return;
+  for (const [key, child] of Object.entries(value)) {
+    if (['__proto__', 'prototype', 'constructor'].includes(key)) throw new Error('联机差分包含不安全字段');
+    validateSafeKeys(child);
+  }
+}
+export function validateDiff(d) {
+  if (!d) return;
+  validateDiffVersion(d);
+  validateSafeKeys(d);
 }
 export function applyDiff(obj, d) {
   if (!d) return obj;
+  validateDiff(d);
   if (d.full) return clone(d.full);
   for (const [k, v] of Object.entries(d)) {
+    if (k === '$v') continue;
     if (k === '$del') { for (const x of v) delete obj[x]; continue; }
+    if (v.object) { obj[k] = applyDiff(obj[k], v.object); continue; }
     if (v.set !== undefined) { obj[k] = v.set; continue; }
     if (v.list) { obj[k] = applyList(obj[k], v.list); continue; }
     if (v.ex) {

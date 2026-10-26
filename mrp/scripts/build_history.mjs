@@ -115,7 +115,7 @@ function personalPrompt(e, h) {
   return `玩家扮演的公司：${co.company}；玩家培养的模型角色：${nameOf(e.character_id)}${labelOf(e.character_id) ? `（${labelOf(e.character_id)}）` : ''}${PERSONA[e.character_id] ? `，${PERSONA[e.character_id]}` : ''}。
 真实历史：${e.historical_date} · ${e.historical_title}。${e.fact}
 游戏里这个月会弹出一张“历史时刻”事件卡，玩家从几个选项里选一个。旧文案太文艺、玩家看不懂，请重写。选项的效果数值是固定的，只改文字，让文字和效果对得上：
-${h.choices.filter(c => c.id !== 'skip').map(c => `- ${c.id}：旧文案「${c.label}」；效果：${describeEffects(c.effects) || '无'}`).join('\n')}
+${h.choices.filter(c => c.id !== 'skip').map(c => `- ${c.id}：旧文案「${c.label}」；效果：${describeEffects(c.effects, { mod: co.modality }) || '无'}`).join('\n')}
 （另有固定选项 skip：按原计划推进，不用写。）
 输出 JSON：
 {"title":"8–16 字，平实，像新闻标题或工作日志","body":"2–3 句大白话：这个月现实中发生了什么，你们团队现在要决定什么。写公司和团队，不拟人","line":"模型角色对玩家说的一句话，拟人、可爱或好笑，不超过 40 字","choices":[{"id":"c0","label":"具体的工作决定，不超过 18 字","result":"选完之后的结果，一句平实的话"}],"scene":[{"who":"self","emo":"","text":"..."}]}

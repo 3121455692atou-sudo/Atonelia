@@ -1,3 +1,4 @@
+import { PRACTICE_PREREQ } from './research_practices.js';
 // 每项技术在现实里是怎么传开的：[月份, 来源, 公开程度, 说明, 关联发布?]。
 // 关联发布（第 5 列，规格 D2）：这次公开就是随某款发布一起来的（同月），新闻挂到发布那天，并进那条发布新闻。
 // 来源是模型家族（玩家扮演的那一家不算数：那条线走的是另一条历史）或 'academia'（学界、社区，永远算数）。
@@ -57,6 +58,7 @@ export const AHEAD_MONTHS = 12;
 export const AHEAD_PENALTY = 0.3;
 // 前置技术：没掌握前面的，后面的无从下手（推理 RL 要先会 GRPO 一类的 RL 算法，Agent RL 要先有推理和工具调用……）。
 export const PREREQ = {
+  ...PRACTICE_PREREQ,
   grpo: ['dpo'], mla: ['flash_attn'], reasoning: ['grpo'], computer_use: ['func_call'], mcp: ['func_call'], fp8: ['moe'], mtp: ['spec_decode'],
   linear_attn: ['long_ctx'], agentic_rl: ['reasoning', 'func_call'], const_cls: ['dpo'], sparse_attn: ['mla'], skills: ['mcp'], engram: ['moe'], cot_monitor: ['reasoning'],
   flow: ['dit'], ar_image: ['flow', 'recaption'], img_edit: ['flow'],

@@ -67,8 +67,8 @@ export function conditionalEvents(s, sv, report) {
       if (svc.tavern > 0.1) hazard('minor', 0.02 * usage * (svc.contentPolicy === 'lenient' ? 2 : 1) * R('minor'));
       if (s.data.risky.ds_books3 || s.data.risky.ds_pile) hazard('books', (P().gate('booksSuit2', s) ? 0.05 : P().gate('booksSuit', s) ? 0.015 : 0.004) * R('piracy'));
       if (s.data.risky.ds_github_all) hazard('code', 0.006);
-      const tos = Object.keys(s.data.risky).find(k => k === 'ds_gpt4_distill' || k.startsWith('tos_'));
-      if (tos && P().gate('tosSuit', s)) hazard('tos', 0.05 * R('tos'), { vendor: tos === 'ds_gpt4_distill' ? 'OpenAI' : FAMILIES[tos.slice(4)]?.company });
+      const tos = Object.keys(s.data.risky).find(k => k.startsWith('tos_'));
+      if (tos && P().gate('tosSuit', s)) hazard('tos', 0.05 * R('tos'), { vendor: FAMILIES[tos.slice(4)]?.company });
     }
     if (s.mod === 'image') {
       if (s.data.risky.im_art_scrape || s.data.risky.im_laion) hazard('image', 0.012 * R('image'));
@@ -334,7 +334,7 @@ export function applyEventChoice(s, q, c) {
         if (vo) P().transfer(s, vo, q.params.claim * 0.3, 'case');
         for (const mm of [workingModel(s), liveModel(s)]) if (mm) mm.dims.safety = round1(clamp(mm.dims.safety + 2.5, 0, 99));
         if (q.params.type === 'books') { delete s.data.risky.ds_books3; delete s.data.risky.ds_pile; }
-        if (q.params.type === 'tos') for (const k of Object.keys(s.data.risky)) if (k.startsWith('tos_') || k === 'ds_gpt4_distill') delete s.data.risky[k];
+        if (q.params.type === 'tos') for (const k of Object.keys(s.data.risky)) if (k.startsWith('tos_')) delete s.data.risky[k];
         s.legal.history.push({ ...base, outcome: '整改和解' });
         return `支付 ${p.settle2} 并承诺整改，安全对齐得到加强。`;
       }

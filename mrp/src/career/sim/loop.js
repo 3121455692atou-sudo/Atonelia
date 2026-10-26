@@ -1,3 +1,6 @@
+import { postOnlyEvents, postOnlyDay } from './post_only.js';
+import { activatePostSessions } from './post_plan_state.js';
+import { automationDay } from './automation.js';
 // 按天推进：走一天（tickDay）、到期的计时器（dueTick）、排在某天的新闻和事件、月度结算（monthClose）、新的一个月（startOfMonth）；
 // 还有做决定的总入口 decide，和按月推进的老接口 act、runMonth（测试和自动对局用）。
 import { END, START_RESOURCES, TECHS, fmtDate } from '../data/core.js';
@@ -57,9 +60,14 @@ export function decide(s, action, arg = {}) {
 
 // ---------- 按天推进 ----------
 // 走一天。眼前有事件要处理时不走（界面会暂停）；跨月时做月度结算。返回这一天发生的事。
-export function tickDay(s) {
+export function tickDay(s, automationContext = null) {
+  postOnlyEvents(s);
   if (s.status !== 'playing' || (P().queueBlocks && s.queue.length)) return null;
   // 今天的卡都处理完了：推进途中触发的卡到明天才弹，算明天的名额（规格 E4“同一天最多弹 1 张”）。
+  // 先激活今天生效的方案，让托管分配也看见它的真实算力需求。
+  activatePostSessions(s);
+  automationDay(s, automationContext);
+  postOnlyDay(s);
   closePopupDay(s);
   const out = { day: s.day, notes: [] };
   // 今天到期的计时器先结算（备案、融资、上市出结果，下架的对话产品重新上架）。
@@ -98,7 +106,7 @@ export function tickDay(s) {
       else s.scheduled.push({ at: addDays(next, Math.floor(rand(s) * 20)), item });
     }
     if (s.status !== 'playing') return out;
-    if (s.date >= END) { finish(s, 'complete'); return out; }
+    if (s.date >= END) { if (P().mode !== 'sim') finish(s, 'complete'); return out; }
     s.date = monthOf(next);
     s.day = next;
     startOfMonth(s, false);

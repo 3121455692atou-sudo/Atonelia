@@ -1,3 +1,7 @@
+import {validateAutomationSetup,applyAutomationSetup} from './automation_setup.mjs';
+import { validateSimulationRulesStart, validateSimulationRulesRuntime, markWorldSimulationRules, validateWorldSimulationRules, validateSimulationRulesSnapshot } from './simulation_rules.mjs';
+import { validateInitialMethodsStart, validateInitialMethodsRuntime, markWorldInitialMethods, validateWorldInitialMethods, validateInitialMethodsSnapshot } from './initial_methods.mjs';
+import { validatePostTrainingRule, validatePostTrainingStart, enableWorldPostTraining, validateWorldPostTraining, validatePostTrainingSnapshot } from './post_training.mjs';
 // 联机存档：先把操作写入日志，再改世界；快照是可丢弃的加速层。
 // 每个目录只有房间 worker 写入，主线程只通过 worker 修改 meta，避免两个写入者互相覆盖。
 import fs from 'node:fs';
@@ -73,11 +77,11 @@ export function appendLog(dir, entry, n) {
 }
 
 // runtime 存座位、投票、暂停计数和计时账本；没有世界的大厅也能拍快照。
-export function writeSnap(dir, world, logN, runtime = null) {
+export function writeSnap(dir, world, logN, runtime = null, { preserve = false } = {}) {
   const body = { logN, day: world?.day ?? null, text: world ? E.serialize(world) : null, runtime };
   const name = `snap-${String(logN).padStart(9, '0')}.json.gz`;
   atomicFile(dir, name, zlib.gzipSync(JSON.stringify(body)));
-  prune(dir);
+  if (!preserve) prune(dir);
   return name;
 }
 export function listSnaps(dir) {
@@ -113,8 +117,20 @@ function onDay(world, e) {
 
 // 返回世界以支持从大厅日志恢复开局；已有世界时仍返回同一对象。
 export function replayEntry(world, e) {
-  if (e.t === 'room' && ['start', 'room.start'].includes(e.name) && e.args?.settings && !world) {
-    return E.createWorld({ ...e.args.settings, mp: true });
+  const isStart = e.t === 'room' && ['start', 'room.start'].includes(e.name);
+  // Direct CLI replay must not bypass preflight by omitting settings or passing
+  // an already-created world. Validate before any world / Provider mutation.
+  if (isStart) {
+    validateAutomationSetup(e.args);
+    validatePostTrainingStart(e.args);
+    validateInitialMethodsStart(e.args);
+    validateSimulationRulesStart(e.args);
+    if (world) validateWorldSimulationRules(world);
+  }
+  if (Object.hasOwn(e, 'state') || (e.t === 'room' && ['create', 'start', 'room.start'].includes(e.name))) validateSimulationRulesRuntime(e.state);
+  if (isStart && !world) {
+    const created=E.createWorld({ ...e.args.settings, mp: true, endVersion: e.args.endVersion, autoPostVersion: e.args.autoPostVersion, automationVersion: e.args.automationVersion });
+    return applyAutomationSetup(enableWorldPostTraining(markWorldSimulationRules(markWorldInitialMethods(created)),e.args.postTrainingSeed),e.args);
   }
   if (e.t === 'cmd') {
     onDay(world, e);
@@ -153,8 +169,22 @@ export function replayEntry(world, e) {
   return world;
 }
 
-export function rebuild(dir, { fromStart = false } = {}) {
-  const log = readLog(dir, { repair: true });
+export function rebuild(dir, { fromStart = false, repair = true } = {}) {
+  const log = readLog(dir, { repair: false });
+  const start=log.find(e=>e.t==='room'&&['start','room.start'].includes(e.name));
+  if(start) validatePostTrainingStart(start.args);
+  // Preflight every persisted runtime/start before creating or installing a world.
+  // This includes unstarted lobbies; no old record is silently upgraded on recovery.
+  for (const e of log) {
+    if (e.t === 'room' && ['start', 'room.start'].includes(e.name)) {
+      validateInitialMethodsStart(e.args);
+      validateSimulationRulesStart(e.args);
+    }
+    if (Object.hasOwn(e, 'state') || (e.t === 'room' && ['create', 'start', 'room.start'].includes(e.name))) {
+      validateInitialMethodsRuntime(e.state);
+      validateSimulationRulesRuntime(e.state);
+    }
+  }
   const snaps = listSnaps(dir);
   let selected = null;
   // 最近快照损坏时退回上一份；日志损坏仍然报错，不能跳过已提交操作。
@@ -170,7 +200,13 @@ export function rebuild(dir, { fromStart = false } = {}) {
   }
   if (!selected && !log.length) throw new Error('这一局没有可恢复的快照或日志');
   let world = null, runtime = selected?.runtime ?? null;
+  if (selected) { validateInitialMethodsRuntime(selected.runtime); validateSimulationRulesRuntime(selected.runtime); }
   if (selected?.text !== null && selected?.text !== undefined) {
+    const raw = E.deserialize(selected.text);
+    validatePostTrainingSnapshot(raw);
+    validateInitialMethodsSnapshot(raw);
+    validateSimulationRulesSnapshot(raw);
+    if (!start) throw Error('联机快照缺少初始研究开局版本日志；原存档保留');
     const m = E.migrateWorld(selected.text);
     if (!m.ok) throw new Error(`快照读不了：${m.reason ?? m.err ?? '格式不对'}`);
     world = m.world;
@@ -181,5 +217,12 @@ export function rebuild(dir, { fromStart = false } = {}) {
     // tick 的已记录时间也是降速账本的检查点，停机后的现实时间不补算额度。
     if (runtime && Number.isFinite(log[i].at)) runtime.wall = Math.max(runtime.wall ?? 0, log[i].at);
   }
+  if(world) {
+    validateWorldPostTraining(world);
+    validateWorldInitialMethods(world);
+    validateWorldSimulationRules(world);
+    if(!start || world.postTrainingSeed!==start.args.postTrainingSeed)throw Error('联机后训练快照与开局随机种子不一致；原存档保留');
+  }
+  if(repair) readLog(dir,{repair:true});
   return { world, logN: log.length, runtime };
 }

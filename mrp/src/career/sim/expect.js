@@ -20,17 +20,11 @@ const RESULT_ORDER = r => ORDER[r] ?? -1;
 export function initExpect() {
   return { lastJudged: { flagship: null, small: null }, cool: {}, hot: null, worksDay: null, pending: null, ask: null, log: [] };
 }
-// createGame 的 initExpect 钩子和迁移结构步骤的末尾都调它；旧档缺的字段补齐，已有的值不动。
+// 只校验当前期待账本；缺项不能通过每日计算被静默补成新存档。
 export function ensureExpect(s) {
-  const base = initExpect();
-  if (!s.expect || typeof s.expect !== 'object') { s.expect = base; return s.expect; }
   const e = s.expect;
-  for (const [k, v] of Object.entries(base)) if (e[k] === undefined) e[k] = v;
-  if (!e.lastJudged || typeof e.lastJudged !== 'object') e.lastJudged = { flagship: null, small: null };
-  if (e.lastJudged.flagship === undefined) e.lastJudged.flagship = null;
-  if (e.lastJudged.small === undefined) e.lastJudged.small = null;
-  if (!e.cool || typeof e.cool !== 'object') e.cool = {};
-  if (!Array.isArray(e.log)) e.log = [];
+  if (!isObj(e) || !isObj(e.lastJudged) || !Object.hasOwn(e.lastJudged, 'flagship') || !Object.hasOwn(e.lastJudged, 'small') || !isObj(e.cool) || !Array.isArray(e.log)
+    || ['hot', 'worksDay', 'pending', 'ask'].some(k => !Object.hasOwn(e, k))) throw Error('不支持缺少市场期待字段的旧存档，请新开一局');
   return e;
 }
 
@@ -40,7 +34,7 @@ const qOfModel = (s, m) => qOf(modOf(s, m), m?.dims || {});
 const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
 const r2 = v => Math.round(v * 100) / 100;
 const released = (s, mod) => (s?.models || []).filter(m => m.stage === 'released' && (m.mod ?? s.mod) === mod);
-const relDayOf = m => m?.releasedDay ?? (m?.released ? `${m.released}-15` : null);
+const relDayOf = m => m?.releasedDay ?? null;
 const isOpenSnap = m => !!m?.open && ['permissive', 'restrictive', 'LP', 'LR'].includes(m.license);
 const isOpenRival = r => !!r?.open && (licenseOf(r) === 'LP' || licenseOf(r) === 'LR');
 // 量级口径（D1.1）：frontier 并入 large。

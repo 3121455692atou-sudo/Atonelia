@@ -1,0 +1,19 @@
+/* Only a short coach rail; the game below is the unchanged real game UI. */
+.practice-coach { position:fixed;inset:0 0 auto;z-index:120;display:flex;align-items:center;gap:10px;padding:8px 12px;background:#142033;color:#fff8e9;border-bottom:1px solid #e6b85d;box-shadow:0 2px 10px #0003;font:600 14px/1.4 system-ui,sans-serif; }
+.practice-coach > span { flex:1;min-width:0; }
+.practice-coach-copy { flex:1;min-width:0;display:grid;gap:4px;font-weight:400;font-size:13px;line-height:1.6; }
+.practice-coach-copy>strong { color:#f0cb7b;font-size:14px; }
+.practice-coach .practice-next[hidden] { display:none; }
+.practice-coach .btn:last-child { background:transparent;color:#d9e4eb;border:1px solid #536272;font-size:12px; }
+@media(max-width:600px) { .practice-coach { flex-wrap:wrap;gap:6px;padding:8px 12px; }.practice-coach-copy{flex-basis:100%}.practice-coach>.btn{min-height:30px;padding:4px 10px}.practice-coach>.btn:last-child{margin-left:auto} }
+.practice-coach > .btn { flex:none;min-height:36px;padding:6px 10px;background:#e6b85d;color:#1b2131;border:0;white-space:nowrap; }
+/* One viewport contract: the rail owns the top slice; every game root uses
+   the remainder. Never add body padding to a full-height app. */
+body.is-practice { --game-available-height:calc(100dvh - var(--practice-coach-height,52px));height:100dvh;min-height:0;padding:0;overflow:hidden; }
+.is-practice #app { position:fixed;inset:var(--practice-coach-height,52px) 0 0;height:var(--game-available-height);min-height:0;overflow:auto; }
+.is-practice #app.app--home { overflow:hidden; }
+.is-practice .topbar { top:0; }
+.is-practice .overlay { top:var(--practice-coach-height,52px);bottom:0; }
+.is-practice .overlay--office .sheet, .is-practice .overlay--office .office { height:var(--game-available-height);min-height:0; }
+.is-practice .overlay:not(.overlay--office) .sheet { max-height:calc(var(--game-available-height) - 32px); }
+.practice-target { outline:3px solid #e8ba50!important;outline-offset:3px;scroll-margin:12px; }

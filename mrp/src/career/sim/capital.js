@@ -10,6 +10,7 @@ import { P } from './provider.js';
 import { customerRevenue, CUSTOMER_KEYS } from '../world/valuation.js';
 import { quarterOf } from '../data/supply.js';
 import { FOLLOW_ON, FUNDING } from '../data/economy.js';
+import { EXCHANGE } from '../data/exchange.js';
 import { GPUS } from '../data/core.js';
 import { bubbleActive, bubbleDaysLeft, bubbleMult } from './bubble.js';
 
@@ -80,26 +81,45 @@ export function startFunding(s, dilution) {
   s.due.funding = addDays(s.day, 60);
   log(s, `启动融资：出让 ${Math.round(dilution * 100)}%`);
 }
-export function ipoCheck(s) {
-  if (s.company.kind === 'division') return { ok: false, reason: '集团内部团队不能单独上市' };
-  if (s.capital.listed) return { ok: false, reason: '已经上市' };
-  if (s.capital.ipo) return { ok: false, reason: '上市流程进行中' };
-  if (bubbleActive(s)) return { ok: false, reason: `AI 泡沫破裂后市场关着门（还要 ${bubbleDaysLeft(s)} 天）` };
-  if (!P().ipoOpen(s)) return { ok: false, reason: '市场窗口还没打开（2024 年起）' };
-  if (s.valuation < 3e9) return { ok: false, reason: '估值需要达到 30 亿美元' };
-  // 自洽世界按 M.5.5：还要有两个季度的客户收入。收入只算对话、订阅、API、Coding Plan 四项，
-  // 出租显卡和公司之间的钱不算（史实路径维持原来的条件，指纹不变）。
-  if (P().mode !== 'history') {
+// 单一条件来源：引擎按顺序短路校验，决策页读完整清单，不新增上市机制。
+function* ipoRequirements(s) {
+  const row = (id, label, ok, reason, detail = '') => ({ id, label, ok, reason, detail });
+  yield row('independent', '独立公司', s.company.kind !== 'division', '集团内部团队不能单独上市');
+  yield row('unlisted', '尚未上市', !s.capital.listed, '已经上市');
+  yield row('idle', '没有进行中的 IPO', !s.capital.ipo, '上市流程进行中');
+  const bubble = bubbleActive(s);
+  yield row('bubble', '不在泡沫破裂的封锁期', !bubble, `AI 泡沫破裂后市场关着门（还要 ${bubble ? bubbleDaysLeft(s) : 0} 天）`);
+  const history = P().mode === 'history';
+  yield row('window', history ? '市场窗口：2024 年起' : '市场窗口：芯片采购指数达标', P().ipoOpen(s), history ? '市场窗口还没打开（2024 年起）' : '市场窗口还没打开（芯片采购指数尚未达标）');
+  yield row('valuation', '估值至少 30 亿美元', s.valuation >= 3e9, '估值需要达到 30 亿美元', `当前 ${fmtMoney(s.valuation)}`);
+  if (!history) {
     const quarters = new Set();
     for (const h of s.history || []) {
       if (!h.rev) continue;
       const sum = CUSTOMER_KEYS.reduce((a, k) => a + (h.rev[k] || 0), 0);
       if (sum > 0) quarters.add(quarterOf(h.date));
     }
-    if (customerRevenue(s) <= 0 || quarters.size < 2) return { ok: false, reason: '还需要两个季度的客户收入' };
+    const revenue = customerRevenue(s);
+    yield row('revenue', '两个季度有客户收入，近 12 个月客户收入为正', revenue > 0 && quarters.size >= 2, '还需要两个季度的客户收入', `有收入季度 ${quarters.size} 个；近 12 个月 ${fmtMoney(revenue)}（不含出租显卡与公司转账）`);
   }
-  if (s.legal.cases.some(c => c.type === 'class' || c.type === 'books')) return { ok: false, reason: '有重大未决诉讼' };
+  yield row('legal', '没有重大未决诉讼', !s.legal.cases.some(c => c.type === 'class' || c.type === 'books'), '有重大未决诉讼');
+}
+export function ipoCheck(s) {
+  for (const row of ipoRequirements(s)) if (!row.ok) return { ok: false, reason: row.reason };
   return { ok: true };
+}
+// 只读预览：金额以当前估值估算，真正到账仍由现有 capitalProcesses / listCompany 结算。
+export function ipoReview(s, frac = 0.2) {
+  const history = P().mode === 'history';
+  const fraction = history ? null : EXCHANGE.IPO.issue.includes(frac) ? frac : 0.2;
+  const requirements = [...ipoRequirements(s)], blocked = requirements.find(r => !r.ok);
+  return {
+    history, fraction, requirements, ok: !blocked, reason: blocked?.reason ?? '',
+    valuation: s.valuation, equityBefore: s.equity,
+    equityAfter: history ? s.equity : s.equity * (1 - fraction),
+    proceeds: history ? s.valuation * 0.08 : s.valuation * EXCHANGE.IPO.discount * fraction / (1 - fraction),
+    days: 90, expectedDay: addDays(s.day, 90),
+  };
 }
 // frac：自洽和联机里挂牌时的发行比例（10%、20%、30%，M.5.5）；史实模式不传。
 export function startIpo(s, frac) {

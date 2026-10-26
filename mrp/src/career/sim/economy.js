@@ -243,16 +243,16 @@ export function serviceCapacity(s) {
 
 // 逐日算力账单：每天按当天的卡和分配记一笔，月结只读账本。
 // 月底最后一天退租照样付前面那些天的租金，月底才出租也只收一天；推理能力取当月平均。界面上的报价仍按当前配置估一整月。
+export const initComputeLedger = month => ({ month, days: 0, owned: 0, rented: 0, leaseRevenue: 0, inferCapSum: 0, lastDay: null });
 export function accrueComputeDay(s) {
   const rates = monthlyCosts(s);
   const n = daysInMonth(s.date);
   const lease = leaseMonthlyRevenue(s), cap = serviceCapacity(s);
   let ledger = s.computeLedger;
-  if (!ledger || ledger.month !== s.date) {
-    // 旧档读进来时这个月已经过了几天，没有逐日记录：这几天按现在的配置估，不编造当时的订单。
-    const elapsed = Math.max(0, Number(s.day.slice(8, 10)) - 1);
-    ledger = s.computeLedger = { month: s.date, days: elapsed, estimatedDays: elapsed,
-      owned: rates.owned * elapsed / n, rented: rates.rented * elapsed / n, leaseRevenue: lease * elapsed / n, inferCapSum: cap * elapsed, lastDay: null };
+  if (!ledger) throw Error('不支持缺少逐日算力账本的旧存档，请新开一局');
+  if (ledger.month !== s.date) {
+    if (!s.day.endsWith('-01')) throw Error('逐日算力账本月份不一致，不能回填过去天数');
+    ledger = s.computeLedger = initComputeLedger(s.date);
   }
   if (ledger.lastDay === s.day) return;
   ledger.owned += rates.owned / n;

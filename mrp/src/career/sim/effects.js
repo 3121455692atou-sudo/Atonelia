@@ -39,7 +39,9 @@ const SERVICE_KEYS = { chatFree: '对话产品免费', apiTier: 'API 价格档',
 const CONTENT_POLICIES = ['strict', 'standard', 'lenient'];
 const POLICY_LABEL = { strict: '从严', standard: '标准', lenient: '宽松' };
 const ALL_DIMS = new Set(Object.values(MODALITIES).flatMap(m => m.dims.map(d => d.key)));
-const DIM_LABEL = Object.fromEntries(Object.values(MODALITIES).flatMap(m => m.dims.map(d => [d.key, d.label])));
+const DIM_LABEL = Object.fromEntries(Object.entries(MODALITIES).map(([mod, m]) => [mod, Object.fromEntries(m.dims.map(d => [d.key, d.label]))]));
+// 共享维度键的名称依模态而异；缺少模态或该模态没有此键时保留原键，不借用别的模态。
+const dimLabel = (mod, key) => DIM_LABEL[mod]?.[key] || key;
 // 后训练数据的类别（s.data.post 的键）就是各训练方向的 data，界面名取那个方向的名字。
 const POST_LABEL = Object.fromEntries(Object.values(DIRECTIONS).flat().filter(d => d.data).map(d => [d.data, d.label]));
 
@@ -131,9 +133,9 @@ const KEYS = {
       const m = workingModel(s) || liveModel(s);
       if (!m) return null;
       const r = applyGains(s, m, Object.fromEntries(Object.entries(v).filter(([k]) => m.dims[k] !== undefined)));
-      return Object.entries(r.applied).filter(([, x]) => Math.abs(x) >= 0.05).map(([k, x]) => `${DIM_LABEL[k] || k} ${plus(round1(x))}`);
+      return Object.entries(r.applied).filter(([, x]) => Math.abs(x) >= 0.05).map(([k, x]) => `${dimLabel(m.mod ?? s.mod, k)} ${plus(round1(x))}`);
     },
-    say: v => Object.entries(v).map(([k, x]) => `${DIM_LABEL[k] || k} ${plus(x)}`).join('，'),
+    say: (v, s) => Object.entries(v).map(([k, x]) => `${dimLabel(s?.mod, k)} ${plus(x)}`).join('，'),
     check: v => need(isObj(v) && Object.entries(v).every(([k, x]) => ALL_DIMS.has(k) && num(x)), 'dims 要写成 { 维度: 加分 }'),
   },
   risk: {

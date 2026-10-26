@@ -1,3 +1,6 @@
+import {persistentInputError} from './util.js';
+import {setPlayMode} from './post_only.js';
+import { enableAutomation, configureAutomationBatch, configureAutomation } from './automation.js';
 // 命令协议（规格 M.6.5）：唯一一张命令参数表 COMMANDS，和唯一入口 applyCommand。
 // 界面的 guard、联机服务器、net/protocol.js 都从这里拿参数表，不另写一份；机器人走的每一步也都能用它表达。
 //
@@ -27,10 +30,12 @@ import { trade, startFunding, startIpo, borrow, repay } from './capital.js';
 import { startStrategy, cancelStrategy } from './strategy.js';
 import { resolveEvent } from './queue.js';
 import { applyAdvice } from './advisor.js';
+import { assertSoloPostPlans, enablePostPlanSessions, openPostSession, replanPostSession, updatePostDraft, confirmPostDeck, choosePostSession, controlPostSession } from './post_plans.js';
+import { MAX_DECK_SIZE } from './post_catalog_rules.js';
 
 const isObj = x => !!x && typeof x === 'object' && !Array.isArray(x);
 const JOB_KINDS = ['pretrain', 'distill', 'finetune', 'post', 'trial'];
-// setPost 的结束条件，和 jobs.js 的 untilOk 同一套写法。
+// setPost 的结束条件形状预检；具体模态的维度由 jobs.js 再验证。
 const untilOk = u => u === 'none' || u === 'stall' || (isObj(u) && Number.isFinite(u.days) && u.days >= 1) || (isObj(u) && typeof u.dim === 'string' && Number.isFinite(u.to));
 // 送评参数里这些项原样进 submitEval 的 opts（名字、授名、开源、顶替、论文、许可条款，见 T6.2、M.5.4）。
 const EVAL_OPTS = ['name', 'grant', 'open', 'replace', 'papers', 'licenseTerms'];
@@ -53,6 +58,44 @@ function worldOp(op, ...args) {
 }
 
 export const COMMANDS = {
+  // Single-player only. No score, multiplier, seed or unlock-list arguments.
+  'postPlan.enable': { singlePlayerOnly: true, fn: s => enablePostPlanSessions(s), args: {} },
+  'postPlan.open': {
+    singlePlayerOnly: true, fn: (s, a) => openPostSession(s, a),
+    args: { modelId: { type: 'string', min: 1, max: 160 }, expectedModelToken: { type: 'string', min: 1, max: 200, nullable: true } },
+  },
+  'postPlan.updateDraft': {
+    singlePlayerOnly: true, fn: (s, a) => updatePostDraft(s, a),
+    args: { sessionId: { type: 'string', min: 1, max: 240 }, expectedRevision: { type: 'int', min: 0 },
+      cardIds: { type: 'array', minItems: 1, maxItems: MAX_DECK_SIZE, items: { type: 'string', min: 1, max: 40 } } },
+  },
+  'postPlan.confirmDeck': {
+    singlePlayerOnly: true, fn: (s, a) => confirmPostDeck(s, a),
+    args: { sessionId: { type: 'string', min: 1, max: 240 }, expectedRevision: { type: 'int', min: 0 },
+      cardIds: { type: 'array', minItems: 3, maxItems: MAX_DECK_SIZE, items: { type: 'string', min: 1, max: 40 } }, directionPolicy: { type: 'enum', values: ['model-general'] } },
+  },
+  'postPlan.replan': {
+    singlePlayerOnly: true, fn: (s, a) => replanPostSession(s, a),
+    args: { sessionId: { type: 'string', min: 1, max: 240 }, expectedRevision: { type: 'int', min: 0 } },
+  },
+  'postPlan.choose': {
+    singlePlayerOnly: true, fn: (s, a, ctx) => choosePostSession(s, a, ctx.postPlanActor ?? 'manual'),
+    args: { sessionId: { type: 'string', min: 1, max: 240 }, expectedRevision: { type: 'int', min: 0 }, turn: { type: 'int', min: 1, max: 6 }, cardId: { type: 'string', min: 1, max: 40 } },
+  },
+  'postPlan.setControl': {
+    singlePlayerOnly: true, fn: (s, a) => controlPostSession(s, a),
+    args: { sessionId: { type: 'string', min: 1, max: 240 }, expectedRevision: { type: 'int', min: 0 }, mode: { type: 'enum', values: ['manual', 'auto'] }, scope: { type: 'enum', values: ['session'] } },
+  },
+  setPlayMode: {singlePlayerOnly:true,fn:(s,a)=>setPlayMode(s,a.mode),args:{mode:{type:'enum',values:['post','full']}}},
+  enableAutomation: { fn: s => { enableAutomation(s); return { note: '数据、研究、算力分配、公司策略研究与预训练筹备已托管；购卡等尚未接入' }; }, args: {} },
+  configureAutomationBatch: { fn: (s,a) => configureAutomationBatch(s,a), args: {
+    modules: {type:'array',minItems:1,maxItems:6,items:{type:'enum',values:['data','research','computeAllocation','companyStrategy','pretraining','evaluation']}},
+    mode: {type:'enum',values:['auto','manual']}, expectedRev: {type:'int',min:0}, requestId: {type:'string',min:1,max:100},
+  } },
+  configureAutomation: { fn: (s,a) => configureAutomation(s,a), args: {
+    module: {type:'enum',values:['data','research','computeAllocation','companyStrategy','pretraining','evaluation']}, mode: {type:'enum',values:['auto','manual']},
+    preset: {type:'string',min:1}, expectedRev: {type:'int',min:0}, requestId: {type:'string',min:1},
+  } },
   // ---------- 训练作业（T11.2） ----------
   // spec 的其余字段（种类对应的 cfg、target、line、prio、cap……）由 jobs.js 的 jobCheck 逐项校验，参数表只管种类。
   startJob: {
@@ -94,7 +137,7 @@ export const COMMANDS = {
     fn: (s, a) => submitEval(s, { modelId: a.modelId, tier: a.tier, opts: evalOpts(a) }),
     args: {
       modelId: { type: 'string', min: 1 },
-      tier: { type: 'enum', values: ['strict', 'standard', 'quick', 'skip'] },
+      tier: { type: 'enum', values: ['full', 'standard', 'quick', 'skip'] },
       name: { type: 'string', min: 1, optional: true },
       grant: { type: 'string', min: 1, optional: true },
       open: { ...onFlag, optional: true },
@@ -232,6 +275,8 @@ function checkOne(where, spec, v, args) {
 // 按参数表校验一条命令，合法返回 null，不合法返回中文原因。
 function checkArgs(name, def, args) {
   if (!isObj(args)) return `命令 ${name} 的参数必须是一个对象`;
+  const inputError = persistentInputError(args);
+  if (inputError) return `命令 ${name}：${inputError}`;
   for (const k of Object.keys(args)) if (!Object.hasOwn(def.args, k)) return `命令 ${name} 不认识参数「${k}」`;
   for (const [k, spec] of Object.entries(def.args)) {
     const v = args[k];
@@ -257,6 +302,7 @@ export function applyCommand(s, cmd, ctx = {}) {
   if (why) return { ok: false, err: why };
   if (s.status !== 'playing' && !def.readOnly) return { ok: false, err: '这一局已经结束，只能回看' };
   try {
+    if (def.singlePlayerOnly) assertSoloPostPlans(s, ctx);
     return { ok: true, result: def.fn(s, args, ctx) ?? null };
   } catch (e) {
     // 引擎自己拒绝的（条件不满足、现金不够……）原话回给调用方；命令表不改写这些原因。

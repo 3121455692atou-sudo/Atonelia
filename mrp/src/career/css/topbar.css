@@ -1,35 +1,40 @@
-/* 主界面顶栏：日期、时间流速、里程碑、现金估值、技术积累按钮、后台按钮。 */
-.topbar { display: flex; align-items: center; gap: 16px; padding: 8px 18px; background: var(--white); border-bottom: 1px solid var(--line); }
-.date-block { display: grid; grid-template-columns: auto auto; column-gap: 4px; align-items: baseline; min-width: 128px; }
-.date-block b { font-family: Georgia, serif; font-size: 28px; color: var(--accent); }
-.date-block span { font-size: 15px; }
-.date-block small { grid-column: 1 / -1; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-.goal-card { display: flex; align-items: center; gap: 10px; padding: 5px 14px 5px 5px; border-radius: 12px; background: linear-gradient(90deg, #fff6e5, #fffdf7); border: 1px solid #efdcb4; margin-right: auto; min-width: 0; }
-.goal-card.is-soon { border-color: var(--gold); }
-.goal-card.is-now { background: linear-gradient(90deg, #ffe4b5, #fff5de); animation: glow 1.6s ease-in-out infinite; }
-@keyframes glow { 50% { box-shadow: 0 0 0 4px rgba(195, 154, 82, .3); } }
-.goal-tag { background: var(--gold); color: #fff; font-size: 11px; font-weight: 700; padding: 5px 7px; border-radius: 8px; white-space: nowrap; }
-.goal-card div { min-width: 0; }
-.goal-card strong { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.goal-card small { color: #86652a; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-.res-block { display: flex; align-items: center; gap: 14px; }
-.res { display: inline-grid; grid-template-columns: auto auto; column-gap: 4px; align-items: center; font-size: 11px; color: var(--muted); }
-.res .ico { grid-row: span 2; width: 18px; height: 18px; color: var(--gold); }
-.res b { font-family: var(--font-num); font-size: 14px; color: var(--ink); }
-.btn--office { background: var(--ink); color: #fff; border: 0; min-height: 38px; }
+/* 主界面顶栏（HUD）：深色玻璃条压在背景图上。日期、时间流速、董事会目标、资源读数、后台按钮一行排开，块高统一 46px。
+   数字一律用数字字体放大，单位缩小退后；资源图标各有颜色（现金金、估值绿、技术积累青）。 */
+.topbar { position: relative; z-index: 4; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--hud-text, #eef1ff); background: linear-gradient(180deg, rgba(9, 12, 30, .9), rgba(12, 16, 38, .78)); backdrop-filter: blur(18px) saturate(1.3); border-bottom: 1px solid rgba(255, 255, 255, .08); box-shadow: 0 8px 30px rgba(6, 9, 24, .25); }
+.date-block { display: grid; grid-template-columns: auto auto; column-gap: 7px; align-items: baseline; min-width: 132px; line-height: 1.05; }
+.date-block b { font-family: var(--font-num); font-size: 32px; font-weight: 700; letter-spacing: .01em; color: #f6c75f; text-shadow: 0 0 18px rgba(246, 199, 95, .35); }
+.date-block span { font-size: 14px; font-weight: 650; color: #fff; }
+.date-block small { grid-column: 1 / -1; margin-top: 3px; font-size: 11px; color: rgba(214, 220, 255, .55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.goal-card { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px 0 6px; border-radius: 12px; background: linear-gradient(90deg, rgba(246, 199, 95, .2), rgba(246, 199, 95, .06)); border: 1px solid rgba(246, 199, 95, .35); margin-right: auto; min-width: 0; }
+.goal-card.is-soon { border-color: rgba(246, 199, 95, .7); }
+.goal-card.is-now { background: linear-gradient(90deg, rgba(246, 199, 95, .38), rgba(246, 199, 95, .12)); animation: glow 1.6s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 0 0 4px rgba(246, 199, 95, .22), 0 0 24px rgba(246, 199, 95, .3); } }
+.goal-tag { background: linear-gradient(135deg, #ffd978, #e2a43a); color: #2a1d05; font-size: 11px; font-weight: 800; padding: 5px 8px; border-radius: 8px; white-space: nowrap; }
+.goal-card div { min-width: 0; line-height: 1.3; }
+.goal-card strong { display: block; font-size: 13.5px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.goal-card small { color: #f6d58e; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.res-block { display: flex; align-items: center; gap: 6px; }
+.res { display: inline-grid; grid-template-columns: auto auto; column-gap: 8px; align-items: center; height: 46px; padding: 0 13px 0 11px; border-radius: 12px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .09); font-size: 10.5px; line-height: 1.1; color: rgba(214, 220, 255, .55); }
+.res .ico { grid-row: span 2; width: 20px; height: 20px; color: #f6c75f; }
+.res--val .ico { color: #4be3a0; }
+.res--know .ico { color: #62e1ff; }
+.res b { font-size: 22px; font-weight: 700; color: #fff; line-height: 1; }
+.btn--office { background: linear-gradient(135deg, #ffd978, #e9a83c); color: #2a1d05; border: 0; min-height: 46px; padding: 0 18px 0 15px; border-radius: 12px; font-weight: 800; box-shadow: 0 6px 20px rgba(233, 168, 60, .35); }
+.btn--office:hover:not(:disabled) { background: linear-gradient(135deg, #ffe08f, #f0b44d); box-shadow: 0 8px 26px rgba(233, 168, 60, .45); }
 
 /* 时间流速 */
-.speed { display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 12px; background: #f1f0ea; border: 1px solid var(--line); flex: none; }
-.speed-play { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px; border-radius: 9px; border: 0; background: var(--accent); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
-.speed-play.is-on { background: var(--ink); }
-.speed-play .ico { width: 16px; height: 16px; }
-.speed-pips { display: flex; gap: 3px; align-items: flex-end; height: 26px; }
-.pip { width: 9px; border: 0; border-radius: 3px; background: #d6d4ca; cursor: pointer; padding: 0; }
-.pip:nth-child(1) { height: 10px; } .pip:nth-child(2) { height: 14px; } .pip:nth-child(3) { height: 18px; } .pip:nth-child(4) { height: 22px; } .pip:nth-child(5) { height: 26px; }
-.pip.is-on { background: var(--accent); }
-.pip.is-on.is-idle { background: #a9bccb; }
+.speed { display: flex; align-items: center; gap: 9px; height: 46px; padding: 0 11px 0 5px; border-radius: 12px; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .09); flex: none; }
+.speed-play { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px 0 12px; border-radius: 9px; border: 0; background: linear-gradient(135deg, #8f9dff, #5b6cf0); color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 16px rgba(91, 108, 240, .45); }
+.speed-play.is-on { background: rgba(255, 255, 255, .14); box-shadow: none; }
+.speed-play .ico { width: 15px; height: 15px; }
+.speed-pips { display: flex; gap: 3px; align-items: flex-end; height: 22px; }
+.pip { width: 7px; border: 0; border-radius: 2px; background: rgba(255, 255, 255, .16); cursor: pointer; padding: 0; transition: background-color .15s, box-shadow .15s; }
+.pip:nth-child(1) { height: 8px; } .pip:nth-child(2) { height: 11px; } .pip:nth-child(3) { height: 14px; } .pip:nth-child(4) { height: 18px; } .pip:nth-child(5) { height: 22px; }
+.pip:hover { background: rgba(255, 255, 255, .3); }
+.pip.is-on { background: #62e1ff; box-shadow: 0 0 8px rgba(98, 225, 255, .6); }
+.pip.is-on.is-idle { background: rgba(98, 225, 255, .45); box-shadow: none; }
 .res b { white-space: nowrap; }
 
 /* 技术积累按钮 */
-.res--btn { border: 0; background: transparent; font: inherit; color: inherit; cursor: pointer; padding: 0; text-align: left; }
-.res--btn:hover b { color: var(--accent); }
+.res--btn { font: inherit; color: rgba(214, 220, 255, .55); cursor: pointer; text-align: left; transition: border-color .15s, background-color .15s; }
+.res--btn:hover { border-color: rgba(98, 225, 255, .5); background: rgba(98, 225, 255, .1); }

@@ -1,3 +1,7 @@
+import {defaultAutomationModes,validateAutomationModes} from '../src/career/data/automation_controls.js';
+import { SIMULATION_RULES_VERSION, rejectSimulationRulesInput, validateSimulationRulesStart, validateSimulationRulesRuntime, validateWorldSimulationRules } from './simulation_rules.mjs';
+import { INITIAL_METHODS_VERSION, rejectInitialMethodsInput, validateInitialMethodsStart, validateInitialMethodsRuntime, validateWorldInitialMethods } from './initial_methods.mjs';
+import { MP_POST_TRAINING, validatePostTrainingRule, validatePostTrainingStart, validateWorldPostTraining } from './post_training.mjs';
 // 一局一个 worker：大厅也用同一个写入者，避免批准座位和快照恢复互相覆盖。
 // 大厅没有世界；start 的日志落盘以后才 createWorld。所有墙钟决定都先写日志。
 import { parentPort, workerData } from 'node:worker_threads';
@@ -35,8 +39,11 @@ const company = (x = {}, old = {}) => {
 };
 function normalizeSettings(input, old = {}) {
   if (!object(input)) throw new Error('房间设置要是一个对象');
+  rejectInitialMethodsInput(input);
+  rejectSimulationRulesInput(input);
   if (own(input, 'password')) throw new Error('密码请填在建房请求的 password 字段里');
   const s = { ...old, ...input, rules: { ...(old.rules ?? {}), ...(input.rules ?? {}) } };
+  for(const key of ['postTraining','postRandom','postCards','postTrainingVersion','postTrainingSeed']) if(own(input,key)) throw Error('后训练联机规则由服务器决定');
   if (input.rules !== undefined && !object(input.rules)) throw new Error('规则设置要是一个对象');
   s.mode ??= 'zero';
   if (!['zero', 'fork'].includes(s.mode)) throw new Error('开局方式只能选从零或分岔');
@@ -55,7 +62,7 @@ function normalizeSettings(input, old = {}) {
   s.bot ??= 'normal'; s.tier ??= 'specialist';
   if (!['easy', 'normal', 'hard'].includes(s.bot)) throw new Error('电脑难度只能选 easy、normal 或 hard');
   if (!['small', 'specialist', 'major'].includes(s.tier)) throw new Error('开局档只能选 small、specialist 或 major');
-  s.speedMax = integer(s.speedMax ?? 3, 0, 3, '速度上限');
+  s.speedMax = integer(s.speedMax ?? MP.SPEED_DEF, 0, 3, '速度上限');
   s.pauses = integer(s.pauses ?? MP.PAUSES, 0, 100, '每人暂停次数');
   for (const [key, value] of Object.entries({ short: true, distill: true, poach: false })) {
     s.rules[key] ??= value;
@@ -81,11 +88,8 @@ const entries = () => Object.entries(rt.players).sort((a, b) => Number(a[0]) - N
 const humans = () => Object.values(world?.companies ?? {}).filter(c => c.kind === 'human').sort((a, b) => a.seat - b.seat);
 const connected = () => entries().filter(([, p]) => p.online && !world.companies[p.id]?.hosted && !p.kicked).map(([s]) => Number(s));
 const paused = () => !rt.clock.started || rt.clock.ended || rt.clock.recovery || rt.clock.allOffline || !!rt.clock.pause || !!rt.clock.drop;
-const baseSpeed = () => {
-  const votes = connected().map(s => rt.players[s].vote).sort((a, b) => a - b);
-  return Math.min(rt.clock.speedMax, votes.length ? votes[Math.floor((votes.length - 1) / 2)] : MP.SPEED_DEF);
-};
-const speed = () => rt.clock.slow ? 0 : baseSpeed();
+const baseSpeed = () => rt.clock.hostSpeed;
+const speed = baseSpeed;
 const slowUsed = (p, now = Date.now()) => Math.min(MP.SLOW_CAP_S, p.slowUsed + (p.slowSince === null ? 0 : Math.max(0, now - p.slowSince) / real(1)));
 
 // runtime 是日志里的操作后状态。即使 meta.json 尚未来得及更新，恢复也以日志为准。
@@ -109,6 +113,8 @@ function record(t, name, args = {}, change = null, extra = {}, execute = true) {
 const sys = (name, args, change) => record('sys', `sys.${name}`, args, change);
 function initial(meta) {
   meta = clone(meta);
+  rejectInitialMethodsInput(meta.settings);
+  rejectSimulationRulesInput(meta.settings);
   if (!meta.members) {
     const tokens = {}, members = {};
     for (const [hash, seat] of Object.entries(meta.tokens ?? {})) {
@@ -130,9 +136,9 @@ function initial(meta) {
     meta.settings.seed ??= crypto.randomInt(0, 0x7fffffff);
   }
   for (const m of Object.values(meta.members)) { m.online = false; m.company = company(m.company); }
-  return { meta, wall: Date.now(), players: {}, inbox: {}, clock: {
+  return { simulationRulesVersion: SIMULATION_RULES_VERSION, initialMethodsVersion: INITIAL_METHODS_VERSION, meta, wall: Date.now(), players: {}, inbox: {}, clock: {
     started: false, ended: false, recovery: false, allOffline: false,
-    speedMax: meta.settings.speedMax ?? 3, pause: null, drop: null, dropUsed: 0,
+    clockRulesVersion: 1, speedMax: meta.settings.speedMax ?? MP.SPEED_DEF, hostSpeed: meta.settings.speedMax ?? MP.SPEED_DEF, pause: null, drop: null, dropUsed: 0,
     slow: false, slowSeats: [], slowRunning: false,
   } };
 }
@@ -174,9 +180,21 @@ function completeTakeover() {
   return { ok: true, member: m.id, seat };
 }
 if (mode === 'resume') {
-  const saved = rebuild(dir);
+  // 先只读辨别版本；拒绝旧档时连日志残尾也不能自动修剪。
+  const archivedLog = readLog(dir);
+  const startEntry = archivedLog.find(e => e.t === 'room' && ['start', 'room.start'].includes(e.name));
+  if (startEntry && startEntry.args?.clockRulesVersion !== 1) throw new Error('不支持旧版联机开局日志；原存档保留');
+  if(startEntry) { validatePostTrainingStart(startEntry.args); validateInitialMethodsStart(startEntry.args); validateSimulationRulesStart(startEntry.args); }
+  if (workerData.meta?.v !== PROTOCOL_V || archivedLog.some(e => e.state?.meta && e.state.meta.v !== PROTOCOL_V)) throw new Error(`不支持旧版联机协议，请新建 v${PROTOCOL_V} 房间；原存档保留`);
+  const saved = rebuild(dir, { repair: false });
   ({ world, logN } = saved);
-  rt = saved.runtime ?? initial(workerData.meta);
+  validateInitialMethodsRuntime(saved.runtime);
+  validateSimulationRulesRuntime(saved.runtime);
+  rt = saved.runtime;
+  if (rt?.meta?.v !== PROTOCOL_V) throw new Error(`不支持旧版联机快照，请新建 v${PROTOCOL_V} 房间；原存档保留`);
+  if (!saved.runtime || rt.clock.clockRulesVersion !== 1 || !Number.isInteger(rt.clock.hostSpeed) || rt.clock.hostSpeed < 0 || rt.clock.hostSpeed > 3) throw new Error('不支持旧版或未知版本联机存档，请创建新房间；原存档保留');
+  if (world && startEntry?.args?.clockRulesVersion !== 1) throw new Error('不支持旧版联机开局日志；原存档保留');
+  if(world) { validateWorldPostTraining(world); validateWorldInitialMethods(world); validateWorldSimulationRules(world); }
   const recoveredWall = rt.wall;
   if (world && rt.pendingTakeover) completeTakeover();
   if (world && !Object.keys(rt.players).length) bindWorld();
@@ -195,36 +213,39 @@ if (mode === 'resume') {
   record('room', 'create', {}, () => {});
   writeMeta(dir, rt.meta);
   if (!rt.meta.lobby) {
-    record('room', 'start', { settings: { ...rt.meta.settings, mp: true } });
+    record('room', 'start', { settings: { ...rt.meta.settings, mp: true }, endVersion: 1, autoPostVersion: 1, clockRulesVersion: 1, automationVersion: 6, initialMethodsVersion: INITIAL_METHODS_VERSION, simulationRulesVersion: SIMULATION_RULES_VERSION, postTraining: { ...MP_POST_TRAINING }, postTrainingSeed: crypto.randomInt(0,0x100000000) });
     bindWorld();
   }
   writeSnap(dir, world, logN, rt);
 }
 
-const prevPriv = new Map(), results = new Map();
+const prevPriv = new Map(), results = new Map(), committedSeqs = new Map();
 let prevPub = world ? clone(E.publicView(world)) : null;
 const inboxSig = new Map();
 const dayMs = [], tickMsList = [], diffMsList = [], snapMs = [];
 for (const [seat, p] of entries()) prevPriv.set(Number(seat), clone(stripPrivate(world.companies[p.id].s)));
 // 已成功的 seq 在重启后仍能去重；拒绝的结果只在本次进程保留。
-for (const e of mode === 'resume' ? readLog(dir) : []) if (e.t === 'cmd' && Number.isInteger(e.cseq)) {
+for (const e of mode === 'resume' ? readLog(dir) : []) if (e.t === 'cmd' && Number.isSafeInteger(e.cseq) && e.cseq >= 0) {
   const m = results.get(e.seat) ?? new Map();
-  m.set(e.cseq, { ok: true, seq: e.cseq, day: e.day });
+  const committed = committedSeqs.get(e.seat) ?? new Set();
+  if (committed.has(e.cseq)) continue; // The first committed response owns this identity.
+  committed.add(e.cseq); committedSeqs.set(e.seat, committed);
+  m.set(e.cseq, e.receipt ?? { ok: true, seq: e.cseq, day: e.day });
   if (m.size > 256) m.delete(m.keys().next().value);
   results.set(e.seat, m);
 }
 function clockInfo() {
   return { day: world?.day ?? null, end: world?.end ?? null, started: rt.clock.started, ended: rt.clock.ended,
     paused: paused(), speed: world ? speed() : MP.SPEED_DEF, baseSpeed: world ? baseSpeed() : MP.SPEED_DEF,
-    speedMax: rt.clock.speedMax, slow: rt.clock.slow,
+    clockRulesVersion: rt.clock.clockRulesVersion, hostSpeed: baseSpeed(), speedMax: rt.clock.speedMax, slow: rt.clock.slow,
     reason: rt.clock.ended ? 'end' : !rt.clock.started ? 'waiting' : rt.clock.recovery ? 'recovery' : rt.clock.allOffline ? 'offline' : rt.clock.drop ? 'drop' : rt.clock.pause ? 'pause' : null,
     pause: clone(rt.clock.pause), drop: clone(rt.clock.drop), dropUsed: rt.clock.dropUsed,
     players: entries().map(([s, p]) => ({ seat: Number(s), id: p.id, online: p.online,
       vote: p.vote, hosted: !!world.companies[p.id]?.hosted, pauseUses: p.pauseUses, slowUsed: slowUsed(p) })) };
 }
 function seatTable() {
-  return Object.values(world?.companies ?? {}).map(c => ({ seat: c.kind === 'human' ? c.seat : null,
-    id: c.id, name: c.name, kind: c.kind, bot: c.bot, hosted: !!c.hosted }));
+  return Object.values(world?.companies ?? {}).filter(c => c.frozen !== true && c.s).map(c => ({ seat: c.kind === 'human' ? c.seat : null,
+    id: c.id, name: c.name, kind: c.kind, bot: c.bot, hosted: !!c.hosted, status: c.s.status }));
 }
 function lobby() {
   const ms = Object.values(rt.meta.members);
@@ -232,10 +253,10 @@ function lobby() {
   for (const m of ms.filter(m => m.approved && m.ipHash)) {
     const a = groups.get(m.ipHash) ?? []; a.push(m.id); groups.set(m.ipHash, a);
   }
-  return { room: rt.meta.id, phase: rt.meta.phase, host: rt.meta.host, settings: rt.meta.settings,
+  return { v: PROTOCOL_V, room: rt.meta.id, phase: rt.meta.phase, host: rt.meta.host, settings: rt.meta.settings,
     password: !!rt.meta.password, seats: seatTable(),
     members: ms.map(m => ({ member: m.id, seat: m.seat, approved: m.approved, ready: m.ready,
-      online: m.online, company: m.company, companyId: m.companyId ?? null, request: m.request ?? null })),
+      online: m.online, company: m.company, automationModes:m.automationModes ?? defaultAutomationModes(), companyId: m.companyId ?? null, request: m.request ?? null })),
     sameIp: [...groups.values()].filter(a => a.length > 1) };
 }
 const broadcastLobby = () => emitAll('lobby', lobby());
@@ -261,7 +282,8 @@ function inboxData(seat, now = Date.now()) {
 function initFor(actor) {
   const m = rt.meta.members[actor];
   if (!m) return { ok: false, err: '座位凭证已经失效了' };
-  const events = [{ type: 'lobby', data: lobby() }];
+  // 当前成员身份只发到这条已鉴权连接；公开广播不携带 self。
+  const events = [{ type: 'lobby', data: { ...lobby(), self: actor } }];
   if (world && m.approved && rt.players[m.seat]) {
     events.push({ type: 'init', data: privateInit(m.seat) }, { type: 'inbox', data: inboxData(m.seat) });
   }
@@ -271,7 +293,7 @@ function initFor(actor) {
 function privateDiff(seat) {
   const s = stripPrivate(world.companies[rt.players[seat].id].s);
   const d = diffState(prevPriv.get(seat), s);
-  prevPriv.set(seat, clone(s));
+  if (d) prevPriv.set(seat, clone(s));
   return d;
 }
 function flushPrivate(seqSeat = null, seq = null) {
@@ -296,16 +318,6 @@ function resetYear() {
     n.clock.slowRunning = false;
   });
 }
-function reconcilePause(now) {
-  const pause = rt.clock.pause;
-  if (!pause) return;
-  const online = connected(), all = online.length > 0 && online.every(s => pause.voters.includes(s));
-  if (all !== pause.all) sys('pauseConsensus', { all }, n => {
-    n.clock.pause.all = all; n.clock.pause.until = all ? null : n.clock.pause.at + real(MP.PAUSE_S);
-  });
-  if (rt.clock.pause.until !== null && now >= rt.clock.pause.until)
-    sys('autoResume', {}, n => { n.clock.pause = null; });
-}
 function refreshInbox(now) {
   const fresh = {};
   for (const [, p] of entries()) {
@@ -324,7 +336,7 @@ function resolveExpired(now) {
   for (;;) {
     let due;
     for (const [, p] of entries()) {
-      if (world.companies[p.id].hosted) continue;
+      if (world.companies[p.id].hosted && ![1, 2, 3, 4, 5].includes(world.settings?.automationVersion)) continue;
       const card = (rt.inbox[p.id] ?? []).find(c => dayAge(c.since) >= MP.INBOX.days && now >= c.first + real(MP.INBOX.minS));
       if (card) { due = { id: p.id, at: card.at, key: card.key }; break; }
     }
@@ -334,21 +346,6 @@ function resolveExpired(now) {
     refreshInbox(now);
     if (before === JSON.stringify(rt.inbox[due.id])) throw new Error('卡片默认处理没有生效，房间已停止以保护存档');
   }
-}
-function reconcileSlow(now) {
-  const desired = entries().filter(([, p]) => !world.companies[p.id].hosted && !p.kicked &&
-    slowUsed(p, now) < MP.SLOW_CAP_S && (rt.inbox[p.id] ?? []).some(c => c.major)).map(([s]) => Number(s));
-  const seats = rt.clock.started && !rt.clock.ended && baseSpeed() > 0 ? desired : [];
-  const running = seats.length > 0 && !paused();
-  if (JSON.stringify(seats) === JSON.stringify(rt.clock.slowSeats) && running === rt.clock.slowRunning) return;
-  const cap = entries().some(([, p]) => p.slowSince !== null && slowUsed(p, now) >= MP.SLOW_CAP_S);
-  const name = cap ? 'slowCap' : !rt.clock.slow && seats.length ? 'slowStart' : rt.clock.slow && !seats.length ? 'slowEnd' : 'slowUpdate';
-  sys(name, { seats }, n => {
-    for (const [s, p] of Object.entries(n.players)) {
-      p.slowUsed = slowUsed(p, now); p.slowSince = running && seats.includes(Number(s)) ? now : null;
-    }
-    n.clock.slow = seats.length > 0; n.clock.slowSeats = seats; n.clock.slowRunning = running;
-  });
 }
 function reconcileOffline(now) {
   if (!rt.clock.started || rt.clock.ended || rt.clock.recovery) return;
@@ -375,10 +372,10 @@ function maintain(forceInbox = false) {
   // 最后一条 tick 已提交而终局事件尚未写出就宕机，恢复暂停时也要补齐终局。
   finish();
   const now = Date.now();
-  resetYear(); reconcileOffline(now); reconcilePause(now); refreshInbox(now);
+  resetYear(); reconcileOffline(now); refreshInbox(now);
   // 暂停是留给人处理卡片的：暂停期间卡片不到期（否则全员暂停时世界还会被默认项改动）。
   if (!paused()) resolveExpired(now);
-  reconcileSlow(now); flushPrivate(); emitClock();
+  flushPrivate(); emitClock();
   // 收件箱只在卡片或剩余游戏日变了才推；现实时间的倒计时由客户端按收到时刻自己减（wallMsLeft 是发出那一刻的剩余）。
   for (const [s] of entries()) {
     const seat = Number(s), data = inboxData(seat, now);
@@ -394,7 +391,7 @@ function schedule(reset = false) {
 function finish() {
   if (!world || rt.clock.ended || world.day <= world.end) return;
   sys('end', {}, n => { n.clock.ended = true; n.clock.pause = null; n.clock.drop = null; n.meta.phase = 'ended'; });
-  reconcileSlow(Date.now()); emitAll('end', endData()); broadcastLobby();
+  emitAll('end', endData()); broadcastLobby();
   writeSnap(dir, world, logN, rt);
 }
 function step() {
@@ -439,15 +436,10 @@ function member(actor, approved = true) {
   return m;
 }
 function hostOnly(actor) { if (actor !== rt.meta.host) throw new Error('只有房主能这样做'); }
-function join({ memberId, tokenHash, ipHash, body }) {
+function join({ memberId, tokenHash, ipHash, body, passwordVerified }) {
   if (!object(body)) throw new Error('加入申请要是一个对象');
-  if (rt.meta.password) {
-    const password = typeof body.password === 'string' ? body.password : '';
-    if (Array.from(password).length > 200) return { ok: false, status: 403, err: '房间密码不对' };
-    const hash = crypto.scryptSync(password, rt.meta.password.salt, 32);
-    const expected = Buffer.from(rt.meta.password.hash, 'hex');
-    if (hash.length !== expected.length || !crypto.timingSafeEqual(hash, expected)) return { ok: false, status: 403, err: '房间密码不对' };
-  }
+  if (rt.clock.ended || rt.meta.phase === 'ended' || (world && world.day > world.end)) throw new Error('这一局已经结束了');
+  if (rt.meta.password && passwordVerified !== true) return { ok: false, status: 403, err: '房间密码不对' };
   if (Object.keys(rt.meta.members).length >= 64) throw new Error('等候的人太多了，稍后再来');
   if (own(rt.meta.tokens, tokenHash) || own(rt.meta.members, memberId)) throw new Error('这个浏览器已经加入了');
   let seat = null, approved = false;
@@ -460,6 +452,10 @@ function join({ memberId, tokenHash, ipHash, body }) {
   else if (body.seat !== undefined && !world) integer(body.seat, 0, rt.meta.settings.humans - 1, '座位号');
   const request = { seat: body.seat ?? null, companyId: body.companyId ?? body.id ?? null };
   if (request.companyId !== null && typeof request.companyId !== 'string') throw new Error('请选择要接管的电脑公司');
+  if (world && request.companyId !== null) {
+    const target = world.companies[request.companyId];
+    if (!target || target.frozen === true || target.kind !== 'bot' || target.s?.status !== 'playing') throw new Error('中途加入只能申请接管还在经营的电脑公司，不能接管真人托管席位');
+  }
   const m = { id: memberId, seat, approved, ready: approved, online: false,
     company: company(body.company), ipHash, request };
   if (approved) { m.companyId = rt.players[seat].id; m.company.name = world.companies[m.companyId].name; }
@@ -473,19 +469,14 @@ function presence(actor, online) {
   const m = member(actor, false);
   if (m.online === online) return { ok: true };
   const p = m.approved && world ? rt.players[m.seat] : null;
-  const protect = p && !online && rt.clock.started && !rt.clock.ended && !rt.clock.drop && rt.clock.dropUsed < MP.DROP_PAUSE.times;
-  sys(online ? 'online' : protect ? 'dropPause' : 'offline', { member: actor, seat: m.seat }, (n, now) => {
+  sys(online ? 'online' : 'offline', { member: actor, seat: m.seat }, (n, now) => {
     n.meta.members[actor].online = online;
     if (!p) return;
     const next = n.players[m.seat]; next.online = online;
     if (online) { next.offlineAt = null; next.hostAt = null; }
     else if (n.clock.started && !n.clock.ended) {
       next.offlineAt = now;
-      if (protect) { n.clock.dropUsed++; n.clock.drop = { at: now, until: now + real(MP.DROP_PAUSE.s), seats: [] }; }
-      if (n.clock.drop) {
-        if (!n.clock.drop.seats.includes(m.seat)) n.clock.drop.seats.push(m.seat);
-        next.hostAt = n.clock.drop.until;
-      } else next.hostAt = now + real(MP.OFFLINE_S);
+      next.hostAt = now + real(MP.OFFLINE_S);
     }
   });
   if (p && online && world.companies[p.id].hosted) sys('unhost', { id: p.id });
@@ -511,7 +502,9 @@ function start(actor) {
   const settings = { seed: s.seed, start: s.start, days: s.days, mp: true, poach: s.rules.poach,
     short: s.rules.short, distill: s.rules.distill, protect: s.rules.protectionDays,
     ...(s.mode === 'fork' ? { mode: 'fork', keep: s.keep, seats: picks, bot: s.bot } : { companies: cs }) };
-  record('room', 'start', { settings }, n => {
+  const automationSetup=people.map(m=>({seat:m.seat,modes:validateAutomationModes(m.automationModes ?? defaultAutomationModes())}));
+  record('room', 'start', { settings, automationSetup, endVersion: 1, autoPostVersion: 1, clockRulesVersion: 1, automationVersion: 6, initialMethodsVersion: INITIAL_METHODS_VERSION, simulationRulesVersion: SIMULATION_RULES_VERSION, postTraining: { ...MP_POST_TRAINING }, postTrainingSeed: crypto.randomInt(0,0x100000000) }, n => {
+    n.clock.hostSpeed ??= Math.min(n.clock.speedMax, MP.SPEED_DEF); n.clock.clockRulesVersion = 1;
     n.meta.phase = 'playing'; n.clock.started = true; n.clock.recovery = false;
   }, { seat: 0 });
   const actual = humans();
@@ -530,7 +523,7 @@ function approve(actor, args) {
   hostOnly(actor);
   const id = args.member ?? args.memberId, m = member(id, false);
   if (m.approved) throw new Error('这个人已经入座了');
-  if (rt.clock.ended) throw new Error('这一局已经结束了');
+  if (rt.clock.ended || (world && world.day > world.end)) throw new Error('这一局已经结束了');
   let seat;
   if (!world) {
     const occupied = new Set(Object.values(rt.meta.members).filter(m => m.approved).map(m => m.seat));
@@ -542,7 +535,7 @@ function approve(actor, args) {
     }, { seat: member(actor).seat });
   } else {
     const companyId = args.companyId ?? args.id ?? m.request?.companyId, c = world.companies[companyId];
-    if (!c || c.kind !== 'bot') throw new Error('中途加入只能接管还在场的电脑公司');
+    if (!c || c.frozen === true || c.kind !== 'bot' || c.s?.status !== 'playing') throw new Error('申请的电脑公司已不可接管，请重新选择；真人托管席位不能接管');
     if (humans().length >= MP.SEATS[1]) throw new Error('真人座位已经达到上限了');
     // 日志先记接管意图，再按引擎实际返回的座位绑定；宕机恢复会完成尚未绑定的意图。
     sys('takeover', { id: c.id, member: id }, n => {
@@ -576,6 +569,9 @@ function kick(actor, args) {
 function roomCommand(actor, name, args = {}) {
   if (!object(args)) throw new Error('命令参数要是一个对象');
   const m = member(actor, name !== 'chat'), host = actor === rt.meta.host;
+  if (['pause', 'resume', 'speed'].includes(name)) hostOnly(actor);
+  if (name === 'vote') throw new Error('联机不再投票调速，请由房主选择速度');
+  if (name === 'start' || name === 'settings') { rejectSimulationRulesInput(args); rejectSimulationRulesInput(args.settings); }
   if (name === 'start') return start(actor);
   if (name === 'approveSeat') return approve(actor, args);
   if (name === 'kick') return kick(actor, args);
@@ -585,7 +581,7 @@ function roomCommand(actor, name, args = {}) {
     const settings = normalizeSettings(args.settings ?? args, rt.meta.settings);
     if (Object.values(rt.meta.members).some(m => m.approved && m.seat >= settings.humans)) throw new Error('请先腾出多出来的真人座位');
     record('room', name, { settings }, n => {
-      n.meta.settings = settings; n.clock.speedMax = settings.speedMax;
+      n.meta.settings = settings; n.clock.speedMax = settings.speedMax; n.clock.hostSpeed = settings.speedMax;
       for (const p of Object.values(n.meta.members)) p.ready = false;
     }, { seat: m.seat });
     broadcastLobby(); return { ok: true, settings };
@@ -593,9 +589,12 @@ function roomCommand(actor, name, args = {}) {
   if (name === 'setCompany' || name === 'ready') {
     if (world) throw new Error('公司资料要在开局前设置');
     if (args.ready !== undefined && typeof args.ready !== 'boolean') throw new Error('准备状态只能填 true 或 false');
+    if(['member','seat','companyId','automationSetup'].some(k=>Object.hasOwn(args,k)))throw Error('只能修改自己的开局托管预设');
+    const modes=validateAutomationModes(Object.hasOwn(args,'automationModes')?args.automationModes:(m.automationModes ?? defaultAutomationModes()));
     const c = company(args.company ?? args, m.company);
-    record('room', name, { company: c, ready: args.ready ?? true }, n => {
+    record('room', name, { company: c, automationModes:modes, ready: args.ready ?? true }, n => {
       n.meta.members[actor].company = c;
+      n.meta.members[actor].automationModes=modes;
       if (name === 'ready') n.meta.members[actor].ready = args.ready ?? true;
       else n.meta.members[actor].ready = false;
     }, { seat: m.seat });
@@ -613,32 +612,22 @@ function roomCommand(actor, name, args = {}) {
     const file = writeSnap(dir, world, logN, rt); return { ok: true, file, logN };
   }
   if (name === 'speed') {
-    hostOnly(actor); const value = integer(args.speed, 0, 3, '速度上限');
-    record('room', name, { speed: value }, n => { n.clock.speedMax = value; n.meta.settings.speedMax = value; }, { seat: m.seat });
+    hostOnly(actor); const value = integer(args.speed, 0, 3, '速度档位');
+    record('room', name, { speed: value }, n => { n.clock.speedMax = value; n.clock.hostSpeed = value; n.meta.settings.speedMax = value; }, { seat: m.seat });
     broadcastLobby(); return { ok: true, clock: clockInfo() };
   }
   if (!world) throw new Error('房主还没有开局');
   if (rt.clock.ended) throw new Error('这一局已经结束了');
   const p = rt.players[m.seat];
   if (!p || p.kicked) throw new Error('座位已经失效了');
-  if (name === 'vote') {
-    const vote = integer(args.speed, 0, 3, '速度档');
-    record('room', name, { speed: vote }, n => { n.players[m.seat].vote = vote; }, { seat: m.seat });
-  } else if (name === 'pause') {
+  if (name === 'pause') {
     if (!rt.clock.started) throw new Error('还没有开始计时');
-    if (rt.clock.pause?.voters.includes(m.seat)) return { ok: true, clock: clockInfo() };
-    resetYear();
-    if (!host && rt.players[m.seat].pauseUses >= (rt.meta.settings.pauses ?? MP.PAUSES)) throw new Error('你这一年的暂停次数用完了');
+    if (rt.clock.pause) return { ok: true, clock: clockInfo() };
     record('room', name, {}, (n, now) => {
-      if (!host) n.players[m.seat].pauseUses++;
-      n.clock.pause ??= { owner: m.seat, voters: [], at: now, until: now + real(MP.PAUSE_S), all: false };
-      n.clock.pause.voters.push(m.seat);
+      n.clock.pause = { owner: m.seat, at: now, until: null, hostOnly: true };
     }, { seat: m.seat });
-    reconcilePause(Date.now());
   } else if (name === 'resume') {
     if ((!rt.clock.started || rt.clock.recovery) && !host) throw new Error('请等房主继续');
-    const pause = rt.clock.pause;
-    if (pause && pause.owner !== m.seat && Date.now() < pause.at + real(MP.RESUME_S)) throw new Error('暂停满 30 秒后才能替别人继续');
     record('room', name, {}, (n, now) => {
       n.clock.started = true; n.clock.pause = null;
       if (host) n.clock.recovery = false;
@@ -651,9 +640,19 @@ function command(actor, body) {
   const m = member(actor);
   if (!object(body)) throw new Error('命令必须是一个对象');
   if (body.v !== PROTOCOL_V) return { ok: false, seq: body.seq ?? null, err: `协议版本不对，这里只认 v${PROTOCOL_V}` };
-  if (!Number.isInteger(body.seq) || body.seq < 0) return { ok: false, seq: null, err: 'seq 要是非负整数' };
+  if (!Number.isSafeInteger(body.seq) || body.seq < 0) return { ok: false, seq: null, err: 'seq 要是非负整数' };
   const memo = results.get(m.seat) ?? new Map(); results.set(m.seat, memo);
   if (memo.has(body.seq)) return memo.get(body.seq);
+  // Hot replies stay bounded; successful identities must never be evicted.
+  // Only a cold retry reads WAL, never an ordinary new command. Seat-scoped
+  // lookup prevents disclosing another player's result on a seq collision.
+  if (committedSeqs.get(m.seat)?.has(body.seq)) {
+    const entry = readLog(dir).find(e => e.t === 'cmd' && e.seat === m.seat && e.cseq === body.seq);
+    if (!entry) { fatal = true; throw new Error('已提交命令的回执丢失，房间已停止以保护存档'); }
+    const response = entry.receipt ?? { ok: true, seq: entry.cseq, day: entry.day };
+    memo.set(body.seq, response); if (memo.size > 256) memo.delete(memo.keys().next().value);
+    return response;
+  }
   if (!world) throw new Error('房主还没有开局');
   if (rt.clock.ended) throw new Error('这一局已经结束了');
   const p = rt.players[m.seat];
@@ -666,10 +665,20 @@ function command(actor, body) {
     if (world.hash() !== beforeHash) { fatal = true; throw error; }
     r = { ok: false, err: '这条命令的参数不对，请检查后再试' };
   }
+  // applyCommand converts engine throws into ok:false. Guard that path too:
+  // never continue a room whose refused command changed unlogged state.
+  if (!r.ok && world.hash() !== beforeHash) {
+    fatal = true;
+    throw new Error('被拒命令改变了世界，房间已停止以保护存档');
+  }
   // 结果原样回给本人（界面拿它写提示，比如“借到多少”“送评几天”）；太大或不能转 JSON 的就不带。
   const response = r.ok ? { ok: true, seq: body.seq, day: world.day, ...resultOf(r.result) } : { ok: false, seq: body.seq, err: r.err };
   // applyNow 保证拒绝时不改世界；成功后先持久化，才向玩家确认和推差分。
-  if (r.ok) record('cmd', body.name, body.args ?? {}, null, { seat: m.seat, id: p.id, cseq: body.seq }, false);
+  if (r.ok) {
+    record('cmd', body.name, body.args ?? {}, null, { seat: m.seat, id: p.id, cseq: body.seq, receipt: response }, false);
+    const committed = committedSeqs.get(m.seat) ?? new Set();
+    committed.add(body.seq); committedSeqs.set(m.seat, committed);
+  }
   memo.set(body.seq, response); if (memo.size > 256) memo.delete(memo.keys().next().value);
   if (r.ok) flushPrivate(m.seat, body.seq);
   return response;
@@ -696,7 +705,14 @@ parentPort.on('message', msg => {
     else if (msg.t === 'room') res = roomCommand(msg.actor, msg.name, msg.args ?? {});
     else if (msg.t === 'init') res = initFor(msg.actor);
     else if (msg.t === 'status') res = status();
-    else if (msg.t === 'stop') { clearTimeout(tickTimer); clearTimeout(maintenanceTimer); post({ t: 'res', id: msg.id, res: { ok: true } }); return; }
+    else if (msg.t === 'stop') {
+      clearTimeout(tickTimer); clearTimeout(maintenanceTimer);
+      // 保留到期前全部文件；快照原子替换和 fsync 完成以后才发确认。
+      const file = writeSnap(dir, world, logN, rt, { preserve: true });
+      writeMeta(dir, rt.meta);
+      post({ t: 'res', id: msg.id, res: { ok: true, saved: true, file, logN, day: world?.day ?? null, hash: world?.hash() ?? null } });
+      parentPort.close(); return;
+    }
     else throw new Error('没有这个服务器操作');
     if (!['status', 'init'].includes(msg.t)) {
       // 收件箱按签名判断变没变，这里不必强推给每个座位（每条命令都强推，2 档下行会超标）。

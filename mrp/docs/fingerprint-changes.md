@@ -1211,3 +1211,34 @@ y2025 bot/advised、y2026 bot/advised。其他 23 家公司（包括作为对手
 - 不影响史实指纹的：联机协议 v2（`exchange` 分层差分）只改联机下行；`data/selfplay.js`、`selfplay_calibrate` 只有自洽世界读。
 - `--check`（对 745dde6 的基线）：145 / 192 局不同。对照第一批 84b514c 的结局（同样 192 局、种子 1）：随机数序列和终局日相同 58 局，结局原因相同 183 局，评级相同 142 局；机器人撤换 11 → 6 局，大按钮 0 → 0；评级升一档以上 34 局、降 16 局。
 - F4（种子 4，各 384 局）合并后全部达标：机器人 S+A 11.5%、C–E 60.7%、F+G 8.6%、撤换 4.7%；大按钮 S+A 12.5%、B–D 83.1%、撤换 0；★·LLM·frontier 机器人 32.5% / 大按钮 55%；○/—·LLM·frontier 16.7% / 37.5%；Meta y2025 机器人 0.99 亿；弹窗 1.42 / 1.45 张/月。
+
+## 云端实机回归：首次底座的默认后训练与送评推迟时钟（2026-10-23，验收进行中）
+
+- `sim/projects.js`：首次主线底座完成后，旧逻辑仅切换在练模型，不创建后训练作业；人类玩家可能一直停留在 `postDays=0`，机器人通常等到下一次周决策才补建。新逻辑按 T2.4，在首次主线自训或开源续训完成时经正常作业检查创建 `auto/none` 后训练。已有作业、明确专心研究、后续换代中的暂停与取消选择不被覆盖；已完工旧档不强制补建。
+- 提前启动会改变训练与科研资源分配及后续时序。R 四固定种子、768 局完整配对无运行错误，89 项规则状态未新增越界；但 RWKV y2023 新增四局撤换，属于真实行为变化，不能称为“无退化”。集成后的整体平衡验收仍在进行，未把此前既有失败改成通过。
+- `sim/strategy_ai.js`：仅在引擎允许送评时启动新一轮推迟时钟；已开始的计时仍使用原 45 日历天上限，不重置、不冻结、不新增存档计时字段。56 局小配对最终状态 SHA 相同，但这不等于所有中间检查点已验证不变。
+- `sim/naming.js`：自洽自定义公司的模型建议名改用注册品牌，不再用头像角色的名字；不放宽他人品牌保护。史实命名逻辑不变。
+- seed1 严格指纹矩阵待集成版本冻结后复核，不预报差异数量。原公开快照在未修时已存在 15/192 指纹差异；该既有差异与本次有意行为变更分别记录。本次未重写 `tests/fixtures/fingerprint.json`，不得用新基线掩盖缺失原参考版本的问题。
+
+## 2026-10-25 · Internal research engineering candidate
+
+- Adds 12 optional company-internal workflows (3 per modality), increasing the domain research catalogue from 44 to 56. These are production pipelines, not claims of new historical foundational algorithms.
+- `internalPractice` workflows are excluded from calendar-diffused initial ownership. Existing 44 technologies, the 3 leader exceptions, initial model dimensions, and all 166 card gates remain unchanged.
+- Research completion opens an existing data-market endpoint: 4 paid multi-direction post-training packs, 4 paid licensed pretraining mixtures, and 4 own-model synthesis orders. It does not directly modify capability caps or global tech multipliers. Research still earns normal bounded knowledge accumulation.
+- The ordinary advisor/bot research selector may select these nodes after their methods are public, using its existing value/time policy. Therefore future simulation trajectories and fingerprints can change intentionally. No fingerprint baseline was rewritten.
+- Generation is still excluded from unattended data procurement; ordinary paid inputs retain the existing shared cash reserve, budget, queue and authority checks. All generation accounting, contamination and cancellation behavior uses the existing pipeline.
+- The research UI now reads a full-domain map (including future/owned nodes), reports prerequisites and resource consequences, and never changes research or automation merely by navigating. A recommendation is UI-only. Explicit manual takeover preserves already-running research.
+
+## Round24 候选：真人 IPO 必须明确决策（2026-10-25）
+
+- 手动研究建议只导航至研究页；引擎 `advise/applyAdvice` 与明确授权研究托管不改。
+- IPO 页面/事件增加只读审议和明确确认，90 天、募资与稀释结算公式不改。
+- **语义修正**：世界真人 `ipo_window` 自动处理改为 `later`；真人掉线被动托管不能经事件或 `botStep.freeOps` 自动上市。NPC 自动上市保留。旧版世界若曾自动替真人上市，新旧重放可能有差异；不得称纯 UI 改动。
+- 不重写历史指纹基线；新增真人/NPC/托管/默认选择回归。历史校准机器人及引擎顾问执行语义保持原样，完整结果见本批测试证据。
+
+## 2026-10-25 · 当前 schema 唯一入口；删除旧存档兼容
+
+- 按用户明确要求：游戏存档 v5，世界存档外壳/内部状态 v2，联机模拟规则 v2。旧版、缺失版本、字符串版本、未来版本与混合 schema 明确拒绝，提示新开局，不执行迁移、不补字段、不丢未知事件、不自动升级旧规则。
+- 删除整个 `sim/migrations/` 及特性步骤登记/开局 `mig` 标记；运行期路线、SOTA、策略、命名、期待、蒸馏和训练账的旧结构补丁改为当前结构校验。UI 删除迁移备份和旧键扫描流程。
+- 新局初始化、当前存档精确往返、引用关系重建、数值/权限检查、同版 WAL/快照重放和源码恢复备份保留。史实继承模型的 legacy 评测标签与分岔历史遗产不是旧档兼容，玩法语义保留。
+- 去兼容会改变版本字段、删除迁移记账并拒绝旧输入；不宣称旧轨迹/旧存档继续可用。不重写历史 fingerprint fixture。旧迁移用例改为明确拒绝与原输入/Provider不变测试，正常玩法断言不跳过。

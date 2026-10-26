@@ -45,8 +45,8 @@ const MS_MODES = ['me', 'other', 'none', 'notOther', 'any'];
 const RIGHT_STATES = ['held', 'used', 'void'];
 const SEEN_LEVELS = ['paper', 'open'];
 const LEVEL_ORDER = ['secret', 'proof', 'paper', 'open'];
-// 风险记录前缀（risky）：数据集风险记录的 id 按前缀认；旧档里的两条另起了名字，也算进来。
-const RISKY = { tos: { label: '违反服务条款蒸馏来的', alias: ['ds_gpt4_distill'] }, license: { label: '许可不清的', alias: [] }, music_scrape: { label: '未经授权抓取的曲库', alias: ['mu_scrape'] } };
+// 当前风险记录按前缀认；mu_scrape 是现行音乐抓取数据集的真实 id。
+const RISKY = { tos: { label: '违反服务条款蒸馏来的', alias: [] }, license: { label: '许可不清的', alias: [] }, music_scrape: { label: '未经授权抓取的曲库', alias: ['mu_scrape'] } };
 const ALL_DIMS = new Set(Object.values(MODALITIES).flatMap(m => m.dims.map(d => d.key)));
 const dimName = (s, k) => dimLabel(s.mod, k);
 const lastMonth = s => s.history?.at(-1) || {};

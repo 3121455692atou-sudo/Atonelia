@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-27",
+  "purpose": "公开当前源码并注明转载条件",
+  "checks": {
+    "copied_source_tests": {
+      "passed": 34,
+      "failed": 0
+    },
+    "published_runtime_files": "1253 个运行文件与 ChatGPT.site 已发布包逐一一致",
+    "credential_scan": "待提交文件未检出凭据、密钥文件或本地存档",
+    "relative_readme_links": "通过"
+  },
+  "license": "原创代码与文档采用 MIT，第三方素材独立适用原许可",
+  "omitted_assets": "未新增制图用的大尺寸原始图；运行所需资源齐全",
+  "scope": "未在本次重新运行全量回归"
+}

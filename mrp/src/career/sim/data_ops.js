@@ -1,3 +1,4 @@
+import { riskPost } from './post_exposure.js';
 // 数据：可买的数据集、蒸馏别家的模型、生成订单（规格 D7）、下单、到货入库。
 // 蒸馏数据按老师分开记：s.data.distill[类别] = { 家族: 等级 }（各位老师合计不超过 2.5），s.data.teachers[家族] 记这位老师的快照（只留最强的一条）。
 // 用自家卡生成的数据（开源老师的蒸馏包、自有模型合成教材）走生成订单：只从推理卡里借，按进度交付，可以暂停、恢复、取消（sim/orders.js）。
@@ -162,7 +163,7 @@ function startDatasetGen(s, ds) {
     const days = genDays(s, hours, nMin);
     const o = placeGen(s, { kind: 'data', ref: ds.id, name: ds.name, eta: genEta(s, days), teacherName: live.name, teacherId: live.id,
       // 在线模型已被污染时，这批教材也带着污染（D7 的合成数据洗白）：入库时计进 pool.taintW。
-      taint: isTainted(live), taintTeachers: isTainted(live) ? { ...(live.post?.teachers || {}) } : {},
+      taint: isTainted(live), taintTeachers: isTainted(live) ? { ...(riskPost(live)?.teachers || {}) } : {},
       gen: newGen('gpu', { need: hours, nMin }) });
     s.data.acquired.push(ds.id);
     log(s, `下单生成：${ds.name}（老师 ${live.name}），${Number.isFinite(days) ? `约 ${days} 天` : '推理卡放不下老师，先排着'}`);
@@ -233,21 +234,13 @@ export function recordTeacher(s, fam, rec) {
   if (!old || !(old.q > rec.q)) bag[fam] = rec;
   return bag[fam];
 }
-// 蒸馏数据到位（生成订单完成、旧档在途订单到期）。f：取消时按完成比例入库（1 = 全部）。
+// 蒸馏数据到位（当前生成订单完成）。f：取消时按完成比例入库（1 = 全部）。
 export function applyDistill(s, o, f = 1) {
   normalizeDistill(s);
   const fam = o.teacher;
-  // 老师是自家（旧档里转过来的 R1 推理链之类）：按自有数据入库。
-  if (isMine(s, fam)) {
-    for (const [k, v] of Object.entries(o.posts || {})) s.data.post[k] = Math.min(2.5, (s.data.post[k] || 0) + v * f);
-    s.data.acquired.push(o.ref);
-    return;
-  }
+  if (!o.gen || typeof o.teacherName !== 'string' || !Object.hasOwn(o, 'relId') || !Object.hasOwn(o, 'license')) throw Error('不支持旧版蒸馏订单，请新开一局');
   const dims = { ...(o.teacherDims || {}) };
-  // 旧档的 BASE 订单没记老师名、发布 id 和许可：按订单名到对手表里找回来。
-  const name = o.teacherName || String(o.name || '').replace(/^蒸馏 /, '').replace(/（API）$/, '');
-  const rel = o.relId ? P().relById(o.relId) : P().relById(relId(name));
-  const license = o.license !== undefined ? o.license : o.open ? licenseOf(rel) : null;
+  const name = o.teacherName, rel = o.relId ? P().relById(o.relId) : null, license = o.license;
   recordTeacher(s, fam, { relId: rel?.id ?? o.relId ?? null, name, day: s.day, dims, q: qOf('llm', dims), kind: o.open ? 'weights' : 'api', license });
   for (const [k, v] of Object.entries(o.posts || {})) {
     const lv = (s.data.distill[k] ??= {});
@@ -288,30 +281,14 @@ export function dropDistill(s, cat, fam) {
   log(s, `丢掉了 ${name} 的蒸馏数据（${cat}）`);
   return { kind: 'drop', note: `${name} 的这类蒸馏数据不再使用。` };
 }
-// 把蒸馏数据的状态整理成 D7 的形状（每天训练前、订单入库前调用；幂等）：
-// 旧档的平铺等级 { 类别: 数字 } 转成老师 legacy；坏值（NaN、null）丢掉；空的 teacherCap 删掉，非空的转成老师 legacy 的快照。
+// 当前蒸馏账本只做合法性校验，不把平铺等级/teacherCap 转成旧版老师。
 export function normalizeDistill(s) {
-  const d = s.data;
-  if (!d || typeof d !== 'object') return;
-  if (!d.teachers || typeof d.teachers !== 'object' || Array.isArray(d.teachers)) d.teachers = {};
-  if (!d.distill || typeof d.distill !== 'object' || Array.isArray(d.distill)) d.distill = {};
-  let legacy = false;
-  for (const [c, v] of Object.entries(d.distill)) {
-    if (v && typeof v === 'object') {
-      for (const [f, x] of Object.entries(v)) if (!(Number.isFinite(x) && x > 0)) delete v[f];
-      if (!Object.keys(v).length) delete d.distill[c];
-      else if (v.legacy) legacy = true;
-    } else if (Number.isFinite(v) && v > 0) { d.distill[c] = { legacy: Math.min(2.5, v) }; legacy = true; } else delete d.distill[c];
+  const d = s.data, plain = v => !!v && typeof v === 'object' && !Array.isArray(v);
+  if (!plain(d) || d.teachers !== undefined && !plain(d.teachers) || !plain(d.distill) || Object.hasOwn(d, 'teacherCap') || d.teachers && Object.hasOwn(d.teachers, 'legacy')) throw Error('不支持旧版蒸馏数据结构，请新开一局');
+  for (const v of Object.values(d.distill)) {
+    if (!plain(v) || Object.hasOwn(v, 'legacy')) throw Error('不支持旧版平铺蒸馏数据，请新开一局');
+    if (Object.values(v).some(x => !Number.isFinite(x) || x < 0)) throw Error('蒸馏数据等级不合法');
   }
-  if (d.teacherCap && typeof d.teacherCap === 'object') {
-    const cap = Object.fromEntries(Object.entries(d.teacherCap).filter(([, v]) => Number.isFinite(v)));
-    if (Object.keys(cap).length && !d.teachers.legacy) {
-      const ws = worldSota(s)?.q ?? Infinity;
-      d.teachers.legacy = { relId: null, name: '早先蒸馏的数据', day: s.day, dims: cap, q: Math.min(qOf(s.mod, cap), ws), kind: 'api', license: null };
-    }
-    delete d.teacherCap;
-  }
-  return legacy;
 }
 export function datasetAvailable(s, ds) {
   if (!ds || ds.mod !== s.mod) return { ok: false, reason: '不适用' };

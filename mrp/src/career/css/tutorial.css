@@ -1,0 +1,82 @@
+/* Independent ephemeral tutorial: one scroll container, no fixed CTA over cards. */
+.tutorial-game { border: 0; padding: 0; width: min(1120px, 100vw); max-width: 100vw; height: min(900px, 100dvh); max-height: 100dvh; margin: auto; color: var(--ink, #18203a); background: var(--paper, #f3f4f8); border-radius: 18px; box-shadow: 0 24px 90px #17213d50; overflow: auto; overscroll-behavior: contain; }
+.tutorial-game::backdrop { background: #18203ab8; }
+.tutorial-game * { box-sizing: border-box; }
+.tutorial-game button { font: inherit; white-space: normal; overflow-wrap: anywhere; min-height: 44px; }
+.tutorial-game h2 { font-size: clamp(20px, 3vw, 30px); line-height: 1.4; margin: 8px 0 12px; }
+.tutorial-game h3 { font-size: 16px; margin-bottom: 8px; }
+.tutorial-game p { line-height: 1.75; margin: 9px 0; overflow-wrap: anywhere; }
+.tutorial-game small { line-height: 1.6; }
+.tutorial-game :focus-visible { outline: 3px solid var(--accent, #3e58d6); outline-offset: 3px; }
+.tutorial-game [data-tutorial-heading]:focus { outline: none; }
+.tutorial-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 24px; border-bottom: 1px solid var(--line, #e3e6ee); background: white; }
+.tutorial-header > div { display: grid; gap: 3px; flex-shrink: 0; }
+.tutorial-header small { color: var(--ink-2, #485270); }
+.tutorial-header nav, .tutorial-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.tutorial-header .btn, .tutorial-actions .btn { padding: 10px 14px; }
+.tutorial-content { padding: clamp(16px, 3vw, 32px); }
+.tutorial-footer { padding: 14px 24px 24px; font-size: 12px; color: var(--ink-2, #485270); }
+.tutorial-kicker { font-size: 12px; letter-spacing: .07em; color: var(--accent-ink, #2b3fae); font-weight: 700; }
+.tutorial-note { background: #fff5df; border: 1px solid #ecd5a4; padding: 12px 16px; border-radius: 10px; color: #644713; }
+.tutorial-content > section > .btn, .tutorial-preview > .btn { background: var(--accent, #3e58d6); color: white; border: 0; padding: 12px 20px; margin-top: 12px; }
+.tutorial-deck { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+.tutorial-deck article { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--line, #e3e6ee); border-radius: 12px; background: white; min-width: 0; }
+.tutorial-deck article > div { min-width: 0; }
+.tutorial-deck strong, .tutorial-deck small { display: block; overflow-wrap: anywhere; }
+.tutorial-deck img, .tutorial-basic-icon { width: 52px; height: 70px; flex-shrink: 0; object-fit: cover; border-radius: 7px; }
+.tutorial-basic-icon { display: grid; place-items: center; background: #eef1fe; font-size: 30px; color: #3e58d6; }
+.tutorial-meters { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 18px 0; }
+.tutorial-meters > div { display: grid; padding: 10px 14px; gap: 2px; background: white; border: 1px solid var(--line, #e3e6ee); border-radius: 10px; }
+.tutorial-meters span { color: var(--ink-2, #485270); font-size: 12px; }
+.tutorial-meters strong { font-size: 25px; }
+.tutorial-meters small { font-size: 12px; font-weight: 400; }
+.tutorial-feedback, .tutorial-receipt { background: #eaf5ef; border: 1px solid #bddcca; padding: 15px 18px; border-radius: 12px; margin: 16px 0; }
+.tutorial-feedback p { margin: 6px 0; }
+.tutorial-feedback small { color: #375b49; }
+.tutorial-hand { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 20px 0; align-items: stretch; }
+.tutorial-card { text-align: left; border: 2px solid var(--line, #e3e6ee); border-radius: 14px; padding: 12px; background: white; display: grid; align-content: start; gap: 10px; min-width: 0; }
+.tutorial-card.is-selected { border-color: var(--accent, #3e58d6); background: #f2f4ff; }
+.tutorial-card > img { width: 100%; height: 170px; object-fit: cover; object-position: center 37%; border-radius: 8px; }
+.tutorial-card-copy { display: grid; gap: 7px; }
+.tutorial-card-copy strong { font-size: 16px; }
+.tutorial-card-copy > span { color: var(--accent-ink, #2b3fae); font-size: 13px; }
+.tutorial-card-copy small { color: var(--ink-2, #485270); }
+.tutorial-card-copy .tutorial-reason { color: #8c550b; }
+.tutorial-card-label { font-size: 12px; font-weight: 600; color: var(--accent-ink, #2b3fae); }
+.tutorial-preview { background: white; padding: 18px; border: 1px solid #bcc7ef; border-radius: 12px; margin: 16px 0; }
+.tutorial-rules { border-top: 1px solid #d6dce8; margin-top: 22px; padding: 14px 0; }
+.tutorial-rules summary { cursor: pointer; min-height: 36px; }
+.tutorial-chapters, .tutorial-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 22px 0; }
+.tutorial-chapters button, .tutorial-options button { display: grid; align-content: start; gap: 10px; text-align: left; padding: 18px; border: 1px solid var(--line, #e3e6ee); border-radius: 12px; background: white; }
+.tutorial-chapters button:hover, .tutorial-options button:hover { border-color: var(--accent, #3e58d6); }
+.tutorial-chapters strong, .tutorial-options strong { font-size: 17px; }
+.tutorial-chapters small, .tutorial-options b { color: var(--accent-ink, #2b3fae); font-size: 12px; }
+.tutorial-chapters span, .tutorial-options span { color: var(--ink-2, #485270); line-height: 1.7; font-size: 13px; }
+.tutorial-summary { background: white; padding: 14px 16px 14px 34px; border: 1px solid var(--line, #e3e6ee); border-radius: 12px; line-height: 1.85; overflow-wrap: anywhere; }
+.tutorial-error { border: 1px solid #d66; background: #fff0f0; color: #842525; padding: 12px; border-radius: 10px; }
+@media (max-width: 760px) {
+  .tutorial-game { width: 100vw; height: 100dvh; border-radius: 0; }
+  .tutorial-header { align-items: flex-start; padding: 14px 16px; }
+  .tutorial-deck, .tutorial-chapters, .tutorial-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tutorial-hand { grid-template-columns: 1fr; }
+  .tutorial-card { grid-template-columns: 72px minmax(0, 1fr); }
+  .tutorial-card > img { width: 72px; height: 96px; object-fit: cover; }
+  .tutorial-card-label { grid-column: 2; }
+  .tutorial-meters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 420px) {
+  .tutorial-header { flex-wrap: wrap; gap: 9px; }
+  .tutorial-header > div { display: flex; align-items: baseline; gap: 8px; }
+  .tutorial-header nav { width: 100%; }
+  .tutorial-header nav button { flex: 1; }
+  .tutorial-chapters, .tutorial-options { grid-template-columns: 1fr; }
+  .tutorial-deck article { display: grid; }
+  .tutorial-deck img { width: 42px; height: 56px; }
+  .tutorial-meters > div { padding: 8px 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .tutorial-game *, .tutorial-game *::before, .tutorial-game *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+.tutorial-next { padding: 12px 16px; border-left: 4px solid var(--accent, #3e58d6); background: #eef1fe; font-weight: 600; }
+.tutorial-primary { grid-template-columns: minmax(0, 1fr); max-width: 640px; }
+
+.tutorial-card.is-suggested { border-color: #8ca5df; }

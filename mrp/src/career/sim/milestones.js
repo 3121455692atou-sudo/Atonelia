@@ -4,7 +4,7 @@
 import { MILESTONES, MS_BY_ID, msMods } from '../data/milestones.js';
 import { RELEASES, FAMILIES } from '../data/rivals.js';
 import { addDays, dayInMonth } from './clock.js';
-import { qOf, isMine, familyBest, worldSota, worldRank, relDims, realQ, ensureSota } from './sota.js';
+import { qOf, isMine, familyBest, worldSota, worldRank, relDims, realQ } from './sota.js';
 import { P } from './provider.js';
 import { cond } from './cond.js';
 
@@ -13,7 +13,7 @@ const list = v => (Array.isArray(v) ? v : [v]);
 const relQ = (s, r) => qOf(r.mod, relDims(s, r));
 // 只有带 R 标签的发布才算推理模型（规格 D3、D4 第 5 条）。
 export const isReasoningRelease = r => (r.tags || []).includes('R');
-const relDay = m => m?.releasedDay ?? (m?.released ? `${m.released}-15` : null);
+const relDay = m => m?.releasedDay ?? null;
 const startDay = s => (s.start ? `${s.start}-01` : s.day);
 // 截至某天最好的闭源模型：别家各家族最强的闭源型号（先筛闭源再取最强，家族最强那款是开源的也不跳过这家），加上玩家自己发布过的闭源模型。
 function bestClosedQ(s, mod, day) {
@@ -95,14 +95,8 @@ const mineEntry = (s, m, extra = {}) => ({ who: 'me', day: s.day, model: m?.name
 // 谁先做到只看账本：行业第一次一旦记下就不会再改；卡片弹不弹由 fire 按弹窗预算决定（落选的行业第一次照样记着，只发快讯；
 // 落选的自家里程碑从账本里撤掉，下次满足条件时再说）。
 // 开局第一次月结时已经满足的经营类里程碑，算开局前就做到了，悄悄记下、不出卡片。
-// 先兜底：P0.3a 到 P1.4 之间新开的 v4 存档，milestones 特性步骤已经记成执行过（createGame 的 stampFeatures），
-// 可那时没有 ms_first_sota、ms_open_reasoning_frontier，读档也不会再补记。账本版本号（s.msVer，initMilestones 写）没到 MS_VER 的，
-// 第一次检查前按读旧档的办法静默补记一遍：今天之前已经成立的记在做到的那家名下，今天的事照常由这一次检查处理。
-// P1.1 以前新开的存档还没有 s.sota（kinTick 的 ensureSota 到推进途中才补）：研究完成、读档后马上发布这类钩子会先走到这里，
-// 要先补上 s.sota，否则“开局以后第一次炼出 SOTA”读不到、补记不上，之后照样会弹。
 export function milestoneCandidates(s, ctx) {
-  if ((s.msVer ?? 0) < MS_VER && s.mig?.milestones) { ensureSota(s); initMilestones(s, s.day); }
-  s.ms = s.ms || {};
+  if (s.msVer !== MS_VER || !s.ms || typeof s.ms !== 'object') throw Error('不支持旧版里程碑存档，请新开一局');
   const out = [];
   const silent = ctx.on === 'month' && !s.monthsPlayed;
   for (const ms of ofMod(s)) {
@@ -123,13 +117,12 @@ export function milestoneCandidates(s, ctx) {
   }
   return out;
 }
-// 开局（或读旧档）：截止日之前已经有人做到的，悄悄记在做到的人名下，不弹卡。
-// cutoff：这一天（不含）之前发生的都算“已经发生过”。新开局是开局日；读旧档时是存档日的后一天。写成 'YYYY-MM' 时按那个月的 1 号算。
+// 新开局：截止日之前已经有人做到的，悄悄记在做到的人名下，不弹卡。
+// cutoff：这一天（不含）之前发生的都算“已经发生过”。只使用开局日。写成 'YYYY-MM' 时按那个月的 1 号算。
 // 按日期从早到晚过一遍：
 //   - 对手发布（cutoff 之前变为可见的）和开局之前本公司自己的真实发布（现实里是我们做到的，记成 me），按发布那天判断；
 //   - 公开技术（rivalTech）：别家或学界在截止日之前公开的，本公司在开局之前公开的（记成 me），或者开局就会这项技术；
-//   - 玩家已经发布的模型（开局继承的型号只看自家里程碑，读旧档时开局后发布的都看），按它发布那天判断；
-//   - 读旧档时“开局以后第一次炼出 SOTA”已经成立的，记在那一款名下。
+//   - 玩家已经发布的模型（开局继承的型号只看自家里程碑），按它发布那天判断；
 // 补记完写账本版本号 s.msVer = MS_VER（里程碑表加了要补记的条目时加 1）。
 export const MS_VER = 1;
 export function initMilestones(s, cutoff = startDay(s)) {
@@ -174,13 +167,6 @@ export function initMilestones(s, cutoff = startDay(s)) {
       .filter(x => x.lv !== 'proof' && x.day < before && (!x.own || x.day < st)).sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : 0))[0];
     if (src) s.ms[ms.id] = { who: src.own ? 'me' : src.f, day: null, silent: true };
     else if ((s.techs || []).includes(ms.rivalTech)) s.ms[ms.id] = { who: 'me', day: null, silent: true };
-  }
-  // 开局以后第一次炼出 SOTA：新开局时不可能成立；读旧档时已经成立的，记在第一枚算数标签那款名下（规格 E8）。
-  const first = MS_BY_ID.ms_first_sota;
-  if (first && msMods(first).includes(s.mod) && !s.ms[first.id] && cond(s, { sotaMade: 'first' })) {
-    const made = s.sota.made[0];
-    const m = (s.models || []).find(x => x.id === made.modelId);
-    s.ms[first.id] = { who: 'me', day: null, silent: true, model: m?.name ?? null, modelId: made.modelId ?? null };
   }
   s.msVer = MS_VER;
 }

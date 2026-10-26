@@ -1,0 +1,209 @@
+/* Secondary management pages share the lobby's quiet white / navy / mint palette.
+   Every rule is scoped away from the full-screen post-training panel. */
+.office:not(:has(.post-plan)) {
+  --paper: #f3f7f5; --white: #fff; --surface: #fff; --surface-2: #edf4f1;
+  --ink: #203748; --ink-2: #4f6672; --muted: #627984; --faint: #738a93;
+  --line: #d7e4de; --line-2: #e6eeea; --track: #dce9e3;
+  --accent: #267c73; --accent-2: #43a496; --accent-ink: #1d6b63; --accent-soft: #e2f2eb;
+  --navy: #203748; --gold: #966a28; --gold-soft: #fff1d9;
+  --ok: #25794f; --ok-soft: #e6f3e9; --warn: #98611e; --warn-soft: #fff1dc;
+  --bad: #b44050; --bad-soft: #fbe9ec; --violet: #7151a2; --violet-soft: #f0eaf7;
+  --bar-lower: #cd7f8b; --shadow-sm: none; --shadow: 0 8px 24px #2446380e;
+  color: var(--ink); color-scheme: light; background: var(--paper);
+  grid-template-columns: 190px minmax(0, 1fr);
+}
+
+/* The return action stays visible while the menu itself scrolls. */
+.office:not(:has(.post-plan)) .office-nav {
+  gap: 18px; padding: 22px 12px 14px; min-height: 0; overflow: hidden;
+  background: #fff; border-color: var(--line);
+}
+.office:not(:has(.post-plan)) .office-title { padding: 0 9px; gap: 5px; }
+.office:not(:has(.post-plan)) .office-title b { font-size: 20px; letter-spacing: 0; }
+.office:not(:has(.post-plan)) .office-title b::before {
+  width: 6px; height: 18px; margin: 0 8px 3px 0; background: #65b9a4; box-shadow: none;
+}
+.office:not(:has(.post-plan)) .office-title small { color: var(--muted); font-size: 11px; }
+.office:not(:has(.post-plan)) .office-nav nav {
+  flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column;
+  gap: 13px; padding: 2px; overflow: auto; scrollbar-width: thin; scrollbar-color: #cadcd3 transparent;
+}
+.office:not(:has(.post-plan)) .office-nav-group { flex: none; gap: 2px; padding: 0; }
+.office:not(:has(.post-plan)) .office-nav-group + .office-nav-group { border: 0; padding-top: 0; }
+.office:not(:has(.post-plan)) .office-nav-group > b {
+  padding: 0 9px 4px; font-size: 11px; color: var(--muted); letter-spacing: .06em;
+}
+.office:not(:has(.post-plan)) .office-nav-group:nth-child(2) {
+  margin: 0; padding: 0; border: 0; border-radius: 0; background: none;
+}
+.office:not(:has(.post-plan)) .office-nav-group:nth-child(2) > b { color: var(--accent-ink); }
+.office:not(:has(.post-plan)) .office-nav-group:nth-child(2) > b::after { content: none; }
+.office:not(:has(.post-plan)) .office-nav nav button {
+  min-height: 34px; gap: 9px; padding: 5px 9px; border-radius: 8px;
+  font-size: 13px; color: var(--ink-2); font-weight: 550;
+}
+.office:not(:has(.post-plan)) .office-nav nav button .ico { width: 17px; height: 17px; color: var(--muted); }
+.office:not(:has(.post-plan)) .office-nav nav button:hover { color: var(--ink); background: var(--surface-2); }
+.office:not(:has(.post-plan)) .office-nav nav button.is-on {
+  min-height: 34px; color: var(--accent-ink); background: var(--accent-soft); font-weight: 750; box-shadow: none;
+}
+.office:not(:has(.post-plan)) .office-nav nav button.is-on .ico { color: var(--accent-ink); }
+.office:not(:has(.post-plan)) .office-nav nav button.is-on::before {
+  left: 0; top: 9px; bottom: 9px; width: 2px; border-radius: 2px; background: var(--accent); box-shadow: none;
+}
+.office:not(:has(.post-plan)) .office-close { flex: none; min-height: 38px; font-size: 12.5px; }
+
+/* Compact content rhythm; tables retain their own horizontal scrolling. */
+.office:not(:has(.post-plan)) .office-body {
+  padding: 24px clamp(18px, 3vw, 46px) 36px; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  scrollbar-color: #c2d5cb transparent;
+}
+.office:not(:has(.post-plan)) .office-body h2 { font-size: 24px; line-height: 1.25; letter-spacing: -.02em; }
+.office:not(:has(.post-plan)) .office-body > h2 + p.muted { margin-top: -4px; font-size: 12.5px; }
+.office:not(:has(.post-plan)) .card {
+  padding: 13px 15px; gap: 9px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--white); box-shadow: none;
+}
+.office:not(:has(.post-plan)) .card-head { gap: 5px 10px; }
+.office:not(:has(.post-plan)) .card-head b { color: var(--ink); font-size: 15px; letter-spacing: 0; }
+.office:not(:has(.post-plan)) .card-head small { font-size: 11.5px; }
+.office:not(:has(.post-plan)) .grid2 { gap: 12px; }
+.office:not(:has(.post-plan)) .mcard-body { gap: 10px; }
+.office:not(:has(.post-plan)) .mcard-body .radar { max-width: 185px; }
+.office:not(:has(.post-plan)) .kv { gap: 5px; }
+.office:not(:has(.post-plan)) .kv li b { font-size: 16px; }
+.office:not(:has(.post-plan)) .mini-kpis { gap: 4px 18px; }
+.office:not(:has(.post-plan)) .mini-kpis b { font-size: 23px; }
+.office:not(:has(.post-plan)) .tbl th { padding: 7px 9px; font-size: 11.5px; color: var(--ink-2); }
+.office:not(:has(.post-plan)) .tbl td { padding: 8px 9px; }
+.office:not(:has(.post-plan)) .tbl tbody tr:hover td { background: #f1f7f4; }
+.office:not(:has(.post-plan)) .tbl tr.mine { box-shadow: inset 2px 0 var(--accent); }
+.office:not(:has(.post-plan)) .tabs { gap: 3px; }
+.office:not(:has(.post-plan)) .tabs button { min-height: 38px; padding: 7px 12px; border-radius: 7px 7px 0 0; }
+.office:not(:has(.post-plan)) .tabs button.is-on {
+  color: var(--accent-ink); border: 0; border-bottom: 2px solid var(--accent);
+  margin-bottom: -1px; background: transparent;
+}
+.office:not(:has(.post-plan)) .news,
+.office:not(:has(.post-plan)) .goals { gap: 6px; }
+.office:not(:has(.post-plan)) .news li,
+.office:not(:has(.post-plan)) .goals li { padding: 10px 12px; border-radius: 9px; }
+.office:not(:has(.post-plan)) .offer { padding: 10px 12px; border-radius: 10px; }
+.office:not(:has(.post-plan)) .tech { padding: 9px 11px; border-radius: 10px; }
+.office:not(:has(.post-plan)) .progress i { background: var(--accent-2); box-shadow: none; }
+.office:not(:has(.post-plan)) .chip { padding: 2px 8px; }
+.office:not(:has(.post-plan)) .chip--small { border-color: #c6e1d5; }
+.office:not(:has(.post-plan)) .tool.on { background: var(--accent-soft); color: var(--accent-ink); }
+
+/* Actions and inputs share one visible interaction language. */
+.office:not(:has(.post-plan)) .btn { min-height: 36px; border-radius: 8px; padding-inline: 13px; box-shadow: none; }
+.office:not(:has(.post-plan)) .btn--sm { min-height: 32px; padding-inline: 10px; }
+.office:not(:has(.post-plan)) .btn--primary { color: #fff; background: var(--accent); border-color: var(--accent); box-shadow: none; }
+.office:not(:has(.post-plan)) .btn--primary:hover:not(:disabled) { background: var(--accent-ink); border-color: var(--accent-ink); box-shadow: none; }
+.office:not(:has(.post-plan)) .btn:not(.btn--primary):not(.btn--danger) { background: #fff; border-color: var(--line); color: var(--ink); }
+.office:not(:has(.post-plan)) .btn:not(.btn--primary):not(.btn--danger):hover:not(:disabled) { background: var(--surface-2); border-color: #aacabd; box-shadow: none; }
+.office:not(:has(.post-plan)) .chip-btn.is-on,
+.office:not(:has(.post-plan)) .btn.is-on { color: #fff; background: var(--accent); border-color: var(--accent); }
+.office:not(:has(.post-plan)) .btn.is-on:not(.btn--primary):not(.btn--danger) { color: var(--accent-ink); background: var(--accent-soft); border-color: #a6d1bd; }
+.office:not(:has(.post-plan)) :is(select, input[type="text"], input[type="number"], input[type="search"], input:not([type])) { min-height: 36px; border-color: var(--line); }
+.office:not(:has(.post-plan)) select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%234f6672' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.office:not(:has(.post-plan)) :is(select, input):focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px #43a49626; }
+.office:not(:has(.post-plan)) .switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 3px; }
+.office:not(:has(.post-plan)) p.warn { border-color: #ead3ad; }
+.office:not(:has(.post-plan)) .train-models { border-color: #b9d8c9; border-top: 3px solid #65b9a4; background: #fff; box-shadow: none; }
+.office:not(:has(.post-plan)) .train-models > .card-head b { font-size: 16px; }
+.office:not(:has(.post-plan)) .train-models .btn.btn--sm[data-new-post] { background: #f5dea9; color: #4b4028; border: 1px solid #e6cc90; font-weight: 750; box-shadow: none; }
+.office:not(:has(.post-plan)) .train-models .btn.btn--sm[data-new-post]:hover:not(:disabled) { background: #f1d28f; }
+.office:not(:has(.post-plan)) :is(.model-detail, .job-menu) { padding: 10px 12px; border-radius: 9px; background: #f4f8f5; }
+.office:not(:has(.post-plan)) .job-prio.is-high,
+.office:not(:has(.post-plan)) .job-more[aria-expanded="true"] { border-color: #b6d7c8; }
+
+/* Hardware photographs stay useful, without becoming large empty banners. */
+.office:not(:has(.post-plan)) .hw-cluster {
+  min-height: 112px; padding: 0; background: var(--bg) center / cover no-repeat, #253b40; color: #fff;
+}
+.office:not(:has(.post-plan)) .hw-cluster-text { padding: 12px 15px 4px; }
+.office:not(:has(.post-plan)) .hw-cluster-text :is(b, span) { color: #fff; }
+.office:not(:has(.post-plan)) .hw-cluster a { color: inherit; }
+.office:not(:has(.post-plan)) .hw-grid { gap: 12px; margin: 8px 0; }
+.office:not(:has(.post-plan)) .hw-card { border-radius: 11px; }
+.office:not(:has(.post-plan)) .hw-card figure { aspect-ratio: 3 / 1; max-height: 106px; }
+.office:not(:has(.post-plan)) .hw-body { gap: 7px; padding: 10px 12px; }
+
+/* Research / strategy maps keep their authored node geometry and pan/zoom model. */
+.office:not(:has(.post-plan)) .tech-tree { margin: 10px 0; border-color: var(--line); background: #f6f9f7; color: var(--ink); }
+.office:not(:has(.post-plan)) .tech-tree-toolbar { background: #fff; border-color: var(--line); }
+.office:not(:has(.post-plan)) .tech-tree-toolbar small { color: var(--muted); }
+.office:not(:has(.post-plan)) .tech-tree-viewport { background: radial-gradient(circle, #ccdcd2 1px, transparent 1px) 0 0 / 24px 24px; }
+.office:not(:has(.post-plan)) .tech-tree-lane { border-color: #d2e2d8; background: #e5efe744; }
+.office:not(:has(.post-plan)) .tech-tree-lane > b { color: var(--ink-2); }
+.office:not(:has(.post-plan)) .tech-tree-links > path { stroke: #8ca69a; }
+.office:not(:has(.post-plan)) .tech-tree-links > path.is-related { stroke: var(--accent); }
+.office:not(:has(.post-plan)) .tech-tree-node { border-color: #bdd0c5; border-radius: 9px; background: #fff; color: var(--ink); box-shadow: 0 2px 5px #24463808; }
+.office:not(:has(.post-plan)) .tech-tree-node small,
+.office:not(:has(.post-plan)) .tech-tree-state { color: var(--muted); }
+.office:not(:has(.post-plan)) .tech-tree-node.is-ready { border-color: #63ae91; }
+.office:not(:has(.post-plan)) .tech-tree-node.is-ready .tech-tree-state { color: var(--accent-ink); }
+.office:not(:has(.post-plan)) .tech-tree-node.is-owned { border-color: #9fc6b0; background: #eaf4ee; }
+.office:not(:has(.post-plan)) .tech-tree-node.is-running { border-color: #c99c4a; background: #fff8e9; }
+.office:not(:has(.post-plan)) .tech-tree-node.is-running .tech-tree-state { color: #8b6222; }
+.office:not(:has(.post-plan)) .tech-tree-node.is-selected,
+.office:not(:has(.post-plan)) .tech-tree-node:focus-visible { outline-color: var(--accent); }
+.office:not(:has(.post-plan)) .tech-tree-node.is-recommended::after { color: #9e712b; }
+.office:not(:has(.post-plan)) .tech-tree-details .tech-map-node { box-shadow: 0 10px 32px #24463829; }
+.office:not(:has(.post-plan)) .strategy-map-wrap {
+  border: 1px solid var(--line); background: radial-gradient(circle, #d1dfd6 1px, transparent 1px) 0 0 / 24px 24px, #f5f8f5;
+  box-shadow: none; scrollbar-color: #bdd1c5 #edf3ee;
+}
+.office:not(:has(.post-plan)) .strategy-lane > b { color: var(--ink-2); }
+.office:not(:has(.post-plan)) .strategy-link { stroke: #84a293; }
+.office:not(:has(.post-plan)) .strategy-link--excl { stroke: #bd7a84; }
+.office:not(:has(.post-plan)) .strategy-node { color: var(--ink); border-color: #c5d6ca; border-radius: 9px; background: #fff; }
+.office:not(:has(.post-plan)) .strategy-node:hover { border-color: #78af95; background: #f4faf6; }
+.office:not(:has(.post-plan)) .strategy-node.is-sel { background: #e9f4ed; border-color: var(--accent); box-shadow: 0 0 0 2px #267c7326; }
+.office:not(:has(.post-plan)) .strategy-node:focus-visible { outline-color: var(--accent); }
+.office:not(:has(.post-plan)) .strategy-node .strategy-title { color: var(--ink); background: #f3f7f4; }
+.office:not(:has(.post-plan)) .strategy-node-sub { color: var(--muted); }
+.office:not(:has(.post-plan)) .strategy-node.locked .strategy-title { color: var(--muted); background: #f0f3f1; }
+.office:not(:has(.post-plan)) .strategy-node.bad .strategy-title { color: var(--bad); }
+.office:not(:has(.post-plan)) .sg-icon { background: #e4ede6; box-shadow: 0 0 0 2px #b7cbbd; }
+.office:not(:has(.post-plan)) .sg-icon-letter { color: var(--accent-ink); }
+.office:not(:has(.post-plan)) .sg-badge { box-shadow: 0 0 0 2px #f5f8f5; }
+.office:not(:has(.post-plan)) .sg-badge--active { background: var(--accent); }
+.office:not(:has(.post-plan)) .strategy-node.done .sg-icon { box-shadow: 0 0 0 2px #76a98c; }
+.office:not(:has(.post-plan)) .strategy-node.ok .sg-icon { box-shadow: 0 0 0 2px #bb9652; }
+.office:not(:has(.post-plan)) .strategy-node.locked .sg-icon,
+.office:not(:has(.post-plan)) .strategy-node.bad .sg-icon { box-shadow: 0 0 0 2px #cbd6ce; }
+.office:not(:has(.post-plan)) .sg-icon[style*="--pct"]::before { background: conic-gradient(var(--accent) calc(var(--pct) * 1%), #267c7326 0); }
+.office:not(:has(.post-plan)) .strategy-detail { border-color: #a4c5b2; box-shadow: 0 10px 30px #24463826; }
+.office:not(:has(.post-plan)) .strategy-branch-tag { background: #edf3e9; }
+
+@media (min-width: 861px) and (max-width: 1100px) {
+  .office:not(:has(.post-plan)) { grid-template-columns: 172px minmax(0, 1fr); }
+  .office:not(:has(.post-plan)) .office-nav { padding-inline: 9px; }
+  .office:not(:has(.post-plan)) .office-body { padding: 21px 20px 32px; }
+}
+@media (max-width: 860px) {
+  .office:not(:has(.post-plan)) { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .office:not(:has(.post-plan)) .office-nav { flex-direction: row; gap: 7px; padding: 7px 9px; border-right: 0; overflow: hidden; }
+  .office:not(:has(.post-plan)) .office-nav nav { flex: 1 1 0; flex-direction: row; align-items: center; gap: 12px; overflow: auto; padding: 2px; }
+  .office:not(:has(.post-plan)) .office-nav-group { display: flex; align-items: center; gap: 2px; }
+  .office:not(:has(.post-plan)) .office-nav-group > b { padding: 0 5px; font-size: 10px; white-space: nowrap; }
+  .office:not(:has(.post-plan)) .office-nav-group + .office-nav-group { padding-left: 10px; border-left: 1px solid var(--line); }
+  .office:not(:has(.post-plan)) .office-nav-group:nth-child(2) { padding: 0; border: 0; }
+  .office:not(:has(.post-plan)) .office-nav nav button,
+  .office:not(:has(.post-plan)) .office-nav nav button.is-on { min-height: 38px; gap: 6px; padding: 7px 10px; font-size: 12.5px; }
+  .office:not(:has(.post-plan)) .office-nav nav button .ico { width: 16px; height: 16px; }
+  .office:not(:has(.post-plan)) .office-close { order: -1; width: 38px; height: 38px; min-height: 38px; padding: 0; margin: 0; justify-content: center; }
+  .office:not(:has(.post-plan)) .office-body { padding: 16px 13px 30px; grid-template-columns: 1fr; gap: 10px; }
+  .office:not(:has(.post-plan)) .office-body h2 { font-size: 22px; }
+  .office:not(:has(.post-plan)) .card { padding: 12px; }
+  .office:not(:has(.post-plan)) .btn { min-height: 38px; }
+  .office:not(:has(.post-plan)) .btn--sm { min-height: 34px; }
+  .office:not(:has(.post-plan)) .hw-cluster { padding: 0; }
+  .office:not(:has(.post-plan)) .news li { grid-template-columns: 58px minmax(0, 1fr); gap: 8px; }
+  .office:not(:has(.post-plan)) .goals li { grid-template-columns: 56px minmax(0, 1fr) auto; gap: 8px; }
+}

@@ -1,0 +1,15 @@
+/* Shared reflow guards. Home and training each own their responsive layout. */
+.home,.home>*,.office,.office>*,.sheet,.post-plan,.pp-main{min-width:0}
+.sheet,.office,.office-body,.panel{min-height:0}
+.sheet{overscroll-behavior:contain;max-width:100%}
+.office-body{overflow-wrap:anywhere}.office-body>*,.office-body .card{min-width:0}
+.grid2{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.form{grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+.form>*,.form input,.form select,.form textarea{min-width:0;max-width:100%}
+.office-body .card:has(.tbl),.office-body .table-wrap{overflow-x:auto}
+.tabs,.menu-actions,.result-actions,.card-head,.train-head,.job-actions{flex-wrap:wrap}
+.select-head{flex-wrap:wrap}.select-body,.select-detail,.select-detail__info{min-width:0}
+@media(min-width:861px) and (max-width:1100px){.office{grid-template-columns:168px minmax(0,1fr)}.office-nav{padding-inline:8px}.office-body{padding:20px 18px 40px}}
+@media(max-width:860px){.office-nav{min-width:0}.office-nav nav,.office-nav-group{flex:none}.office-body{min-width:0;min-height:0}}
+@media(max-height:480px){.title-screen{padding:16px 12px 80px}.title-card{margin-top:20px}.select-head{position:relative}.overlay:not(.overlay--office){padding:8px}.overlay:not(.overlay--office) .sheet{max-height:calc(100dvh - 16px)}}
+@media(max-width:380px){.result-hero{grid-template-columns:minmax(0,1fr)}.result-hero img{width:120px}.breakdown{grid-template-columns:minmax(0,1fr)}}

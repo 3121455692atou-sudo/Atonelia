@@ -1,15 +1,38 @@
 /* 选择面板里的内容：后训练的涨幅、数据授权、刷榜、发布选项。 */
 .gains { display: flex; flex-wrap: wrap; gap: 5px; }
 .gain { font-family: var(--font-num); font-size: 12px; padding: 2px 8px; border-radius: 7px; background: var(--accent-soft); color: var(--accent); }
-.gain.neg { background: #fdeaea; color: var(--bad); }
+.gain.neg { background: var(--bad-soft); color: var(--bad); }
 .rights { padding: 0 6px; border-radius: 5px; }
-.rights--ok { background: #e6f4ec; color: var(--ok); }
-.rights--warn { background: #fff1de; color: var(--warn); }
-.rights--bad { background: #fde7e7; color: var(--bad); }
+.rights--ok { background: var(--ok-soft); color: var(--ok); }
+.rights--warn { background: var(--warn-soft); color: var(--warn); }
+.rights--bad { background: var(--bad-soft); color: var(--bad); }
 .benchmax summary { cursor: pointer; font-weight: 600; color: var(--warn); }
-.release-opt { display: grid; gap: 6px; padding: 12px 14px; border-radius: 14px; background: #f7f9fb; border: 1px solid var(--line); }
+.release-opt { display: grid; gap: 6px; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); }
 /* 蒸馏选项的自洽读数（M.5.2、M.5.3）：一包被查出的风险条、受限开源条款徽章。 */
-.risk-bar { display: inline-block; width: 48px; height: 6px; border-radius: 3px; background: #eef1f4; overflow: hidden; vertical-align: middle; }
+.risk-bar { display: inline-block; width: 48px; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; vertical-align: middle; }
 .risk-bar i { display: block; height: 100%; background: var(--warn); }
-.lic-badge { padding: 0 6px; border-radius: 5px; background: #eef1f4; color: var(--ink-2, #555); }
-.lic-badge.bad { background: #fde7e7; color: var(--bad); }
+.lic-badge { padding: 0 6px; border-radius: 5px; background: var(--surface-2); color: var(--ink-2, #555); }
+.lic-badge.bad { background: var(--bad-soft); color: var(--bad); }
+
+/* 托管：先操作，规则与审计按需展开；仅限本页。 */
+.automation-panel { min-width: 0; }
+.automation-panel .automation-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+.automation-panel .automation-head h2 { margin: 0; font-size: 20px; }
+.automation-panel .automation-head > strong { font-size: 12px; color: var(--ink-2); }
+.automation-panel .automation-master { display: flex; gap: 6px; margin-left: auto; }
+.automation-panel .btn { min-height: 34px; padding: 5px 9px; font-size: 12px; }
+.automation-panel .automation-budget, .automation-panel .automation-note { margin: 5px 0; font-size: 12px; line-height: 1.4; }
+.automation-panel .automation-note { color: var(--ink-2); }
+.automation-panel .automation-modules { display: grid; gap: 4px; margin: 8px 0; }
+.automation-panel .automation-module { padding: 6px 8px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-2); min-width: 0; }
+.automation-panel .automation-controls { display: grid; grid-template-columns: 64px 64px minmax(0, 1fr); gap: 6px; align-items: center; }
+.automation-panel .automation-controls > strong { font-size: 13px; }
+.automation-panel .automation-controls label { min-width: 0; margin: 0; }
+.automation-panel .automation-controls select { width: 100%; min-width: 0; min-height: 34px; padding: 4px; margin: 0; font-size: 12px; }
+.automation-panel .automation-field-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.automation-panel .automation-module-info { margin-top: 3px; font-size: 11px; }
+.automation-panel summary { cursor: pointer; min-height: 24px; line-height: 24px; }
+.automation-panel .automation-module-info p, .automation-panel .automation-extra p { margin: 6px 0; line-height: 1.5; }
+.automation-panel .automation-extra { border-top: 1px solid var(--line); padding: 5px 0; font-size: 12px; }
+.automation-panel .automation-batch { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.automation-panel :disabled { opacity: .5; cursor: not-allowed; }

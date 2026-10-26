@@ -1,9 +1,10 @@
 // 核心设定：时间、模态、规模、硬件、技术、产品、公司。数值为游戏模拟，按真实量级校准。
 import { CHARACTER_ROSTER } from './roster.js';
 import { CLASS_EDGES } from './balance.js';
+import { RESEARCH_PRACTICES } from './research_practices.js';
 
-// 存档结构版本（规格 E8）。v4（P0.3b）：done 拆成 seen 和 marks、计时器改存到期日、董事会目标的队列项叫 board。
-export const VERSION = 4;
+// 当前存档结构：只接受本版本；旧档不迁移，请新开局。
+export const VERSION = 5;
 export const END = '2026-10';
 
 // ---------- 时间 ----------
@@ -13,9 +14,22 @@ export function addMonths(key, n) {
   const t = y * 12 + (m - 1) + n;
   return ym(Math.floor(t / 12), (t % 12) + 1);
 }
+// Parsing is pure and month keys repeat throughout a simulation. Keep a bounded
+// cache of the original pair (not a combined index, preserving arithmetic order).
+const monthPairs = new Map();
+function monthPair(key) {
+  if (typeof key !== 'string') return key.split('-').map(Number);
+  let pair = monthPairs.get(key);
+  if (!pair) {
+    pair = key.split('-').map(Number);
+    if (monthPairs.size >= 512) monthPairs.delete(monthPairs.keys().next().value);
+    monthPairs.set(key, pair);
+  }
+  return pair;
+}
 export function monthsBetween(a, b) {
-  const [ya, ma] = a.split('-').map(Number);
-  const [yb, mb] = b.split('-').map(Number);
+  const [ya, ma] = monthPair(a);
+  const [yb, mb] = monthPair(b);
   return (yb - ya) * 12 + (mb - ma);
 }
 export const fmtDate = key => { const [y, m] = key.split('-').map(Number); return `${y} 年 ${m} 月`; };
@@ -203,7 +217,7 @@ export function gpuRentable(id, date, country, overseas) {
 }
 
 // ---------- 技术 ----------
-// from：业界公开的时间；之后才能研究。cost：研究要花的技术积累。effects 见引擎 applyTech。
+// from：技术年表的可探索时间；允许有限超前研究。cost：基础研究工作量系数，不扣技术积累。
 export const TECHS = [
   { id: 'rlhf', mod: 'llm', name: '指令微调与 RLHF', from: '2022-03', cost: 0, start: true, desc: 'InstructGPT 的做法：先监督微调，再用人类偏好训练奖励模型。', effects: { cap: { writing: 4, safety: 6 } } },
   { id: 'distill', mod: 'llm', name: '蒸馏与量化部署', from: '2023-03', cost: 12, desc: '用大模型的输出训练小模型，或把权重量化到 8/4 bit。高峰期可以把流量分给量化版。', effects: { infer: 1.15, unlock: ['route_quant'] } },
@@ -253,6 +267,7 @@ export const TECHS = [
   { id: 'audio_tags', mod: 'speech', name: '音频标签控制', from: '2025-06', cost: 22, desc: '用 [whispers] [sighs] 之类的标签控制语气。', effects: { cap: { expressive: 10 } } },
   { id: 's2s', mod: 'speech', name: '端到端实时语音', from: '2025-08', cost: 30, desc: '不经过文字中转，直接听、直接说，打断和语气都更自然。', effects: { cap: { expressive: 6, naturalness: 3 }, demand: { api: 1.08 } } },
 ];
+TECHS.push(...RESEARCH_PRACTICES);
 export const TECH_BY_ID = Object.fromEntries(TECHS.map(t => [t.id, t]));
 
 // ---------- 产品 ----------

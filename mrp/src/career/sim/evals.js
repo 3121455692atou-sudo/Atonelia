@@ -2,6 +2,7 @@
 // 评测期间在练模型照常练下一版，评完自动发布（tickDay 的 out.releases）。评测不改任何维度，只在发布出去的版本上记下评测档 evalTier，
 // 之后出事、打官司按 riskSafety 算；跳过评测有一笔不随安全维归零的固定代价，风险封顶 62，也不能拿去备案。
 // 和 ui/panels/eval.js、decide('eval')（跑分）不是一回事，跑分不变。
+import {cancelledEvaluationReceipt,recordCancelledEvaluation} from './automation_evaluation_ledger.js';
 import { EVAL } from '../data/balance.js';
 import { RELEASE_GAP } from '../data/supply.js';
 import { addDays } from './clock.js';
@@ -125,6 +126,7 @@ export function submitEval(s, { modelId, tier, opts = {} } = {}) {
 export function cancelEval(s, id) {
   const ev = evalsOf(s).find(e => e.id === id);
   if (!ev) throw new Error('没有这个评测');
+  const autoCancel=cancelledEvaluationReceipt(s,ev);
   s.evals = evalsOf(s).filter(e => e !== ev);
   const m = (s.models || []).find(x => x.id === ev.modelId);
   if (m && ev.line === 'small') delete m.evalId;
@@ -133,6 +135,7 @@ export function cancelEval(s, id) {
   unreserveGrant(s, ev.plan?.grant, candId);
   // 自洽世界释放这个名字（史实 Provider 什么都不做）。没有确认撤回的评测不释放。
   P().releaseName?.(s, ev.plan?.name, ev.id);
+  recordCancelledEvaluation(s,autoCancel);
   log(s, `撤回送评：${ev.plan?.name}`);
   return { kind: 'cancelEval', id };
 }

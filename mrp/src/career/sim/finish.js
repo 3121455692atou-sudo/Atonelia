@@ -32,7 +32,7 @@ export function finish(s, reason, goal = null) {
   const lost = s.legal.history.filter(x => x.outcome === '败诉').length;
   const seen = id => (s.seen?.[id] || 0) > 0;
   const penalty = lost * 4 + (seen('exposed') ? 6 : 0) + (seen('arena_scandal') ? 4 : 0) + (seen('benchmax_exposed') ? 4 : 0);
-  // 规格 K5：熬过 AI 泡沫破裂 +5，“扭亏为盈”躲过泡沫 +8。
+  // 奖励以 BUBBLE.SCORE 为准；泡沫存活已计入董事会目标，不另加分。
   const winter = s.bubble && !s.bubble.averted && reason === 'complete' ? BUBBLE.SCORE.winter : 0;
   const profitAch = s.marks?.ach_profitable ? BUBBLE.SCORE.profit : 0;
   let total = 0.3 * bizScore + 0.2 * capitalScore + 0.12 * marketScore + 0.15 * capScore + 0.1 * s.rep + 0.13 * goalScore - penalty + winter + profitAch;

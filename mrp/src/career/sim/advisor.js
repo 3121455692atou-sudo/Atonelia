@@ -31,6 +31,7 @@ import { registerStrategyKind, startStrategy, nodeOf, spiritDef } from './strate
 import { adviseStrategy, distillTeacher, shouldHold, grantWindow } from './strategy_ai.js';
 import { describeEffects } from './effects.js';
 import { capMods } from './modifiers.js';
+import { withModelReadSnapshot } from './model.js';
 
 // 公司策略和专属事件两种卡片在这里登记一次：engine.js 直接导入本文件，求值到这里时 queue.js 已经就绪
 // （strategy.js、exclusive.js 求值时 queue.js 往往还没好），界面开机读档、清理队列时就认得这两种卡片。
@@ -528,7 +529,9 @@ function jobsAdvice(s, focus) {
   const tier = defaultTier(s);
   for (const m of smallModels(s)) {
     if (postJobFor(s, m) || submitBlock(s, m, 'small')) continue;
-    const name = releaseNamePlan(s, m, { role: 'small', line: releaseLine(s, m), open: releaseOpenFor(s, m) }).name;
+    const named = releaseNamePlan(s, m, { role: 'small', line: releaseLine(s, m), open: releaseOpenFor(s, m) });
+    if (!named.ok) continue;
+    const name = named.name;
     out.push(D('submit', { modelId: m.id, role: 'small', tier, open: releaseOpenFor(s, m) }, `送评小模型 ${name}（${TIER_LABEL[tier]} ${evalDaysFor(s, tier, 'small')} 天）`, '小模型已经练好了。评完自动发布：API 多一档便宜的选择，高峰期也能分担负载。', `submit:small:${m.id}`));
   }
   return out;
@@ -547,7 +550,7 @@ function monthAdvice(s, focus) {
   // 授名时机（P3.D2，A10）：手里有成立的授名时，送评排到作业建议最前面。不受“后训练满 3 个月”和 shouldHold 限制；
   // 名字不用特意指定，releaseNamePlan 送评时会自动选上（C7）。
   const grant = a.release && w ? grantWindow(s, w) : null;
-  const grantNow = !!grant && !submitBlock(s, w, 'main');
+  const grantNow = !!grant && !submitBlock(s, w, 'main') && releaseNamePlan(s, w, { open: releaseOpenFor(s, w) }).ok;
   if (grantNow) {
     const tier = defaultTier(s);
     const days = evalDaysFor(s, tier, 'main');
@@ -565,9 +568,10 @@ function monthAdvice(s, focus) {
   if (race && !nagged(s, 'jobs:submit')) {
     const tier = tier0(s);
     const days = evalDaysFor(s, tier, 'main');
-    const name = releaseNamePlan(s, w, { open: releaseOpenFor(s, w) }).name;
+    const named = releaseNamePlan(s, w, { open: releaseOpenFor(s, w) });
+    const name = named.name;
     const vs = holder ? `比标签现在的持有者 ${holder.name}（${fmt1(holder.q)}）高 ${fmt1(qw - holder.q)} 分` : '比场上所有对手都强';
-    out.unshift({ ...D('submit', { modelId: w.id, tier, open: releaseOpenFor(s, w) }, `抢 SOTA：送评 ${name}（${TIER_LABEL[tier]} ${days} 天）`,
+    if (named.ok) out.unshift({ ...D('submit', { modelId: w.id, tier, open: releaseOpenFor(s, w) }, `抢 SOTA：送评 ${name}（${TIER_LABEL[tier]} ${days} 天）`,
       `${name} 现在综合 ${fmt1(qw)} 分，${vs}，发布就能拿下 SOTA 标签。评测期间对手可能先发更强的版本，越早送评越稳。`, 'jobs:submit'), nag: true });
   }
   const F = (op, key, label, detail) => {
@@ -597,14 +601,15 @@ function monthAdvice(s, focus) {
     if ((w.postMonths >= 3 && better) || w.postMonths >= 6 || secure || lastCall || forFiling || !live) {
       const tier = forFiling ? 'standard' : tier0(s);
       const days = evalDaysFor(s, tier, 'main');
-      const name = releaseNamePlan(s, w, { open: releaseOpenFor(s, w) }).name;
+      const named = releaseNamePlan(s, w, { open: releaseOpenFor(s, w) });
+      const name = named.name;
       const side = releaseLine(s, w) === 'side';
       const why = forFiling ? `先送评（标准 ${days} 天），评完再备案：备案只认已经发布、评测过的版本。`
         : !live ? '底座练好了，先送评，评完自动发布，产品才能开卖。'
         : secure || lastCall ? `「${nx.g.title}」${inDays(nx.days)}检查，要求 ${goalNeed(nx.g.check)}。${nx.b.name} 训练中的版本预计 ${scoreText(nx.b, nx.work)}，在线版是 ${scoreText(nx.b, nx.live)}。评测 ${days} 天、灰度 ${deployDays(w)} 天左右，${lastCall ? '再晚就赶不上了' : '现在送评，检查时就稳了'}。`
         : focus ? `${focus.b.name} 预计 ${scoreText(focus.b, est(s, focus.b, w))}，在线版是 ${scoreText(focus.b, est(s, focus.b, live))}。`
         : `这一版后训练了 ${w.postMonths} 个月，比在线版强，该让用户用上。`;
-      out.push({ ...D('submit', { modelId: w.id, tier, open: releaseOpenFor(s, w) }, `送评 ${name}（${TIER_LABEL[tier]} ${days} 天）${side ? '，作为副线发布' : ''}`,
+      if (named.ok) out.push({ ...D('submit', { modelId: w.id, tier, open: releaseOpenFor(s, w) }, `送评 ${name}（${TIER_LABEL[tier]} ${days} 天）${side ? '，作为副线发布' : ''}`,
         `评测期间接着练，发布时按那天的对手评标签和期待。${side ? '这一版比在线旗舰弱，作为副线发布：成绩照常公布，不替换在线服务。' : ''}${why}`, 'jobs:submit'), nag: true });
     }
   }
@@ -612,7 +617,8 @@ function monthAdvice(s, focus) {
   const pm = prevModel(s);
   if (pm && !submitBlock(s, pm, 'prev') && !nagged(s, 'jobs:prev')) {
     const left = daysBetween(s.day, s.prevWorking.until);
-    out.push({ ...D('submit', { modelId: pm.id, tier: 'quick', open: releaseOpenFor(s, pm) }, `上一代 ${releaseNamePlan(s, pm, { open: releaseOpenFor(s, pm) }).name} 还有 ${left} 天就归档：送评（快速 ${evalDaysFor(s, 'quick', 'prev')} 天）`,
+    const named = releaseNamePlan(s, pm, { open: releaseOpenFor(s, pm) });
+    if (named.ok) out.push({ ...D('submit', { modelId: pm.id, tier: 'quick', open: releaseOpenFor(s, pm) }, `上一代 ${named.name} 还有 ${left} 天就归档：送评（快速 ${evalDaysFor(s, 'quick', 'prev')} 天）`,
       '新底座练完以后，上一代还有没发布的进步：送评作为副线发布，别白练。', 'jobs:prev'), nag: true });
   }
   // 6. 闲置训练卡 ≥ 20% 连续 7 天：接一个做了会改变状态的选项（试验、小模型线、调高推理份额），都不满足就不出。
@@ -719,9 +725,12 @@ function idleOption(s, focus) {
 }
 
 // 按优先顺序给出建议：第一条就是大按钮上的那条。
-export function advise(s) {
+export function advise(s, { background = false } = {}) {
+  return withModelReadSnapshot(s, () => computeAdvice(s, { background }));
+}
+function computeAdvice(s, { background = false } = {}) {
   if (s.status !== 'playing') return [];
-  if (s.queue.length) return [{ id: 'queue', kind: 'event', label: '处理眼前的事件', detail: '有事件在等你拍板，处理完时间才会继续走。', op: { type: 'queue' } }];
+  if (s.queue.length && !(background && !P().queueBlocks)) return [{ id: 'queue', kind: 'event', label: '处理眼前的事件', detail: '有事件在等你拍板，处理完时间才会继续走。', op: { type: 'queue' } }];
   const prev = MEMO;
   MEMO = { s, post: new Map() };
   try {
@@ -739,8 +748,14 @@ export function advise(s) {
 // 照建议执行（测试和机器人用；界面上立项、融资、上市会先打开后台让玩家确认）。
 // 作业类建议（排队、送评、上一代收尾、闲置）执行以后记下日期，JOBS.NAG_GAP 天内不再出；闲置计时同时清零（T9.2）。
 export function applyAdvice(s, a) {
-  const op = a.op;
+  if (a?.nag && (typeof a.id !== 'string' || !a.id || a.id === '__proto__')) throw new Error('建议标识不对');
+  // A refused suggestion must not suppress future advice or reset the idle clock.
+  const result = executeAdvice(s, a);
   if (a.nag && s.jobs) { (s.jobs.nag ??= {})[a.id] = s.day; if (a.id === 'jobs:idle') s.jobs.idle = { since: null }; }
+  return result;
+}
+function executeAdvice(s, a) {
+  const op = a.op;
   switch (op.type) {
     case 'tech': return researchTech(s, op.id);
     case 'product': return setProduct(s, op.id, { on: true });
@@ -757,12 +772,30 @@ export function applyAdvice(s, a) {
     // 作业操作（T9.2 的最后一条和作业类建议）：post 是“主线后训练练这个方向”（没有就挂一项，被“专心研究”暂停的一起恢复），不动检修。
     case 'job': {
       if (op.op !== 'post') return jobOp(s, op);
-      if (Array.isArray(s.jobs.focusPause)) focusResearch(s, false);
       const j = mainPostJob(s);
-      if (j) { j.paused = false; return setPost(s, j.id, { dir: op.dir }); }
-      return { kind: 'jobs', op: 'start', job: startJob(s, { kind: 'post', target: 'main', dir: op.dir, until: 'none' }) };
+      if (j) {
+        const result = setPost(s, j.id, { dir: op.dir });
+        if (Array.isArray(s.jobs.focusPause)) focusResearch(s, false);
+        j.paused = false;
+        return result;
+      }
+      const spec = { kind: 'post', target: 'main', dir: op.dir, until: 'none' };
+      // Preserve the successful resume/log order, but reject before any unpause.
+      const check = jobCheck(s, spec);
+      if (!check.ok) throw new Error(check.reason);
+      if (Array.isArray(s.jobs.focusPause)) focusResearch(s, false);
+      return { kind: 'jobs', op: 'start', job: startJob(s, spec) };
     }
-    case 'trial': { decide(s, 'job', { op: 'plan', plan: op.plan }); return decide(s, 'job', { op: 'start', spec: op.spec }); }
+    case 'trial': {
+      const previous = Object.getOwnPropertyDescriptor(s.jobs, 'plan');
+      decide(s, 'job', { op: 'plan', plan: op.plan });
+      try { return decide(s, 'job', { op: 'start', spec: op.spec }); }
+      catch (error) {
+        // startJob rejects in its preflight, before consuming findings or adding jobs.
+        if (previous) Object.defineProperty(s.jobs, 'plan', previous); else delete s.jobs.plan;
+        throw error;
+      }
+    }
     case 'page': return null;
     default: throw new Error('这条建议需要在界面上处理');
   }

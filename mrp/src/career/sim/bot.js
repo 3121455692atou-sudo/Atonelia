@@ -1,3 +1,7 @@
+import {economicOps} from './bot_economy.js';
+import {resolveAll} from './bot_events.js';
+export {economicOps} from './bot_economy.js';
+export {resolveAll} from './bot_events.js';
 // 自动对局机器人：按“正常玩家”的思路玩完一局，用于测试和平衡校准。
 // 不追求最优，只做明显合理的事：处理事件、研究技术、按负载扩容、开训练作业（底座、后训练、试验、小模型线）、送评。
 // 时间按天走；机器人每 7 天看一次局面做决定（像真人隔一阵暂停一下）。
@@ -5,7 +9,7 @@ import * as E from '../engine.js';
 import { TECHS, GPUS, PARAM_TOTALS, PARAM_ACTIVES, SCALES, DIRECTIONS, PRICE_TIERS, monthsBetween, gpuAvailable } from '../data/core.js';
 import { DATASETS } from '../data/datasets.js';
 import { BENCH_BY_ID } from '../data/benchmarks.js';
-import { playerScore, dataCatOf, MAX_EPOCHS } from './model.js';
+import { playerScore, dataCatOf, MAX_EPOCHS, withModelReadSnapshot } from './model.js';
 import { addDays } from './clock.js';
 import { BOT } from '../data/balance.js';
 import { sotaMade, Q_W } from './sota.js';
@@ -25,28 +29,6 @@ function goalFocus(s) {
 }
 const est = (s, b, m) => (m && s.date >= b.from ? playerScore(s, b, m) * (b.kind === 'lower' ? -1 : 1) : -1e9);
 
-// 明显不负责任的选项（偷偷降智、否认、放任反代等）机器人不选。
-const AVOID = new Set(['quant_secret', 'deny', 'partial', 'ignore', 'welcome', 'overseas', 'free', 'defend']);
-
-// 带 distill 标记的选项（下载别家权重做蒸馏，规格 A10）：只在 wantsDistill 为真、老师就是卡上那一家时选；
-// 否则选同一事件里不带标记的选项（还是“第一个不在 AVOID 里的”）。别的事件照旧。“已被抢先”这类提示直接关掉。
-function defaultChoice(s, opts) {
-  const d = opts.find(o => o.distill);
-  if (d && wantsDistill(s, s.queue[0]?.fam ?? s.queue[0]?.params?.family ?? null)) return d;
-  const plain = opts.filter(o => !o.distill);
-  return plain.find(o => !AVOID.has(o.id)) || plain[0] || opts[0];
-}
-export function resolveAll(s, pick) {
-  let guard = 0;
-  while (s.queue.length && s.status === 'playing' && guard++ < 50) {
-    const ev = E.currentEvent(s);
-    const opts = ev.choices.filter(c => !c.disabled);
-    let c = pick?.(ev, opts) || defaultChoice(s, opts);
-    if (ev.id === 'e429') c = opts.find(o => o.id === 'rent') || c;
-    if (ev.id === 'lawsuit') c = opts.find(o => o.id === 'remediate') || c;
-    E.resolveEvent(s, c.id);
-  }
-}
 // 让时间走 n 天（途中有事件就处理掉）。测试用。
 export function advance(s, days, pick) {
   for (let i = 0; i < days && s.status === 'playing'; i++) { resolveAll(s, pick); E.tickDay(s); }
@@ -78,70 +60,7 @@ function freeOps(s) {
   const sv = s.service.last;
   if (sv && sv.util > 0.9) s.inferShare = Math.min(0.85, s.inferShare + 0.08);
   if (sv && sv.util < 0.45 && s.inferShare > 0.15) s.inferShare -= 0.05;
-  // 负载高就加租（同一个月只租一次，等卡开通）。
-  if (sv && sv.util > 0.8 && s.flags.botRentAt !== s.date) {
-    const g = E.bestRentGpu(s);
-    const per = GPUS[g].infer * s.inferShare;
-    const n = Math.max(32, Math.ceil(((sv.needGpu - sv.capGpu * 0.75) / Math.max(per, 0.05)) / 32) * 32);
-    if (s.cash > n * GPUS[g].rent * 8) { try { E.buyGpu(s, g, n, true); s.flags.botRentAt = s.date; } catch { /* 租不到就算了 */ } }
-  }
-  // 资本：现金撑不过一年半就融资；手里钱多就扩充训练算力（每半年最多一次）。
-  const last = s.history.at(-1);
-  const burn = Math.max(1, (last?.costs || 0) - (last?.revenue || 0));
-  if (s.company.kind !== 'division' && !s.capital.round && s.cash < burn * 18) {
-    // 有战略投资报价就先拿它（还附带一年的租卡折扣）；上市以后改成增发 10%（规格 K4）。
-    const offers = E.fundingOffers(s);
-    const offer = offers.find(o => o.strategic) || offers.find(o => o.dilution === (s.capital.listed ? 0.1 : 0.15));
-    if (offer) { try { E.startFunding(s, offer.dilution); } catch { /* 谈不成 */ } }
-    // 融资谈不了（泡沫、冷却）又撑不过半年：拿显卡抵押借钱，借够半年的开销。
-    else if (s.cash < burn * 6 && E.borrowLimit(s) > 0) { try { E.borrow(s, burn * 6 - Math.max(0, s.cash)); } catch { /* 借不到 */ } }
-  }
-  if (E.ipoCheck(s).ok && P().gate('botIpo', s)) { try { E.startIpo(s); } catch { /* 条件变化 */ } }
-  if (!s.flags.botGpuAt || s.monthsPlayed - s.flags.botGpuAt >= 6) {
-    const covered = (last?.revenue || 0) >= (last?.costs || 0) * 0.3;
-    const budget = s.company.kind === 'division' ? s.cash * 0.25 : s.company.tier === 'small' && !covered ? 0 : s.cash - burn * 12;
-    const g = ['Rubin', 'B300', 'B200', 'H200', 'H100', 'Ascend950', 'Ascend910C', 'H20', 'Ascend910B', 'A100'].find(id => gpuAvailable(id, s.date, s.company.country));
-    if (g && budget > GPUS[g].price * 512) {
-      const n = Math.min(8192, Math.floor(budget * 0.5 / GPUS[g].price / 256) * 256);
-      if (n >= 256) { try { E.buyGpu(s, g, n); s.flags.botGpuAt = s.monthsPlayed; } catch { /* 现金不足或配额用完 */ } }
-    }
-  }
-  for (const pid of Object.keys(s.products)) {
-    if (pid !== 'gpu_lease' && !s.products[pid].on) { try { E.setProduct(s, pid, { on: true }); } catch { /* 条件不够 */ } }
-  }
-  // 定价：新产品上线后，按当前模型和对手把档位调到“收入 − 推理成本”最高的一档，每月最多算一次。
-  // 机器人以前一直停在开局那时史实发布的价格档，模型换代、对手变强以后也不会调，白白漏掉收入。
-  // 正常公司会跟着自己的竞争力定价：卖得动才提价，卖不动就降到普惠档走量；这里用服务预览逐档试算，不写死某家公司。
-  const month = s.date.slice(0, 7);
-  if (s.flags.botPriceMonth !== month) {
-    s.flags.botPriceMonth = month;
-    for (const pid of Object.keys(s.products)) {
-      const p = s.products[pid];
-      if (pid === 'gpu_lease' || !p.on) continue;
-      let best = p.tier || 'standard', bestVal = -Infinity;
-      for (const tier of (pid === 'api' && grantApiTiers(s)) || Object.keys(PRICE_TIERS)) {
-        // 预览不改状态，也不动随机数；只比这一个产品的档位，其他产品保持现状。
-        const pv = E.previewService(s, { [pid]: { tier } });
-        const val = (pv.revenue?.[pid] || 0) - (pv.serve || 0);
-        if (val > bestVal) { bestVal = val; best = tier; }
-      }
-      if (best !== p.tier) { try { E.setTier(s, pid, best); } catch { /* 档位没变或条件不够 */ } }
-    }
-  }
-}
-
-// 手里还有效的授名在世界条件里规定了 API 价格档（GPT-4o、Claude 3.5 Sonnet 要普惠或标准档）：定价时 API 只在这些档里挑，
-// 像真实公司为那一代旗舰主动降价（A10 授名时机：电脑会去满足手里授名的条件）。授名用掉、作废或过期以后照常按贡献定价。
-// 几条授名都有要求时取交集；交集为空就不限制。
-function grantApiTiers(s) {
-  let allowed = null;
-  for (const hn of [...grantsFor(s, 'flagship'), ...grantsFor(s, 'small')]) {
-    const t = hn.world?.service?.apiTier;
-    if (!t) continue;
-    const list = Array.isArray(t) ? t : [t];
-    allowed = allowed ? allowed.filter(x => list.includes(x)) : list;
-  }
-  return allowed?.length ? allowed : null;
+  economicOps(s);
 }
 
 // ---------- 训练作业（规格 T9.1）：取代原来的 planProject 和每周选团队任务，仍然每 7 天决定一次 ----------
@@ -269,6 +188,7 @@ function planJobs(s, errors) {
     let dir = null;
     if (filingLow && live) dir = 'safety';
     else if (!(key && techValue(key, focus) >= 4 && keyLeft > 14 && keyLeft <= 90)) {
+      withModelReadSnapshot(s, () => {
       // 授名时机（P3.D2）：手里有只差单科分的授名时，换成补差得最多那一科的方向，直到条件成立或授权过期。
       const gap = grantGap(s, w);
       const dim = gap ? Object.entries(gap.dims).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0] : null;
@@ -293,6 +213,7 @@ function planJobs(s, errors) {
         }
         ctx.bestGain = bv;
       }
+      });
     }
     const job = E.mainPostJob(s);
     if (dir) {
@@ -306,7 +227,7 @@ function planJobs(s, errors) {
   for (const m of E.smallModels(s)) {
     if (E.postJobFor(s, m)) continue;
     if (m.origin === 'pretrain' && !(m.postDays > 0)) {
-      const sft = E.directionsFor(s).filter(d => !d.special && !d.rl).sort((a, b) => (E.postPreview(s, b.key, { model: m })?.gains[b.main] ?? 0) - (E.postPreview(s, a.key, { model: m })?.gains[a.main] ?? 0))[0];
+      const sft = withModelReadSnapshot(s, () => E.directionsFor(s).filter(d => !d.special && !d.rl).sort((a, b) => (E.postPreview(s, b.key, { model: m })?.gains[b.main] ?? 0) - (E.postPreview(s, a.key, { model: m })?.gains[a.main] ?? 0))[0]);
       if (sft && slotFree()) { did('post small', () => E.startJob(s, { kind: 'post', target: `small:${m.id}`, dir: sft.key, until: { days: 30 } })); continue; }
     }
     // 授名时机（P3.D2）：小模型线有成立的授名时，不看后训练天数，能送就送。
@@ -331,7 +252,7 @@ function planJobs(s, errors) {
   if (pm && !E.submitBlock(s, pm, 'prev')) did('submit prev', () => E.submitEval(s, { modelId: pm.id, tier: 'quick', opts: {} }));
   // 4. 主线底座：触发条件沿用 planProject；开局既没有在练模型也没有在线模型时直接立项，不等试验。
   const baseOn = E.hasBaseJob(s, 'main');
-  const saturated = ctx.train && E.directionsFor(s).every(d => { const p = E.postPreview(s, d.key); return !p || (p.gains[d.main] || 0) < 0.6; });
+  const saturated = ctx.train && withModelReadSnapshot(s, () => E.directionsFor(s).every(d => { const p = E.postPreview(s, d.key); return !p || (p.gains[d.main] || 0) < 0.6; }));
   const since = s.flags.botProjectAt === undefined ? s.monthsPlayed : s.monthsPlayed - s.flags.botProjectAt;
   // 一代底座的节奏（BOT.BASE_EVERY_MONTHS，顾问的“该准备下一代”用同一个数）：开局后满这么多个月、或者上一次立项后再多一个月，就到期。
   const every = BOT.BASE_EVERY_MONTHS;

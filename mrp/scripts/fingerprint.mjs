@@ -107,7 +107,7 @@ async function check(only, reverse) {
   for (const [k, cur] of Object.entries(games)) {
     const b = base.games[k];
     if (!b) bad.push(`${k}  基线里没有这一局（公司或剧本表变了？）`);
-    else if (b.final !== cur.final || cur.threw || b.threw || b.day !== cur.day || b.errors !== cur.errors) bad.push(`${k}  ${describeDiff(b, cur)}`);
+    else if (b.final !== cur.final || cur.threw || b.threw || b.day !== cur.day || b.errors !== cur.errors || b.status !== cur.status || JSON.stringify(b.cp) !== JSON.stringify(cur.cp) || cur.errors !== 0 || cur.status === 'playing') bad.push(`${k}  ${describeDiff(b, cur)}`);
   }
   if (!only) for (const k of Object.keys(base.games)) if (!(k in games)) bad.push(`${k}  基线里有、现在不再跑了（公司或剧本表变了？）`);
   const n = Object.keys(games).length;
@@ -165,22 +165,31 @@ async function diffGame(company, scenario, modes, ref) {
   const old = await loadWorld(refInfo.dir);
   if (!cur.companies.includes(company)) { console.error(`没有这家公司：${company}（可选：${cur.companies.join('、')}）`); return 2; }
   if (!cur.scenarios.includes(scenario)) { console.error(`没有这个剧本：${scenario}（可选：${cur.scenarios.join('、')}）`); return 2; }
-  let anyDiff = false;
+  let anyDiff = false, referenceUnverified = false;
   for (const mode of modes) {
     const k = keyOf(company, scenario, mode);
     const snaps = { cur: new Map(), old: new Map() };
     const keep = which => (i, s) => snaps[which].set(i, JSON.parse(JSON.stringify(s)));
     const rc = runGame(cur, company, scenario, mode, keep('cur'));
     const ro = runGame(old, company, scenario, mode, keep('old'));
-    if (rc.rec.threw || ro.rec.threw) { console.log(`${k}  抛错：现在 ${rc.rec.threw || '无'}；基线代码 ${ro.rec.threw || '无'}`); anyDiff = true; continue; }
-    if (base?.games[k] && base.games[k].final !== ro.rec.final) console.log(`${k}  提醒：基线代码重跑的哈希和 fingerprint.json 里的不一样，--ref 可能选错了版本`);
+    // 快照仓库可能丢失真正生成 fixture 的提交；不能把两份相同的当前代码当成原基线。
+    const expected = base?.games?.[k];
+    const trusted = !!expected && !expected.threw && !ro.rec.threw
+      && expected.final === ro.rec.final && Array.isArray(expected.cp) && JSON.stringify(expected.cp) === JSON.stringify(ro.rec.cp)
+      && expected.day === ro.rec.day && expected.status === ro.rec.status && expected.errors === ro.rec.errors
+      && ro.rec.errors === 0 && ro.rec.status !== 'playing';
+    if (!trusted) {
+      referenceUnverified = true;
+      console.log(`${k}  UNVERIFIED_REFERENCE：所选参考代码未复现原 fixture 的完整记录；需要准确的生成提交或参考状态，不能判为原基线验收通过`);
+    }
+    if (rc.rec.threw || ro.rec.threw) { console.log(`${k}  抛错：现在 ${rc.rec.threw || '无'}；参考代码 ${ro.rec.threw || '无'}`); anyDiff = true; continue; }
     const n = Math.max(rc.rec.cp.length, ro.rec.cp.length);
     let at = -1;
     for (let i = 0; i < n; i++) if (rc.rec.cp[i] !== ro.rec.cp[i]) { at = i; break; }
     let a, b, where;
     if (at >= 0 && snaps.cur.has(at) && snaps.old.has(at)) { a = snaps.old.get(at); b = snaps.cur.get(at); where = `第 ${at + 1} 个检查点（约第 ${(at + 1) * CHECKPOINT_DAYS} 天，${b.day}）`; }
     else if (rc.rec.final !== ro.rec.final) { a = JSON.parse(JSON.stringify(ro.s)); b = JSON.parse(JSON.stringify(rc.s)); where = `终局（${rc.s.day}）`; }
-    else { console.log(`${k}  与基线代码一致`); continue; }
+    else { console.log(`${k}  ${trusted ? '与基线代码一致' : '与所选参考代码一致，但原基线未验证'}`); continue; }
     anyDiff = true;
     const diffs = diffPaths(a, b);
     console.log(`${k}  ${where}起不同`);
@@ -189,7 +198,7 @@ async function diffGame(company, scenario, modes, ref) {
     const tops = Object.keys(a).concat(Object.keys(b).filter(x => !(x in a))).filter(x => JSON.stringify(a[x]) !== JSON.stringify(b[x]));
     console.log(`  不同的顶层字段：${tops.join('、') || '（无）'}`);
   }
-  return anyDiff ? 1 : 0;
+  return referenceUnverified ? 2 : anyDiff ? 1 : 0;
 }
 
 // ---------- 入口 ----------

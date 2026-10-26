@@ -8,13 +8,16 @@ export { finalWealth, isListed, poolPrice, fairPrice, borrowRate, lendable, hold
 export { quote as exQuote, quoteMax as exQuoteMax, boardOf as exBoard, ownBoard as exOwnBoard, stakesOf as exStakes, sectorIndex } from './world/exchange.js';
 export { chipIndexValue, ipoOpenOf } from './world/valuation.js';
 // 世界存档（E8）与电脑公司（M.3.12）：存档函数、存储适配层、电脑公司的难度出口。
-export { WORLD_SAVE_VERSION, FEATURES_WORLD, serialize, deserialize, migrateWorld, storage } from './world/save.js';
+export { WORLD_SAVE_VERSION, serialize, deserialize, migrateWorld, previewWorld, storage } from './world/save.js';
 export { botThink, botPublish, followAdvice, tradeTick, distillTick, accuseTick } from './world/bots.js';
 // 联机客户端的镜像（M4）：公开视图拼成只读世界，装上 MirrorProvider。
 export { openMirror, refreshMirror, MirrorProvider } from './world/mirror.js';
-export { applyDiff, PROTOCOL_V } from './net/protocol.js';
+export { applyDiff, validateDiff, PROTOCOL_V } from './net/protocol.js';
 // M0 世界接缝：命令表、Provider 的换入口、发布表的读取点（规格 M.9、F3 只列这几个名字）。
 export { applyCommand, COMMANDS } from './sim/commands.js';
+export { postPlanView, postPlanModelToken, recommendPostSessionCard, trainablePostModel, postPlanBlocksAutomaticEval, assertPostPlanSaveBoundary, POST_PLAN_FORMAT } from './sim/post_plan_state.js';
+export { deckEffect as postPlanDeckEffect } from './sim/post_catalog_rules.js';
+export { createSinglePlayerGame, initializeSoloPostPlans } from './sim/post_product.js';
 export { botStep } from './sim/bot.js';
 export { setProvider, P } from './sim/provider.js';
 export { relById } from './data/rivals.js';
@@ -22,7 +25,7 @@ export { techStatus, researchSlots, knowFx, researchSpeed, researchNeed, researc
 export {
   runBenchmark, scaleById, computeCaps, dimUnlocked, tokensPerGpu, inferGpuEq, leaseGpus, clsOf, archOf,
   modelSpeed, costPerMillion, contamination, validBoost, rivalScore, isMine, peerCls, knowledgeCap, projectEta, projectProgress, capsFor, distillCaps,
-  historyTeacher, DISTILL_MIN_DAYS, genPlan,
+  DISTILL_MIN_DAYS, genPlan,
   effectiveEpochs, repeatEfficiency, pretrainRepeat, pretrainCredit, KNOW_PRETRAIN, REPEAT_RSTAR, MAX_EPOCHS,
 } from './sim/model.js';
 export { simulateService, previewService, productQ, hypeIndex, tickerSeries, fx, ccySign, tickerListed, refApiPrice, marketShares, listPrice } from './sim/economy.js';
@@ -41,3 +44,23 @@ export { daysBetween, inDays, fmtShortDay } from './sim/clock.js';
 // 策略页要读整棵树的节点和分支名（页面拿 strategyOptions 只有节点状态，没有 branches）；特质名用来显示公司特质。
 export { resolvedTree, spiritDef } from './sim/strategy.js';
 export * as util from './sim/util.js';
+
+export { enableAutomation, configureAutomation, configureAutomationBatch, automationAllowed, automationBudget, automationStateValid } from './sim/automation.js';
+
+export { strategyPresets } from './sim/automation_strategy.js';
+
+export { PRETRAIN_POLICIES } from './sim/automation_pretrain.js';
+
+export {EVALUATION_POLICIES} from './sim/automation_evaluation.js';
+
+export { postPlanSupported } from './sim/post_card_profiles.js';
+
+export { postPlanCatalogue, postPlanCard } from './sim/post_plan_state.js';
+
+export { researchTree, researchOutcomes, RESEARCH_GROUPS, datasetPostLabels } from './sim/research_view.js';
+
+export { createTutorial, tutorialView, actTutorial, closeTutorial, TUTORIAL_CHAPTERS, TUTORIAL_DECK } from './sim/tutorial.js';
+
+export {enablePostOnly,setPlayMode,isPostOnly,postOnlyDay,postOnlyEvents,postOnlyBlockedTraining,pendingPostOnlySession} from './sim/post_only.js';
+
+export { createPracticeGame, createOnboardingGame, PRACTICE_STEPS, practiceStepComplete } from './sim/practice.js';

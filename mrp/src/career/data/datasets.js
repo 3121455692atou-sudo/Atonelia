@@ -1,3 +1,4 @@
+import { PRACTICE_DATASETS } from './research_practices.js';
 // 训练数据市场。tokens 单位为万亿（T）；quality 为相对质量系数（1 = 2023 年清洗后的普通网页）。
 // rights：public（公开可用）、permissive（宽松许可）、licensed（已授权）、unclear（权属不清）、pirated（盗版来源）、tos（违反服务条款）。
 // kind：pre 进预训练语料池；post 为后训练数据，补到对应方向（posts）。
@@ -107,4 +108,5 @@ export const DATASETS = [
   { id: 'sp_acting', mod: 'speech', kind: 'post', name: '情绪表演录音', from: '2022-01', cost: 1.5e6, months: 1, rights: 'licensed', posts: { acting: 1.2 }, desc: '带情绪标签的表演录音。' },
   { id: 'sp_safety', mod: 'speech', kind: 'post', name: '冒用检测数据', from: '2022-01', cost: 6e5, months: 0, rights: 'licensed', posts: { safety: 1.2 }, desc: '名人声音黑名单与伪造检测样本。' },
 ];
+DATASETS.push(...PRACTICE_DATASETS);
 export const DATASET_BY_ID = Object.fromEntries(DATASETS.map(d => [d.id, d]));
