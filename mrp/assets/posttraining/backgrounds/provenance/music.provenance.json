@@ -1,0 +1,31 @@
+{
+  "modality": "music",
+  "name": "和声乐厅 / Music Synthesis Chamber",
+  "generation_tool": "image_gen.imagegen built-in",
+  "model_version": "not exposed by tool; no version claim",
+  "generation_window_utc": "2026-10-24T17:20:53Z/2026-10-24T17:23:03Z",
+  "source_runtime_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-ab500c5b-2635-4260-9ff2-c7caa23acbec.png",
+  "prompt_file": "metadata/music.prompt.txt",
+  "reference_images_passed_to_generation": [],
+  "inspiration": "Original architecture and props; compatible ornate anime visual-novel painting. No third-party game asset used.",
+  "processing": "Preserved original PNG bytes; exact center crop/resize to 1600x900 and WebP q88 method6; no painted elements synthesized by code.",
+  "qa": "Actual source pixels inspected: keyboard/piano and chimes at left; acoustic pipes, speakers and control console at right; dark blue central acoustic wall and empty floor. No people/logo/legible text. Best low-light variant for bright buff VFX.",
+  "files": [
+    {
+      "file": "originals/music-stage.original.png",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2312487,
+      "sha256": "ea22a91e3713eaf6c89f29e7d4433ce9a4e7df249e38cdf2e994ebd2f0cef195"
+    },
+    {
+      "file": "web/music-stage.webp",
+      "width": 1600,
+      "height": 900,
+      "mode": "RGB",
+      "bytes": 250426,
+      "sha256": "d71d1092abf2cb0673d67012dbbd32cb4368dfe54d95297aca3d4f87866c891e"
+    }
+  ]
+}

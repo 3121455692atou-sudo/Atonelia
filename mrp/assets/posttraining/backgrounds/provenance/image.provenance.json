@@ -1,0 +1,31 @@
+{
+  "modality": "image",
+  "name": "幻彩画室 / Image Synthesis Atelier",
+  "generation_tool": "image_gen.imagegen built-in",
+  "model_version": "not exposed by tool; no version claim",
+  "generation_window_utc": "2026-10-24T17:20:53Z/2026-10-24T17:23:03Z",
+  "source_runtime_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-e0ae743f-a48e-441e-835b-d37f55cd6472.png",
+  "prompt_file": "metadata/image.prompt.txt",
+  "reference_images_passed_to_generation": [],
+  "inspiration": "Original architecture and props; compatible ornate anime visual-novel painting. No third-party game asset used.",
+  "processing": "Preserved original PNG bytes; exact center crop/resize to 1600x900 and WebP q88 method6; no painted elements synthesized by code.",
+  "qa": "Actual source pixels inspected: translucent abstract canvases at left, empty frames and blank easel at right; central floor unobstructed; lavender daytime room. No people, logo or legible text. Center brighter than other variants, so modest neutral darkening overlay is recommended for UI only.",
+  "files": [
+    {
+      "file": "originals/image-stage.original.png",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2587073,
+      "sha256": "1e27a738b21af7c03ea4ebf7e99ff8ebe1047abc43e1bac8a859838a82a1a6dd"
+    },
+    {
+      "file": "web/image-stage.webp",
+      "width": 1600,
+      "height": 900,
+      "mode": "RGB",
+      "bytes": 309370,
+      "sha256": "1f70847ffc5c090583e7794b4d99393b7c939dded0cbd52362231121ea892f54"
+    }
+  ]
+}

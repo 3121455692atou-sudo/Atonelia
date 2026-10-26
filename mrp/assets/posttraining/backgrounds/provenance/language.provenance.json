@@ -1,0 +1,31 @@
+{
+  "modality": "language",
+  "name": "语料穹庭 / Language Observatory",
+  "generation_tool": "image_gen.imagegen built-in",
+  "model_version": "not exposed by tool; no version claim",
+  "source_runtime_path": "/workspace/scratch/d46925d38a6d/generated_images/exec-988f9af0-aae9-4294-94c6-44205765e0b9.png",
+  "prompt_file": "metadata/language.prompt.txt",
+  "reference_images_passed_to_generation": [],
+  "inspiration": "Original scene; modelgirl and existing original background inspected locally for compatible soft anime painting only. No third-party game asset used.",
+  "processing": "Preserved original PNG bytes; exact center crop/resize to 1600x900 and WebP q88 method6; no painted elements synthesized by code.",
+  "qa": "Actual pixels visually inspected: empty central stage, holographic blank panes at left, no people/logos/legible text, bottom low-detail slate-blue floor. Original output was 1672x941; optimized target exact 16:9.",
+  "files": [
+    {
+      "file": "originals/language-stage.original.png",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB",
+      "bytes": 2436734,
+      "sha256": "be2d9a30aa712b13a892406c752903c0081307cdf52f8c254e6daf61f56d95fd"
+    },
+    {
+      "file": "web/language-stage.webp",
+      "width": 1600,
+      "height": 900,
+      "mode": "RGB",
+      "bytes": 261596,
+      "sha256": "67b494320b7f4281db5fafa60fb2cfe3de81691a866424044b9ef6a6aeefeb50"
+    }
+  ],
+  "generation_window_utc": "2026-10-24T17:18:25Z/2026-10-24T17:19:06Z"
+}
